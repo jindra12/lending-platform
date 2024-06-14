@@ -1,0 +1,20 @@
+{
+  "name": "lending-platform",
+  "version": "1.0.0",
+  "description": "A lending platform for any ERC20 spec coin",
+  "main": "./dist/index.js",
+  "repository": "https://github.com/jindra12/lending-platform",
+  "author": "Jan Jindráček",
+  "license": "MIT",
+  "dependencies": {
+    "lodash-es": "^4.17.21",
+    "react": "^18.3.1",
+    "web3": "^4.9.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.4.5",
+    "webpack": "^5.92.0"
+  }
+}
