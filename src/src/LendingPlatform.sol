@@ -284,6 +284,53 @@ contract Loan {
         return _interval;
     }
 
+    function getDefaultLimit() public view returns(uint256) {
+        return _defaultLimit;
+    }
+
+    function getLastPayment() public view returns(uint256) {
+        return _lastPayment;
+    }
+
+    function getCollateral() public view returns(uint256) {
+        return _collateral;
+    }
+
+    function getCollateralCoin() public view returns(IERC20Metadata) {
+        require(!_isEth, "Collateral was set in eth, not ERC20");
+        return _collateralCoin;
+    }
+
+    function getCollateralEth() public view returns(bool) {
+        return _isCollateralEth;
+    }
+
+    function getCoin() public view returns(IERC20Metadata) {
+        require(!_isEth, "Loan was done in eth, not ERC20");
+        return _coin;
+    }
+
+    function getIsEth() public view returns(bool) {
+        return _isEth;
+    }
+
+    function getIsDefault() public view returns(bool) {
+        return _inDefault;
+    }
+
+    function getPaidEarly() public view returns(bool) {
+        return _paidEarly;
+    }
+
+    function getRequestPaidEarly() public view returns(bool) {
+        return _requestPaidEarly;
+    }
+
+    function getRequestPaidEarlyAmount() public view returns(uint256) {
+        require(_requestPaidEarly, "There is no request for early repayment");
+        return _requestPaidEarlyAmount;
+    }
+
     function finalize() public {
         require(!_finalize, "Cannot modify after acceptance");
         _finalize = true;
