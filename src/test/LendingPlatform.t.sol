@@ -1,7 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Test, console,keccak256} from "forge-std/Test.sol";
+import {Test, console} from "forge-std/Test.sol";
 import {LendingPlatform,LendingPlatFormStructs,LendingPlatformEvents} from "../src/LendingPlatform.sol";
 import {ERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 
@@ -17,109 +17,118 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
     address public barry;
     address public mallory;
 
+    function makeAccount(uint32 random, uint256 funds) internal returns(address) {
+        string memory mnemonic = "test test test test test test test test test test test junk";
+        uint256 privateKey = vm.deriveKey(mnemonic, random);
+        address addr = vm.addr(privateKey);
+        (bool ok,) = addr.call{ value: funds }("");
+        assertEq(ok, true);
+        return addr;
+    }
+
     function setUp() public {
         lendingPlatform = new LendingPlatform();
         lendingPlatform.setLoanFee(100);
-        andrea = vm.addr(keccak256(abi.encodePacked(0)));
-        barry = vm.addr(keccak256(abi.encodePacked(1)));
-        mallory = vm.addr(keccak256(abi.encodePacked(2)));
+        andrea = makeAccount(1, 1000);
+        barry = makeAccount(2, 500);
+        mallory = makeAccount(3, 300);
     }
 
-    function test_Issuance_Eth_Eth() public {
+    function testIssuanceEthEth() public {
         vm.prank(andrea);
         vm.warp(0);
-        vm.expectEmit(checkTopic1, checkTopic2, checkTopic3, checkData);
-        vm.expectEmit(true, false, false, 1);
+        vm.expectEmit(true, false, false, false, address(lendingPlatform));
         emit IssuedLoan(1);
         lendingPlatform.offerLoan{ value: 500 }(1000, 500, 700, 100, 100);
-        assert(lendingPlatform.getLoanOffersLength(), 1);
+        assertEq(lendingPlatform.getLoanOffersLength(), 1);
         LoanOffer[] memory loanOffers = lendingPlatform.listLoanOffers(0, 1);
-        assert(loanOffers.length, 1);
+        assertEq(loanOffers.length, 1);
         LoanOffer memory loanOffer = loanOffers[0];
-        assert(loanOffer.isEth, true);
-        assert(loanOffer.from, andrea);
-        assert(loanOffer.id, 1);
-        assert(loanOffer.loanData.amount, 500);
-        assert(loanOffer.loanData.collateral, 100);
-        assert(loanOffer.loanData.defaultLimit, 700);
-        assert(loanOffer.loanData.interval, 500);
-        assert(loanOffer.loanData.singlePayment, 100);
-        assert(loanOffer.loanData.toBePaid, 1000);
+        assertEq(loanOffer.isEth, true);
+        assertEq(loanOffer.from, andrea);
+        assertEq(loanOffer.id, 1);
+        assertEq(loanOffer.loanData.amount, 500);
+        assertEq(loanOffer.loanData.collateral.value, 100);
+        assertEq(loanOffer.loanData.collateral.isCollateralEth, true);
+        assertEq(loanOffer.loanData.defaultLimit, 700);
+        assertEq(loanOffer.loanData.interval, 500);
+        assertEq(loanOffer.loanData.singlePayment, 100);
+        assertEq(loanOffer.loanData.toBePaid, 1000);
     }
 
-    /*function test_Issuance_Eth_Coin() public {
+    /*function testIssuanceEthCoin() public {
         
     }
 
-    function test_Issuance_Coin_Eth() public {
+    function testIssuanceCoinEth() public {
         
     }
 
-    function test_Issuance_Coin_Coin() public {
+    function testIssuanceCoinCoin() public {
         
     }
 
-    function test_Acceptance_Eth_Eth() public {
+    function testAcceptanceEthEth() public {
 
     }
 
-    function test_Acceptance_Coin_Eth() public {
+    function testAcceptanceCoinEth() public {
 
     }
 
-    function test_Acceptance_Eth_Coin() public {
+    function testAcceptanceEthCoin() public {
 
     }
 
-    function test_Acceptance_Coin_Coin() public {
+    function testAcceptanceCoinCoin() public {
 
     }
 
-    function test_Payment_Eth_Eth() public {
+    function testPaymentEthEth() public {
 
     }
 
-    function test_Payment_Eth_Coin() public {
+    function testPaymentEthCoin() public {
 
     }
 
-    function test_Payment_Coin_Eth() public {
+    function testPaymentCoinEth() public {
 
     }
 
-    function test_Payment_Coin_Coin() public {
+    function testPaymentCoinCoin() public {
 
     }
 
-    function test_Default_Eth_Eth() public {
+    function testDefaultEthEth() public {
 
     }
 
-    function test_Default_Eth_Coin() public {
+    function testDefaultEthCoin() public {
 
     }
 
-    function test_Default_Coin_Eth() public {
+    function testDefaultCoinEth() public {
 
     }
 
-    function test_Default_Coin_Coin() public {
+    function testDefaultCoinCoin() public {
 
     }
 
-    function test_EarlyRepaiment() public {
+    function testEarlyRepaiment() public {
 
     }
 
-    function test_EarlyRepaiment_Refusal() public {
+    function testEarlyRepaimentRefusal() public {
 
     }
 
-    function test_EarlyRepaiment_Eth() public {
+    function testEarlyRepaimentEth() public {
 
     }
 
-    function test_EarlyRepaiment_Coin() public {
+    function testEarlyRepaimentCoin() public {
 
     }*/
 }

@@ -77,7 +77,7 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         emit IssuedLoan(loanOffer.id);
     }
 
-    function getLoanLimitRequest(address borrower) public view returns(bytes) {
+    function getLoanLimitRequest(address borrower) public view returns(bytes memory) {
         return _loanLimitRequestLinks[borrower];
     }
 
@@ -152,7 +152,7 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         emit SetLoanFee(amount);
     }
 
-    function getLoanLimit(address to) onlyOwner public returns (uint256) {
+    function getLoanLimit(address to) public view returns (uint256) {
         return _loanEthLimit[to];
     }
 
@@ -384,7 +384,7 @@ contract Loan {
         _lastPayment = block.timestamp;
         _remaining -= _singlePayment;
 
-        emit DidPayment(block.timestamp, singlePayment, _remaining);
+        emit DidPayment(block.timestamp, _singlePayment, _remaining);
 
         if (_remaining == 0) {
             if (_isCollateralEth) {
@@ -433,7 +433,8 @@ contract Loan {
         _earlyRepaimentDecisionCheck();
         require(msg.sender == _lender || msg.sender == _borrower, "Incorrect sender in request");
         if (_isEth) {
-            _borrower.call{ value: _requestPaidEarlyAmount }("");   
+            (bool okReturn,) = _borrower.call{ value: _requestPaidEarlyAmount }("");
+            require(okReturn, "Could not return requested early repayment");
         }
         _requestPaidEarly = false;
         _requestPaidEarlyAmount = 0;
