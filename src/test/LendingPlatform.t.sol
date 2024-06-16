@@ -1,8 +1,8 @@
-//SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
-import {LendingPlatform,LendingPlatFormStructs,LendingPlatformEvents} from "../src/LendingPlatform.sol";
+import {LendingPlatform,LendingPlatFormStructs,LendingPlatformEvents,Loan} from "../src/LendingPlatform.sol";
 import {ERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 
 contract OneCoin is ERC20("OneCoin", "one") {}
@@ -17,6 +17,14 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
     address public barry;
     address public mallory;
 
+    uint256 immutable amount = 500;
+    uint256 immutable toBePaid = 1000;
+    uint256 immutable interval = 100;
+    uint256 immutable defaultLimit = 700;
+    uint256 immutable collateral = 100;
+    uint256 immutable singlePayment = 100;
+    uint256 immutable loanFee = 100;
+
     function makeAccount(uint32 random, uint256 funds) internal returns(address) {
         string memory mnemonic = "test test test test test test test test test test test junk";
         uint256 privateKey = vm.deriveKey(mnemonic, random);
@@ -30,16 +38,48 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         lendingPlatform = new LendingPlatform();
         lendingPlatform.setLoanFee(100);
         andrea = makeAccount(1, 1000);
-        barry = makeAccount(2, 500);
+        barry = makeAccount(2, 600);
         mallory = makeAccount(3, 300);
     }
 
-    function testIssuanceEthEth() public {
+    function _testIssuanceEthEth() internal {
         vm.prank(andrea);
         vm.warp(0);
         vm.expectEmit(true, false, false, false, address(lendingPlatform));
         emit IssuedLoan(1);
-        lendingPlatform.offerLoan{ value: 500 }(1000, 500, 700, 100, 100);
+        lendingPlatform.offerLoan{ value: amount }(toBePaid, interval, defaultLimit, singlePayment, collateral);
+    }
+
+    function _testIssuanceEthCoin() internal {
+        vm.prank(barry);
+        oneCoin.approve(address(lendingPlatform), collateral);
+        vm.prank(andrea);
+        vm.warp(0);
+        vm.expectEmit(true, false, false, false, address(lendingPlatform));
+        emit IssuedLoan(1);
+        lendingPlatform.offerLoan{ value: amount }(toBePaid, interval, defaultLimit, singlePayment, collateral, oneCoin);
+    }
+
+    function _testIssuanceCoinEth() internal {
+        vm.prank(andrea);
+        oneCoin.approve(address(lendingPlatform), amount);
+        vm.prank(andrea);
+        vm.warp(0);
+        vm.expectEmit(true, false, false, false, address(lendingPlatform));
+        emit IssuedLoan(1);
+        lendingPlatform.offerLoan(amount, toBePaid, interval, defaultLimit, singlePayment, collateral, oneCoin);
+    }
+
+    function _testIssuanceCoinCoin() internal {
+        vm.prank(andrea);
+        vm.warp(0);
+        vm.expectEmit(true, false, false, false, address(lendingPlatform));
+        emit IssuedLoan(1);
+        lendingPlatform.offerLoan(amount, toBePaid, interval, defaultLimit, singlePayment, collateral, oneCoin, twoCoin);
+    }
+
+    function testIssuanceEthEth() public {
+        _testIssuanceEthEth();
         assertEq(lendingPlatform.getLoanOffersLength(), 1);
         LoanOffer[] memory loanOffers = lendingPlatform.listLoanOffers(0, 1);
         assertEq(loanOffers.length, 1);
@@ -47,21 +87,17 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         assertEq(loanOffer.isEth, true);
         assertEq(loanOffer.from, andrea);
         assertEq(loanOffer.id, 1);
-        assertEq(loanOffer.loanData.amount, 500);
-        assertEq(loanOffer.loanData.collateral.value, 100);
+        assertEq(loanOffer.loanData.amount, amount);
+        assertEq(loanOffer.loanData.collateral.value, collateral);
         assertEq(loanOffer.loanData.collateral.isCollateralEth, true);
-        assertEq(loanOffer.loanData.defaultLimit, 700);
-        assertEq(loanOffer.loanData.interval, 500);
-        assertEq(loanOffer.loanData.singlePayment, 100);
-        assertEq(loanOffer.loanData.toBePaid, 1000);
+        assertEq(loanOffer.loanData.defaultLimit, defaultLimit);
+        assertEq(loanOffer.loanData.interval, interval);
+        assertEq(loanOffer.loanData.singlePayment, singlePayment);
+        assertEq(loanOffer.loanData.toBePaid, toBePaid);
     }
 
     function testIssuanceEthCoin() public {
-        vm.prank(andrea);
-        vm.warp(0);
-        vm.expectEmit(true, false, false, false, address(lendingPlatform));
-        emit IssuedLoan(1);
-        lendingPlatform.offerLoan{ value: 500 }(1000, 500, 700, 100, 100, oneCoin);
+        _testIssuanceEthCoin();
         assertEq(lendingPlatform.getLoanOffersLength(), 1);
         LoanOffer[] memory loanOffers = lendingPlatform.listLoanOffers(0, 1);
         assertEq(loanOffers.length, 1);
@@ -69,22 +105,18 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         assertEq(loanOffer.isEth, true);
         assertEq(loanOffer.from, andrea);
         assertEq(loanOffer.id, 1);
-        assertEq(loanOffer.loanData.amount, 500);
-        assertEq(loanOffer.loanData.collateral.value, 100);
+        assertEq(loanOffer.loanData.amount, amount);
+        assertEq(loanOffer.loanData.collateral.value, collateral);
         assertEq(loanOffer.loanData.collateral.isCollateralEth, false);
         assertEq(address(loanOffer.loanData.collateral.collateralCoin), address(oneCoin));
-        assertEq(loanOffer.loanData.defaultLimit, 700);
-        assertEq(loanOffer.loanData.interval, 500);
-        assertEq(loanOffer.loanData.singlePayment, 100);
-        assertEq(loanOffer.loanData.toBePaid, 1000);
+        assertEq(loanOffer.loanData.defaultLimit, defaultLimit);
+        assertEq(loanOffer.loanData.interval, interval);
+        assertEq(loanOffer.loanData.singlePayment, singlePayment);
+        assertEq(loanOffer.loanData.toBePaid, toBePaid);
     }
 
     function testIssuanceCoinEth() public {
-        vm.prank(andrea);
-        vm.warp(0);
-        vm.expectEmit(true, false, false, false, address(lendingPlatform));
-        emit IssuedLoan(1);
-        lendingPlatform.offerLoan(500, 1000, 500, 700, 100, 100, oneCoin);
+        _testIssuanceCoinEth();
         assertEq(lendingPlatform.getLoanOffersLength(), 1);
         LoanOffer[] memory loanOffers = lendingPlatform.listLoanOffers(0, 1);
         assertEq(loanOffers.length, 1);
@@ -93,21 +125,17 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         assertEq(address(loanOffer.coin), address(oneCoin));
         assertEq(loanOffer.from, andrea);
         assertEq(loanOffer.id, 1);
-        assertEq(loanOffer.loanData.amount, 500);
-        assertEq(loanOffer.loanData.collateral.value, 100);
+        assertEq(loanOffer.loanData.amount, amount);
+        assertEq(loanOffer.loanData.collateral.value, collateral);
         assertEq(loanOffer.loanData.collateral.isCollateralEth, true);
-        assertEq(loanOffer.loanData.defaultLimit, 700);
-        assertEq(loanOffer.loanData.interval, 500);
-        assertEq(loanOffer.loanData.singlePayment, 100);
-        assertEq(loanOffer.loanData.toBePaid, 1000);
+        assertEq(loanOffer.loanData.defaultLimit, defaultLimit);
+        assertEq(loanOffer.loanData.interval, interval);
+        assertEq(loanOffer.loanData.singlePayment, singlePayment);
+        assertEq(loanOffer.loanData.toBePaid, toBePaid);
     }
 
     function testIssuanceCoinCoin() public {
-        vm.prank(andrea);
-        vm.warp(0);
-        vm.expectEmit(true, false, false, false, address(lendingPlatform));
-        emit IssuedLoan(1);
-        lendingPlatform.offerLoan(500, 1000, 500, 700, 100, 100, oneCoin, twoCoin);
+        _testIssuanceCoinCoin();
         assertEq(lendingPlatform.getLoanOffersLength(), 1);
         LoanOffer[] memory loanOffers = lendingPlatform.listLoanOffers(0, 1);
         assertEq(loanOffers.length, 1);
@@ -116,21 +144,54 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         assertEq(address(loanOffer.coin), address(oneCoin));
         assertEq(loanOffer.from, andrea);
         assertEq(loanOffer.id, 1);
-        assertEq(loanOffer.loanData.amount, 500);
-        assertEq(loanOffer.loanData.collateral.value, 100);
+        assertEq(loanOffer.loanData.amount, amount);
+        assertEq(loanOffer.loanData.collateral.value, collateral);
         assertEq(loanOffer.loanData.collateral.isCollateralEth, false);
         assertEq(address(loanOffer.loanData.collateral.collateralCoin), address(twoCoin));
-        assertEq(loanOffer.loanData.defaultLimit, 700);
-        assertEq(loanOffer.loanData.interval, 500);
-        assertEq(loanOffer.loanData.singlePayment, 100);
-        assertEq(loanOffer.loanData.toBePaid, 1000);
+        assertEq(loanOffer.loanData.defaultLimit, defaultLimit);
+        assertEq(loanOffer.loanData.interval, interval);
+        assertEq(loanOffer.loanData.singlePayment, singlePayment);
+        assertEq(loanOffer.loanData.toBePaid, toBePaid);
     }
 
-    /*function testAcceptanceEthEth() public {
+    function testAcceptanceEthEth() public {
+        _testIssuanceEthEth();
+        vm.prank(lendingPlatform.owner());
+        lendingPlatform.setLoanFee(loanFee);
 
+        vm.prank(barry);
+        lendingPlatform.setLoanLimitRequest{ value: loanFee }(bytes("https://google.com"));
+
+        vm.prank(lendingPlatform.owner());
+        lendingPlatform.setLoanLimit(barry, amount);
+
+        vm.prank(barry);
+        vm.expectEmit(false, false, false, false, address(lendingPlatform));
+        emit AcceptedLoan(address(0));
+        Loan loan = lendingPlatform.acceptLoan{ value: collateral }(1);
+        assertEq(lendingPlatform.getLoanLimit(barry), 0);
+
+        assertEq(loan.getBorrower(), barry);
+        vm.expectRevert("Loan was done in eth, not ERC20");
+        loan.getCoin();
+        vm.expectRevert("Collateral was set in eth, not ERC20");
+        loan.getCollateralCoin();
+        assertEq(loan.getCollateral(), collateral);
+        assertEq(loan.getCollateralEth(), true);
+        assertEq(loan.getDefaultLimit(), defaultLimit);
+        assertEq(loan.getInterval(), interval);
+        assertEq(loan.getIsDefault(), false);
+        assertEq(loan.getIsEth(), true);
+        assertEq(loan.getLastPayment(), 0);
+        assertEq(loan.getLender(), andrea);
+        assertEq(loan.getPaidEarly(), false);
+        assertEq(loan.getRemaining(), toBePaid);
+        assertEq(loan.getRequestPaidEarly(), false);
+        assertEq(loan.getRequestPaidEarlyAmount(), 0);
+        assertEq(loan.getSinglePayment(), singlePayment);
     }
 
-    function testAcceptanceCoinEth() public {
+    /*function testAcceptanceCoinEth() public {
 
     }
 

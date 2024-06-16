@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 import {IERC20Metadata} from "../lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {Ownable} from "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
@@ -69,12 +69,27 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         return loanData;
     }
 
+    function _transferCoinToContract(IERC20Metadata coin, uint256 amount) internal {
+        require(coin.allowance(msg.sender, address(this)) > amount);
+        bool okTransfer = coin.transferFrom(msg.sender, address(this), amount);
+        require(okTransfer, "Could not transfer loaned money to contract");
+    }
+
     function _finishLoanOffer(LoanOffer memory loanOffer) internal {
         loanOffer.from = msg.sender;
         loanOffer.id = _loanOfferId;
         _loanOfferId++;
         _loanOffers.push(loanOffer);
         emit IssuedLoan(loanOffer.id);
+    }
+
+    function _findLoanOfferIndex(uint256 id) internal view returns(bool,uint256) {
+        for (uint256 i = 0; i < _loanOffers.length; i++) {
+            if (id == _loanOffers[i].id) {
+                return (true, i);
+            }
+        }
+        return (false, 0);
     }
 
     function getLoanLimitRequest(address borrower) public view returns(bytes memory) {
@@ -117,6 +132,7 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         collateralStore.isCollateralEth = true;
         loanOffer.loanData = _fillLoanDetails(amount, toBePaid, interval, defaultLimit, singlePayment, collateralStore);
         loanOffer.coin = coin;
+        _transferCoinToContract(coin, amount);
         _finishLoanOffer(loanOffer);
     }
 
@@ -128,6 +144,7 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         collateralStore.collateralCoin = collateralCoin;
         loanOffer.loanData = _fillLoanDetails(amount, toBePaid, interval, defaultLimit, singlePayment, collateralStore);
         loanOffer.coin = coin;
+        _transferCoinToContract(coin, amount);
         _finishLoanOffer(loanOffer);
     }
 
@@ -170,13 +187,14 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         emit IncreaseCoinLoanLimit(amount, to, coin.symbol());
     }
 
-    function acceptLoan(address from, uint256 getFromIndex, uint256 id) public payable returns(Loan) {
+    function acceptLoan(uint256 id) public payable returns(Loan) {
+        (bool found, uint256 getFromIndex) = _findLoanOfferIndex(id);
+        require(found, "Loan already taken, try again");
         LoanOffer memory loanOfferAt = _loanOffers[getFromIndex];
-        require(loanOfferAt.id == id, "Loan already taken, try again");
         if (loanOfferAt.isEth) {
-            require(_loanEthLimit[msg.sender] > loanOfferAt.loanData.amount, "Loan limit exceeded");
+            require(_loanEthLimit[msg.sender] >= loanOfferAt.loanData.amount, "Loan limit exceeded");
         } else {
-            require(_loanCoinLimit[address(loanOfferAt.coin)][msg.sender] > loanOfferAt.loanData.amount, "Loan limit exceeded");
+            require(_loanCoinLimit[address(loanOfferAt.coin)][msg.sender] >= loanOfferAt.loanData.amount, "Loan limit exceeded");
         }
 
         if (getFromIndex == _loanOffers.length - 1) {
@@ -199,9 +217,7 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
 
         if (loanOfferAt.loanData.collateral.isCollateralEth) {
             require(msg.value == loanOfferAt.loanData.collateral.value, "Message did not contain enough eth for collateral");
-            (bool collateralTransfer,) = address(loan).call{ value: loanOfferAt.loanData.collateral.value }("");
-            require(collateralTransfer, "Collateral transfer failed");
-            loan.setEthCollateral(loanOfferAt.loanData.collateral.value);
+            loan.setEthCollateral{ value: loanOfferAt.loanData.collateral.value }();
         } else {
             require(loanOfferAt.coin.allowance(msg.sender, address(this)) > loanOfferAt.loanData.collateral.value, "Not enough allowance for collateral");
             bool okcollateral = loanOfferAt.coin.transferFrom(msg.sender, address(this), loanOfferAt.loanData.collateral.value);
@@ -211,7 +227,6 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
 
         if (loanOfferAt.isEth) {
             loan.setIsEth();
-            require(loanOfferAt.loanData.amount < _loanEthLimit[from], "Trying to borrow too much");
             (bool ok,) = msg.sender.call{ value: loanOfferAt.loanData.amount }("");
             require(ok, "Loan failed");
             _loanEthLimit[msg.sender] -= loanOfferAt.loanData.amount;
@@ -340,10 +355,10 @@ contract Loan {
         _finalize = true;
     }
 
-    function setEthCollateral(uint256 value) public {
+    function setEthCollateral() public payable {
         require(!_finalize, "Cannot modify after acceptance");
         _isCollateralEth = true;
-        _collateral = value;
+        _collateral = msg.value;
     }
 
     function setCoinCollateral(IERC20Metadata coin, uint256 value) public {
