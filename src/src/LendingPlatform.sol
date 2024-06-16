@@ -33,6 +33,9 @@ contract LendingPlatform is Ownable {
     mapping(address => address) internal _loansByBorrowers;
     mapping(address => mapping(address => uint256)) internal _loanCoinLimit;
     mapping(address => uint256) internal _loanEthLimit;
+    mapping(address => bytes) internal _loanLimitRequestLinks;
+    
+    uint256 internal _loanLimitFee;
 
     LoanOffer[] internal _loanOffers;
 
@@ -40,6 +43,10 @@ contract LendingPlatform is Ownable {
 
     event IssuedLoan(uint256 indexed loanId);
     event AcceptedLoan(address indexed loan);
+    event RequestLoanLimit(address indexed borrower);
+    event SetLoanFee(uint256 indexed amount);
+    event IncreaseCoinLoanLimit(uint256 indexed amount, address indexed borrower, string indexed coinSymbol);
+    event IncreaseEthLoanLimit(uint256 indexed amount, address indexed borrower);
 
     function _loanCheck(uint256 amount, uint256 toBePaid, uint256 singlePayment) internal pure {
         require(amount < toBePaid, "Invalid amount");
@@ -64,6 +71,16 @@ contract LendingPlatform is Ownable {
         _loanOfferId++;
         _loanOffers.push(loanOffer);
         emit IssuedLoan(loanOffer.id);
+    }
+
+    function getLoanLimitRequest(address borrower) public view returns(bytes) {
+        return _loanLimitRequestLinks[borrower];
+    }
+
+    function setLoanLimitRequest(bytes calldata info) public payable {
+        require(msg.value == _loanLimitFee, "Message does not contain enough eth to pay for fee");
+        _loanLimitRequestLinks[msg.sender] = info;
+        emit RequestLoanLimit(msg.sender);
     }
 
     function offerLoan(uint256 toBePaid, uint256 interval, uint256 defaultLimit, uint256 singlePayment, uint256 collateral, IERC20Metadata collateralCoin) public payable {
@@ -110,12 +127,43 @@ contract LendingPlatform is Ownable {
         _finishLoanOffer(loanOffer);
     }
 
-    function increaseLoanLimit(address to, uint256 amount) onlyOwner public {
-        _loanEthLimit[to] = amount;
+    function getLoanOffersLength() public view returns(uint256) {
+        return _loanOffers.length;
     }
 
-    function increaseLoanLimit(address to, uint256 amount, IERC20Metadata coin) onlyOwner public {
+    function listLoanOffers(uint256 from, uint256 to) public view returns(LoanOffer[] memory) {
+        LoanOffer[] memory acc = new LoanOffer[](to - from);
+        for (uint256 i = from; i < to; i++) {
+            acc[i] = _loanOffers[i];
+        }
+        return acc;
+    }
+
+    function getLoanFee() public view returns(uint256) {
+        return _loanLimitFee;
+    }
+
+    function setLoanFee(uint256 amount) onlyOwner public {
+        _loanLimitFee = amount;
+        emit SetLoanFee(amount);
+    }
+
+    function getLoanLimit(address to) onlyOwner public returns (uint256) {
+        return _loanEthLimit[to];
+    }
+
+    function setLoanLimit(address to, uint256 amount) onlyOwner public {
+        _loanEthLimit[to] = amount;
+        emit IncreaseEthLoanLimit(amount, to);
+    }
+
+    function getLoanLimit(address to, IERC20Metadata coin) public view returns (uint256) {
+        return _loanCoinLimit[address(coin)][to];
+    }
+
+    function setLoanLimit(address to, uint256 amount, IERC20Metadata coin) onlyOwner public {
         _loanCoinLimit[address(coin)][to] = amount;
+        emit IncreaseCoinLoanLimit(amount, to, coin.symbol());
     }
 
     function acceptLoan(address from, uint256 getFromIndex, uint256 id) public payable returns(Loan) {
@@ -165,13 +213,15 @@ contract LendingPlatform is Ownable {
             _loanEthLimit[msg.sender] -= loanOfferAt.loanData.amount;
         } else {
             loan.setCoin(loanOfferAt.coin);
-            require(loanOfferAt.coin.allowance(loanOfferAt.from, msg.sender) > loanOfferAt.loanData.amount, "Not enough allowance for the loan to go through");
-            bool okloan = loanOfferAt.coin.transferFrom(loanOfferAt.from, msg.sender, loanOfferAt.loanData.amount);
-            require(okloan, "Loan failed");
+            require(loanOfferAt.coin.allowance(loanOfferAt.from, address(this)) > loanOfferAt.loanData.amount, "Not enough allowance for the loan to go through");
+            bool okLoanToContract = loanOfferAt.coin.transferFrom(loanOfferAt.from, address(this), loanOfferAt.loanData.amount);
+            require(okLoanToContract, "Loan transfer to contract failed");
+            bool okLoanToBorrower = loanOfferAt.coin.transfer(msg.sender, loanOfferAt.loanData.amount);
+            require(okLoanToBorrower, "Loan transfer to borrower failed");
             _loanCoinLimit[msg.sender][address(loanOfferAt.coin)] -= loanOfferAt.loanData.amount;
         }
-        emit AcceptedLoan(address(loan));
         loan.finalize();
+        emit AcceptedLoan(address(loan));
         return loan;
     }
 }
@@ -197,6 +247,13 @@ contract Loan {
 
     bool internal _finalize;
 
+    event DidPayment(uint256 indexed timestamp, uint256 indexed amount, uint256 indexed remaining);
+    event RequestEarlyRepayment(uint256 amount);
+    event RejectEarlyRepayment();
+    event AcceptEarlyRepayment(uint256 amount);
+    event DefaultOnLoan(uint256 indexed timestamp, uint256 collateral);
+    event FullyPaid();
+
     constructor(address lender, address borrower, uint256 remaining, uint256 singlePayment, uint256 interval, uint256 defaultLimit, uint256 lastPayment) {
         _lender = lender;
         _borrower = borrower;
@@ -207,7 +264,28 @@ contract Loan {
         _lastPayment = lastPayment;
     }
 
+    function getLender() public view returns(address) {
+        return _lender;
+    }
+
+    function getBorrower() public view returns(address) {
+        return _borrower;
+    }
+
+    function getRemaining() public view returns(uint256) {
+        return _remaining;
+    }
+
+    function getSinglePayment() public view returns(uint256) {
+        return _singlePayment;
+    }
+
+    function getInterval() public view returns(uint256) {
+        return _interval;
+    }
+
     function finalize() public {
+        require(!_finalize, "Cannot modify after acceptance");
         _finalize = true;
     }
 
@@ -245,13 +323,17 @@ contract Loan {
             (bool ok,) = _lender.call{ value: _singlePayment }("");
             require(ok, "Payment couldn't be processed");
         } else {
-            require(_coin.allowance(msg.sender, _lender) > _singlePayment, "There is not enough allowance to settle your payment");
-            bool ok = _coin.transferFrom(msg.sender, _lender, _singlePayment);
-            require(ok, "Payment couldn't be processed");
+            require(_coin.allowance(msg.sender, address(this)) > _singlePayment, "There is not enough allowance to settle your payment");
+            bool okToContract = _coin.transferFrom(msg.sender, address(this), _singlePayment);
+            require(okToContract, "Payment to contract couldn't be processed");
+            bool okToLender = _coin.transfer(_lender, _singlePayment);
+            require(okToLender, "Payment to lender couldn't be processed");
         }
 
         _lastPayment = block.timestamp;
         _remaining -= _singlePayment;
+
+        emit DidPayment(block.timestamp, singlePayment, _remaining);
 
         if (_remaining == 0) {
             if (_isCollateralEth) {
@@ -261,6 +343,7 @@ contract Loan {
                 bool ok = _collateralCoin.transfer(msg.sender, _collateral);
                 require(ok, "Collateral return failed");
             }
+            emit FullyPaid();
         }
     }
 
@@ -277,6 +360,7 @@ contract Loan {
         require(_isEth, "Repaiment must be in loan currency");
         _requestPaidEarlyAmount = msg.value;
         _requestPaidEarly = true;
+        emit RequestEarlyRepayment(msg.value);
     }
 
     function requestEarlyRepaiment(uint256 amount) public {
@@ -284,6 +368,7 @@ contract Loan {
         require(!_isEth, "Repaiment must be in loan currency");
         _requestPaidEarlyAmount = amount;
         _requestPaidEarly = true;
+        emit RequestEarlyRepayment(amount);
     }
 
     function _earlyRepaimentDecisionCheck() internal view {
@@ -296,8 +381,12 @@ contract Loan {
     function rejectEarlyRepaiment() public {
         _earlyRepaimentDecisionCheck();
         require(msg.sender == _lender || msg.sender == _borrower, "Incorrect sender in request");
+        if (_isEth) {
+            _borrower.call{ value: _requestPaidEarlyAmount }("");   
+        }
         _requestPaidEarly = false;
         _requestPaidEarlyAmount = 0;
+        emit RejectEarlyRepayment();
     }
 
     function acceptEarlyRepaiment() public {
@@ -312,6 +401,7 @@ contract Loan {
             bool ok = _coin.transferFrom(_borrower, _lender, _requestPaidEarlyAmount);
             require(ok, "Early repaiment transaction failed");
         }
+        emit AcceptEarlyRepayment(_requestPaidEarlyAmount);
     }
 
     function defaultOnLoan() public {
@@ -323,9 +413,16 @@ contract Loan {
         if (_isEth) {
             (bool ok,) = msg.sender.call{ value: _collateral }("");
             require(ok, "Collateral payment failed");
+            if (_requestPaidEarly) {
+                _requestPaidEarly = false;
+                _requestPaidEarlyAmount = 0;
+                (bool okReturnEarly,) = _borrower.call{ value: _requestPaidEarlyAmount }("");
+                require(okReturnEarly, "Could not return early repayment request");
+            }
         } else {
             bool ok = _coin.transfer(_lender, _collateral);
             require(ok, "Collateral payment failed");
         }
+        emit DefaultOnLoan(block.timestamp, _collateral);
     }
 }
