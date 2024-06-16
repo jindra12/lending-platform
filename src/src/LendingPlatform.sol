@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 import {IERC20Metadata} from "../lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {Ownable} from "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 
-contract LendingPlatform is Ownable {
+contract LendingPlatFormStructs {
     struct Collateral {
         uint256 value;
         bool isCollateralEth;
@@ -28,7 +28,18 @@ contract LendingPlatform is Ownable {
         LoanOffer loanOffer;
         uint256 lastPayment;
     }
+}
 
+contract LendingPlatformEvents {
+    event IssuedLoan(uint256 indexed loanId);
+    event AcceptedLoan(address indexed loan);
+    event RequestLoanLimit(address indexed borrower);
+    event SetLoanFee(uint256 indexed amount);
+    event IncreaseCoinLoanLimit(uint256 indexed amount, address indexed borrower, string indexed coinSymbol);
+    event IncreaseEthLoanLimit(uint256 indexed amount, address indexed borrower);
+}
+
+contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents {
     mapping(address => mapping(address => LoanProgress)) internal _loansByLenders;
     mapping(address => address) internal _loansByBorrowers;
     mapping(address => mapping(address => uint256)) internal _loanCoinLimit;
@@ -40,13 +51,6 @@ contract LendingPlatform is Ownable {
     LoanOffer[] internal _loanOffers;
 
     uint256 internal _loanOfferId = 1;
-
-    event IssuedLoan(uint256 indexed loanId);
-    event AcceptedLoan(address indexed loan);
-    event RequestLoanLimit(address indexed borrower);
-    event SetLoanFee(uint256 indexed amount);
-    event IncreaseCoinLoanLimit(uint256 indexed amount, address indexed borrower, string indexed coinSymbol);
-    event IncreaseEthLoanLimit(uint256 indexed amount, address indexed borrower);
 
     function _loanCheck(uint256 amount, uint256 toBePaid, uint256 singlePayment) internal pure {
         require(amount < toBePaid, "Invalid amount");
