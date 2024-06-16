@@ -232,12 +232,9 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
             _loanEthLimit[msg.sender] -= loanOfferAt.loanData.amount;
         } else {
             loan.setCoin(loanOfferAt.coin);
-            require(loanOfferAt.coin.allowance(loanOfferAt.from, address(this)) > loanOfferAt.loanData.amount, "Not enough allowance for the loan to go through");
-            bool okLoanToContract = loanOfferAt.coin.transferFrom(loanOfferAt.from, address(this), loanOfferAt.loanData.amount);
-            require(okLoanToContract, "Loan transfer to contract failed");
             bool okLoanToBorrower = loanOfferAt.coin.transfer(msg.sender, loanOfferAt.loanData.amount);
             require(okLoanToBorrower, "Loan transfer to borrower failed");
-            _loanCoinLimit[msg.sender][address(loanOfferAt.coin)] -= loanOfferAt.loanData.amount;
+            _loanCoinLimit[address(loanOfferAt.coin)][msg.sender] -= loanOfferAt.loanData.amount;
         }
         loan.finalize();
         emit AcceptedLoan(address(loan));
@@ -316,7 +313,7 @@ contract Loan {
     }
 
     function getCollateralCoin() public view returns(IERC20Metadata) {
-        require(!_isEth, "Collateral was set in eth, not ERC20");
+        require(!_isCollateralEth, "Collateral was set in eth, not ERC20");
         return _collateralCoin;
     }
 
