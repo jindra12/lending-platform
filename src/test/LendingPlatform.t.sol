@@ -5,9 +5,17 @@ import {Test, console} from "forge-std/Test.sol";
 import {LendingPlatform,LendingPlatFormStructs,LendingPlatformEvents,Loan} from "../src/LendingPlatform.sol";
 import {ERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 
-contract OneCoin is ERC20("OneCoin", "one") {}
+contract OneCoin is ERC20("OneCoin", "one") {
+    function mint(address to, uint256 amount) public {
+        _mint(to, amount);
+    }
+}
 
-contract TwoCoin is ERC20("TwoCoin", "two") {}
+contract TwoCoin is ERC20("TwoCoin", "two") {
+    function mint(address to, uint256 amount) public {
+        _mint(to, amount);
+    }
+}
 
 contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvents {
     LendingPlatform public lendingPlatform;
@@ -35,6 +43,8 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
     }
 
     function setUp() public {
+        oneCoin = new OneCoin();
+        twoCoin = new TwoCoin();
         lendingPlatform = new LendingPlatform();
         lendingPlatform.setLoanFee(100);
         andrea = makeAccount(1, 1000);
@@ -47,35 +57,43 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         vm.warp(0);
         vm.expectEmit(true, false, false, false, address(lendingPlatform));
         emit IssuedLoan(1);
-        lendingPlatform.offerLoan{ value: amount }(toBePaid, interval, defaultLimit, singlePayment, collateral);
+        lendingPlatform.offerLoanEthEth{ value: amount }(toBePaid, interval, defaultLimit, singlePayment, collateral);
     }
 
     function _testIssuanceEthCoin() internal {
+        oneCoin.mint(barry, collateral);
         vm.prank(barry);
         oneCoin.approve(address(lendingPlatform), collateral);
         vm.prank(andrea);
         vm.warp(0);
         vm.expectEmit(true, false, false, false, address(lendingPlatform));
         emit IssuedLoan(1);
-        lendingPlatform.offerLoan{ value: amount }(toBePaid, interval, defaultLimit, singlePayment, collateral, oneCoin);
+        lendingPlatform.offerLoanEthCoin{ value: amount }(toBePaid, interval, defaultLimit, singlePayment, collateral, oneCoin);
     }
 
     function _testIssuanceCoinEth() internal {
+        oneCoin.mint(andrea, amount);
         vm.prank(andrea);
         oneCoin.approve(address(lendingPlatform), amount);
         vm.prank(andrea);
         vm.warp(0);
         vm.expectEmit(true, false, false, false, address(lendingPlatform));
         emit IssuedLoan(1);
-        lendingPlatform.offerLoan(amount, toBePaid, interval, defaultLimit, singlePayment, collateral, oneCoin);
+        lendingPlatform.offerLoanCoinEth(amount, toBePaid, interval, defaultLimit, singlePayment, collateral, oneCoin);
     }
 
     function _testIssuanceCoinCoin() internal {
+        oneCoin.mint(andrea, amount);
+        vm.prank(andrea);
+        oneCoin.approve(address(lendingPlatform), amount);
+        twoCoin.mint(barry, amount);
+        vm.prank(barry);
+        twoCoin.approve(address(lendingPlatform), collateral);
         vm.prank(andrea);
         vm.warp(0);
         vm.expectEmit(true, false, false, false, address(lendingPlatform));
         emit IssuedLoan(1);
-        lendingPlatform.offerLoan(amount, toBePaid, interval, defaultLimit, singlePayment, collateral, oneCoin, twoCoin);
+        lendingPlatform.offerLoanCoinCoin(amount, toBePaid, interval, defaultLimit, singlePayment, collateral, oneCoin, twoCoin);
     }
 
     function testIssuanceEthEth() public {
@@ -187,7 +205,8 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         assertEq(loan.getPaidEarly(), false);
         assertEq(loan.getRemaining(), toBePaid);
         assertEq(loan.getRequestPaidEarly(), false);
-        assertEq(loan.getRequestPaidEarlyAmount(), 0);
+        vm.expectRevert("There is no request for early repayment");
+        loan.getRequestPaidEarlyAmount();
         assertEq(loan.getSinglePayment(), singlePayment);
     }
 

@@ -70,7 +70,7 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
     }
 
     function _transferCoinToContract(IERC20Metadata coin, uint256 amount) internal {
-        require(coin.allowance(msg.sender, address(this)) > amount);
+        require(coin.allowance(msg.sender, address(this)) >= amount, "Not enough allowance to transfer to contract");
         bool okTransfer = coin.transferFrom(msg.sender, address(this), amount);
         require(okTransfer, "Could not transfer loaned money to contract");
     }
@@ -102,18 +102,7 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         emit RequestLoanLimit(msg.sender);
     }
 
-    function offerLoan(uint256 toBePaid, uint256 interval, uint256 defaultLimit, uint256 singlePayment, uint256 collateral, IERC20Metadata collateralCoin) public payable {
-        _loanCheck(msg.value, toBePaid, singlePayment);
-        LoanOffer memory loanOffer;
-        Collateral memory collateralStore;
-        collateralStore.value = collateral;
-        collateralStore.collateralCoin = collateralCoin;
-        loanOffer.loanData = _fillLoanDetails(msg.value, toBePaid, interval, defaultLimit, singlePayment, collateralStore);
-        loanOffer.isEth = true;
-        _finishLoanOffer(loanOffer);
-    }
-
-    function offerLoan(uint256 toBePaid, uint256 interval, uint256 defaultLimit, uint256 singlePayment, uint256 collateral) public payable {
+    function offerLoanEthEth(uint256 toBePaid, uint256 interval, uint256 defaultLimit, uint256 singlePayment, uint256 collateral) public payable {
         _loanCheck(msg.value, toBePaid, singlePayment);
         LoanOffer memory loanOffer;
         Collateral memory collateralStore;
@@ -124,7 +113,18 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         _finishLoanOffer(loanOffer);
     }
 
-    function offerLoan(uint256 amount, uint256 toBePaid, uint256 interval, uint256 defaultLimit, uint256 singlePayment, uint256 collateral, IERC20Metadata coin) public {
+    function offerLoanEthCoin(uint256 toBePaid, uint256 interval, uint256 defaultLimit, uint256 singlePayment, uint256 collateral, IERC20Metadata collateralCoin) public payable {
+        _loanCheck(msg.value, toBePaid, singlePayment);
+        LoanOffer memory loanOffer;
+        Collateral memory collateralStore;
+        collateralStore.value = collateral;
+        collateralStore.collateralCoin = collateralCoin;
+        loanOffer.loanData = _fillLoanDetails(msg.value, toBePaid, interval, defaultLimit, singlePayment, collateralStore);
+        loanOffer.isEth = true;
+        _finishLoanOffer(loanOffer);
+    }
+
+    function offerLoanCoinEth(uint256 amount, uint256 toBePaid, uint256 interval, uint256 defaultLimit, uint256 singlePayment, uint256 collateral, IERC20Metadata coin) public {
         _loanCheck(amount, toBePaid, singlePayment);
         LoanOffer memory loanOffer;
         Collateral memory collateralStore;
@@ -136,7 +136,7 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         _finishLoanOffer(loanOffer);
     }
 
-    function offerLoan(uint256 amount, uint256 toBePaid, uint256 interval, uint256 defaultLimit, uint256 singlePayment, uint256 collateral, IERC20Metadata coin, IERC20Metadata collateralCoin) public {
+    function offerLoanCoinCoin(uint256 amount, uint256 toBePaid, uint256 interval, uint256 defaultLimit, uint256 singlePayment, uint256 collateral, IERC20Metadata coin, IERC20Metadata collateralCoin) public {
         _loanCheck(amount, toBePaid, singlePayment);
         LoanOffer memory loanOffer;
         Collateral memory collateralStore;
