@@ -87,6 +87,16 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         return (false, 0);
     }
 
+    function _removeLoanByIndex(uint256 getFromIndex) internal {
+        if (getFromIndex == _loanOffers.length - 1) {
+            _loanOffers.pop();
+        } else {
+            LoanOffer memory lastLoan = _loanOffers[_loanOffers.length - 1];
+            _loanOffers[getFromIndex] = lastLoan;
+            _loanOffers.pop();
+        }
+    }
+
     function getLoanLimitRequest(address borrower) public view returns(bytes memory) {
         return _loanLimitRequestLinks[borrower];
     }
@@ -182,6 +192,21 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         emit IncreaseCoinLoanLimit(amount, to, coin.symbol());
     }
 
+    function removeLoan(uint256 id) public {
+        (bool found, uint256 getFromIndex) = _findLoanOfferIndex(id);
+        require(found, "Loan already taken");
+        LoanOffer memory loanOfferAt = _loanOffers[getFromIndex];
+        require(msg.sender == loanOfferAt.from || owner() == loanOfferAt.from, "Loan offer can only be removed by contract owner or loan issuer");
+        if (loanOfferAt.isEth) {
+            (bool ok,) = address(this).call{ value: loanOfferAt.loanData.amount }("");
+            require(ok, "Could not transfer loan amount back to lender");
+        } else {
+            bool ok = loanOfferAt.coin.transfer(loanOfferAt.from, loanOfferAt.loanData.amount);
+            require(ok, "Could not transfer loan amount back to lender");
+        }
+        _removeLoanByIndex(getFromIndex);
+    }
+
     function acceptLoan(uint256 id) public payable returns(Loan) {
         (bool found, uint256 getFromIndex) = _findLoanOfferIndex(id);
         require(found, "Loan already taken, try again");
@@ -192,13 +217,7 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
             require(_loanCoinLimit[address(loanOfferAt.coin)][msg.sender] >= loanOfferAt.loanData.amount, "Loan limit exceeded");
         }
 
-        if (getFromIndex == _loanOffers.length - 1) {
-            _loanOffers.pop();
-        } else {
-            LoanOffer memory lastLoan = _loanOffers[_loanOffers.length - 1];
-            _loanOffers[getFromIndex] = lastLoan;
-            _loanOffers.pop();
-        }
+        _removeLoanByIndex(getFromIndex);
 
         Loan loan = new Loan(
             loanOfferAt.from,
