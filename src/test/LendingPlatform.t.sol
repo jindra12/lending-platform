@@ -96,6 +96,70 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         lendingPlatform.offerLoanCoinCoin(amount, toBePaid, interval, defaultLimit, singlePayment, collateral, oneCoin, twoCoin);
     }
 
+    function _testAcceptanceEthEth() internal returns(Loan) {
+        vm.prank(lendingPlatform.owner());
+        lendingPlatform.setLoanFee(loanFee);
+
+        vm.prank(barry);
+        lendingPlatform.setLoanLimitRequest{ value: loanFee }(bytes("https://google.com"));
+
+        vm.prank(lendingPlatform.owner());
+        lendingPlatform.setLoanLimit(barry, amount);
+
+        vm.prank(barry);
+        vm.expectEmit(false, false, false, false, address(lendingPlatform));
+        emit AcceptedLoan(address(0));
+        return lendingPlatform.acceptLoan{ value: collateral }(1);
+    }
+
+    function _testAcceptanceEthCoin() internal returns(Loan) {
+        vm.prank(lendingPlatform.owner());
+        lendingPlatform.setLoanFee(loanFee);
+
+        vm.prank(barry);
+        lendingPlatform.setLoanLimitRequest{ value: loanFee }(bytes("https://google.com"));
+
+        vm.prank(lendingPlatform.owner());
+        lendingPlatform.setLoanLimit(barry, amount);
+
+        vm.prank(barry);
+        vm.expectEmit(false, false, false, false, address(lendingPlatform));
+        emit AcceptedLoan(address(0));
+        return lendingPlatform.acceptLoan{ value: collateral }(1);
+    }
+
+    function _testAcceptanceCoinEth() internal returns(Loan) {
+        vm.prank(lendingPlatform.owner());
+        lendingPlatform.setLoanFee(loanFee);
+
+        vm.prank(barry);
+        lendingPlatform.setLoanLimitRequest{ value: loanFee }(bytes("https://google.com"));
+
+        vm.prank(lendingPlatform.owner());
+        lendingPlatform.setLoanLimit(barry, amount, oneCoin);
+
+        vm.prank(barry);
+        vm.expectEmit(false, false, false, false, address(lendingPlatform));
+        emit AcceptedLoan(address(0));
+        return lendingPlatform.acceptLoan{ value: collateral }(1);
+    }
+
+    function _testAcceptanceCoinCoin() internal returns(Loan) {
+        vm.prank(lendingPlatform.owner());
+        lendingPlatform.setLoanFee(loanFee);
+
+        vm.prank(barry);
+        lendingPlatform.setLoanLimitRequest{ value: loanFee }(bytes("https://google.com"));
+
+        vm.prank(lendingPlatform.owner());
+        lendingPlatform.setLoanLimit(barry, amount, oneCoin);
+
+        vm.prank(barry);
+        vm.expectEmit(false, false, false, false, address(lendingPlatform));
+        emit AcceptedLoan(address(0));
+        return lendingPlatform.acceptLoan{ value: collateral }(1);
+    }
+
     function testIssuanceEthEth() public {
         _testIssuanceEthEth();
         assertEq(lendingPlatform.getLoanOffersLength(), 1);
@@ -174,19 +238,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
 
     function testAcceptanceEthEth() public {
         _testIssuanceEthEth();
-        vm.prank(lendingPlatform.owner());
-        lendingPlatform.setLoanFee(loanFee);
-
-        vm.prank(barry);
-        lendingPlatform.setLoanLimitRequest{ value: loanFee }(bytes("https://google.com"));
-
-        vm.prank(lendingPlatform.owner());
-        lendingPlatform.setLoanLimit(barry, amount);
-
-        vm.prank(barry);
-        vm.expectEmit(false, false, false, false, address(lendingPlatform));
-        emit AcceptedLoan(address(0));
-        Loan loan = lendingPlatform.acceptLoan{ value: collateral }(1);
+        Loan loan = _testAcceptanceEthEth();
         assertEq(lendingPlatform.getLoanLimit(barry), 0);
 
         assertEq(loan.getBorrower(), barry);
@@ -210,58 +262,9 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         assertEq(loan.getSinglePayment(), singlePayment);
     }
 
-    function testAcceptanceCoinEth() public {
-        _testIssuanceCoinEth();
-        vm.prank(lendingPlatform.owner());
-        lendingPlatform.setLoanFee(loanFee);
-
-        vm.prank(barry);
-        lendingPlatform.setLoanLimitRequest{ value: loanFee }(bytes("https://google.com"));
-
-        vm.prank(lendingPlatform.owner());
-        lendingPlatform.setLoanLimit(barry, amount, oneCoin);
-
-        vm.prank(barry);
-        vm.expectEmit(false, false, false, false, address(lendingPlatform));
-        emit AcceptedLoan(address(0));
-        Loan loan = lendingPlatform.acceptLoan{ value: collateral }(1);
-        assertEq(lendingPlatform.getLoanLimit(barry), 0);
-
-        assertEq(loan.getBorrower(), barry);
-        assertEq(address(loan.getCoin()), address(oneCoin));
-        vm.expectRevert("Collateral was set in eth, not ERC20");
-        loan.getCollateralCoin();
-        assertEq(loan.getCollateral(), collateral);
-        assertEq(loan.getCollateralEth(), true);
-        assertEq(loan.getDefaultLimit(), defaultLimit);
-        assertEq(loan.getInterval(), interval);
-        assertEq(loan.getIsDefault(), false);
-        assertEq(loan.getIsEth(), false);
-        assertEq(loan.getLastPayment(), 0);
-        assertEq(loan.getLender(), andrea);
-        assertEq(loan.getPaidEarly(), false);
-        assertEq(loan.getRemaining(), toBePaid);
-        assertEq(loan.getRequestPaidEarly(), false);
-        vm.expectRevert("There is no request for early repayment");
-        loan.getRequestPaidEarlyAmount();
-        assertEq(loan.getSinglePayment(), singlePayment);
-    }
-
     function testAcceptanceEthCoin() public {
         _testIssuanceEthCoin();
-        vm.prank(lendingPlatform.owner());
-        lendingPlatform.setLoanFee(loanFee);
-
-        vm.prank(barry);
-        lendingPlatform.setLoanLimitRequest{ value: loanFee }(bytes("https://google.com"));
-
-        vm.prank(lendingPlatform.owner());
-        lendingPlatform.setLoanLimit(barry, amount);
-
-        vm.prank(barry);
-        vm.expectEmit(false, false, false, false, address(lendingPlatform));
-        emit AcceptedLoan(address(0));
-        Loan loan = lendingPlatform.acceptLoan{ value: collateral }(1);
+        Loan loan = _testAcceptanceEthCoin();
         assertEq(lendingPlatform.getLoanLimit(barry), 0);
 
         assertEq(loan.getBorrower(), barry);
@@ -284,21 +287,34 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         assertEq(loan.getSinglePayment(), singlePayment);
     }
 
+    function testAcceptanceCoinEth() public {
+        _testIssuanceCoinEth();
+        Loan loan = _testAcceptanceCoinEth();
+        assertEq(lendingPlatform.getLoanLimit(barry), 0);
+
+        assertEq(loan.getBorrower(), barry);
+        assertEq(address(loan.getCoin()), address(oneCoin));
+        vm.expectRevert("Collateral was set in eth, not ERC20");
+        loan.getCollateralCoin();
+        assertEq(loan.getCollateral(), collateral);
+        assertEq(loan.getCollateralEth(), true);
+        assertEq(loan.getDefaultLimit(), defaultLimit);
+        assertEq(loan.getInterval(), interval);
+        assertEq(loan.getIsDefault(), false);
+        assertEq(loan.getIsEth(), false);
+        assertEq(loan.getLastPayment(), 0);
+        assertEq(loan.getLender(), andrea);
+        assertEq(loan.getPaidEarly(), false);
+        assertEq(loan.getRemaining(), toBePaid);
+        assertEq(loan.getRequestPaidEarly(), false);
+        vm.expectRevert("There is no request for early repayment");
+        loan.getRequestPaidEarlyAmount();
+        assertEq(loan.getSinglePayment(), singlePayment);
+    }
+
     function testAcceptanceCoinCoin() public {
         _testIssuanceCoinCoin();
-        vm.prank(lendingPlatform.owner());
-        lendingPlatform.setLoanFee(loanFee);
-
-        vm.prank(barry);
-        lendingPlatform.setLoanLimitRequest{ value: loanFee }(bytes("https://google.com"));
-
-        vm.prank(lendingPlatform.owner());
-        lendingPlatform.setLoanLimit(barry, amount, oneCoin);
-
-        vm.prank(barry);
-        vm.expectEmit(false, false, false, false, address(lendingPlatform));
-        emit AcceptedLoan(address(0));
-        Loan loan = lendingPlatform.acceptLoan{ value: collateral }(1);
+        Loan loan = _testAcceptanceCoinCoin();
         assertEq(lendingPlatform.getLoanLimit(barry), 0);
 
         assertEq(loan.getBorrower(), barry);
