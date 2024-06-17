@@ -485,7 +485,7 @@ contract Loan {
     }
 
     function defaultOnLoan() public {
-        require(_lastPayment + _defaultLimit > block.timestamp, "Borrower has not yet reached default time");
+        require(block.timestamp >= _lastPayment + _defaultLimit, "Borrower has not yet reached default time");
         require(msg.sender == _lender, "Only lender can trigger default");
         require(!_inDefault, "Loan already in default");
         require(_remaining > 0, "Loan paid off fully");
