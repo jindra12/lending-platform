@@ -219,8 +219,8 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
             require(msg.value == loanOfferAt.loanData.collateral.value, "Message did not contain enough eth for collateral");
             loan.setEthCollateral{ value: loanOfferAt.loanData.collateral.value }();
         } else {
-            require(loanOfferAt.coin.allowance(msg.sender, address(this)) > loanOfferAt.loanData.collateral.value, "Not enough allowance for collateral");
-            bool okcollateral = loanOfferAt.coin.transferFrom(msg.sender, address(this), loanOfferAt.loanData.collateral.value);
+            require(loanOfferAt.loanData.collateral.collateralCoin.allowance(msg.sender, address(this)) >= loanOfferAt.loanData.collateral.value, "Not enough allowance for collateral");
+            bool okcollateral = loanOfferAt.loanData.collateral.collateralCoin.transferFrom(msg.sender, address(this), loanOfferAt.loanData.collateral.value);
             require(okcollateral, "Collateral transfer failed");
             loan.setCoinCollateral(loanOfferAt.loanData.collateral.collateralCoin, loanOfferAt.loanData.collateral.value);
         }

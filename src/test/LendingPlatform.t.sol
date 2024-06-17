@@ -247,11 +247,44 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         assertEq(loan.getSinglePayment(), singlePayment);
     }
 
-    /*function testAcceptanceEthCoin() public {
+    function testAcceptanceEthCoin() public {
+        _testIssuanceEthCoin();
+        vm.prank(lendingPlatform.owner());
+        lendingPlatform.setLoanFee(loanFee);
 
+        vm.prank(barry);
+        lendingPlatform.setLoanLimitRequest{ value: loanFee }(bytes("https://google.com"));
+
+        vm.prank(lendingPlatform.owner());
+        lendingPlatform.setLoanLimit(barry, amount);
+
+        vm.prank(barry);
+        vm.expectEmit(false, false, false, false, address(lendingPlatform));
+        emit AcceptedLoan(address(0));
+        Loan loan = lendingPlatform.acceptLoan{ value: collateral }(1);
+        assertEq(lendingPlatform.getLoanLimit(barry), 0);
+
+        assertEq(loan.getBorrower(), barry);
+        vm.expectRevert("Loan was done in eth, not ERC20");
+        loan.getCoin();
+        assertEq(address(loan.getCollateralCoin()), address(oneCoin));
+        assertEq(loan.getCollateral(), collateral);
+        assertEq(loan.getCollateralEth(), false);
+        assertEq(loan.getDefaultLimit(), defaultLimit);
+        assertEq(loan.getInterval(), interval);
+        assertEq(loan.getIsDefault(), false);
+        assertEq(loan.getIsEth(), true);
+        assertEq(loan.getLastPayment(), 0);
+        assertEq(loan.getLender(), andrea);
+        assertEq(loan.getPaidEarly(), false);
+        assertEq(loan.getRemaining(), toBePaid);
+        assertEq(loan.getRequestPaidEarly(), false);
+        vm.expectRevert("There is no request for early repayment");
+        loan.getRequestPaidEarlyAmount();
+        assertEq(loan.getSinglePayment(), singlePayment);
     }
 
-    function testAcceptanceCoinCoin() public {
+    /*function testAcceptanceCoinCoin() public {
 
     }
 
