@@ -376,15 +376,23 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         assertEq(numberOfPayments, 9);
         for (uint256 i = 0; i < numberOfPayments; i++) {
             vm.prank(barry);
-            loan.doPayment{ value: singlePayment }();
+            if (i == numberOfPayments - 1) {
+                vm.expectCall(address(barry), collateral, emptyBytes);
+                loan.doPayment{ value: singlePayment }();
+            } else {
+                loan.doPayment{ value: singlePayment }();
+            }
             vm.warp((3 + i) * interval);
         }
 
         vm.expectRevert("Loan has been paid on time");
-        vm.expectCall(address(loan), collateral, emptyBytes);
         loan.doPayment{ value: singlePayment }();
 
         assertEq(loan.getRemaining(), 0);
+
+        vm.prank(address(loan));
+        (bool ok3,) = barry.call{ value: 1 }(""); // Wallet should be empty
+        assertFalse(ok3);
     }
 
     /*function testPaymentEthCoin() public {
