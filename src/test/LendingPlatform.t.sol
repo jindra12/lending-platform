@@ -32,6 +32,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
     uint256 immutable collateral = 100;
     uint256 immutable singlePayment = 100;
     uint256 immutable loanFee = 100;
+    bytes public emptyBytes;
 
     function makeAccount(uint32 random, uint256 funds) internal returns(address) {
         string memory mnemonic = "test test test test test test test test test test test junk";
@@ -50,6 +51,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         andrea = makeAccount(1, 1000);
         barry = makeAccount(2, 600);
         mallory = makeAccount(3, 300);
+        emptyBytes = new bytes(0);
     }
 
     function _testIssuanceEthEth() internal {
@@ -336,11 +338,56 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         assertEq(loan.getSinglePayment(), singlePayment);
     }
 
-    /*function testPaymentEthEth() public {
+    function testPaymentEthEth() public {
+        _testIssuanceEthEth();
+        Loan loan = _testAcceptanceEthEth();
 
+        uint256 numberOfPayments = loan.getRemaining() / loan.getSinglePayment();
+        assertEq(numberOfPayments, 10);
+
+        (bool ok,) = barry.call{ value: singlePayment * numberOfPayments }("");
+        (bool ok2,) = mallory.call{ value: singlePayment * numberOfPayments }("");
+        assertTrue(ok);
+        assertTrue(ok2);
+    
+        vm.prank(barry);
+        vm.expectRevert("Not yet time to pay your loan");
+        loan.doPayment{ value: singlePayment }();
+        
+        vm.prank(barry);
+        vm.warp(interval);
+        vm.expectRevert("Incorrect value of message value, must equal your single payment");
+        loan.doPayment();
+        
+        vm.prank(barry);
+        loan.doPayment{ value: singlePayment }();
+        assertEq(loan.getRemaining(), toBePaid - singlePayment);
+    
+        vm.prank(barry);
+        vm.expectRevert("Not yet time to pay your loan");
+        loan.doPayment{ value: singlePayment }();
+    
+        vm.warp(2 * interval);
+        vm.prank(mallory);
+        vm.expectRevert("Only borrower can repay a loan");
+        loan.doPayment{ value: singlePayment }();
+
+        numberOfPayments = loan.getRemaining() / loan.getSinglePayment();
+        assertEq(numberOfPayments, 9);
+        for (uint256 i = 0; i < numberOfPayments; i++) {
+            vm.prank(barry);
+            loan.doPayment{ value: singlePayment }();
+            vm.warp((3 + i) * interval);
+        }
+
+        vm.expectRevert("Loan has been paid on time");
+        vm.expectCall(address(loan), collateral, emptyBytes);
+        loan.doPayment{ value: singlePayment }();
+
+        assertEq(loan.getRemaining(), 0);
     }
 
-    function testPaymentEthCoin() public {
+    /*function testPaymentEthCoin() public {
 
     }
 

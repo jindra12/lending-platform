@@ -24,10 +24,6 @@ contract LendingPlatFormStructs {
         uint256 id;
         bool isEth;
     }
-    struct LoanProgress {
-        LoanOffer loanOffer;
-        uint256 lastPayment;
-    }
 }
 
 contract LendingPlatformEvents {
@@ -40,7 +36,6 @@ contract LendingPlatformEvents {
 }
 
 contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents {
-    mapping(address => mapping(address => LoanProgress)) internal _loansByLenders;
     mapping(address => address) internal _loansByBorrowers;
     mapping(address => mapping(address => uint256)) internal _loanCoinLimit;
     mapping(address => uint256) internal _loanEthLimit;
@@ -375,10 +370,10 @@ contract Loan {
     }
 
     function doPayment() public payable {
-        require(_lastPayment + _interval > block.timestamp, "Not yet time to pay your loan");
+        require(block.timestamp >= _lastPayment + _interval, "Not yet time to pay your loan");
         require(!_inDefault, "Loan has been defaulted on");
         require(!_paidEarly, "Loan has been paid early");
-        require(_remaining > _singlePayment, "Loan has been paid on time");
+        require(_remaining >= _singlePayment, "Loan has been paid on time");
         require(msg.sender == _borrower, "Only borrower can repay a loan");
         
         if (_isEth) {
