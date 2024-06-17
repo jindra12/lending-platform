@@ -389,6 +389,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
             vm.warp((3 + i) * interval);
         }
 
+        vm.prank(barry);
         vm.expectRevert("Loan has been paid on time");
         loan.doPayment{ value: singlePayment }();
 
@@ -458,11 +459,75 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         assertEq(oneCoin.balanceOf(address(loan)), 0);
     }
 
-    /*function testPaymentCoinEth() public {
+    function testPaymentCoinEth() public {
+        _testIssuanceCoinEth();
+        Loan loan = _testAcceptanceCoinEth();
 
+        uint256 numberOfPayments = loan.getRemaining() / loan.getSinglePayment();
+        assertEq(numberOfPayments, 10);
+
+        oneCoin.mint(barry, loan.getRemaining());
+        oneCoin.mint(mallory, loan.getRemaining());
+    
+        vm.prank(barry);
+        vm.expectRevert("Not yet time to pay your loan");
+        loan.doPayment();
+        
+        vm.prank(barry);
+        vm.warp(interval);
+        vm.expectRevert("There is not enough allowance to settle your payment");
+        loan.doPayment();
+        
+        vm.prank(barry);
+        oneCoin.approve(address(loan), singlePayment);
+        vm.prank(barry);
+        loan.doPayment();
+        assertEq(loan.getRemaining(), toBePaid - singlePayment);
+    
+        vm.prank(barry);
+        oneCoin.approve(address(loan), singlePayment);
+        vm.prank(barry);
+        vm.expectRevert("Not yet time to pay your loan");
+        loan.doPayment();
+    
+        vm.warp(2 * interval);
+        vm.prank(mallory);
+        oneCoin.approve(address(loan), singlePayment);
+        vm.prank(mallory);
+        vm.expectRevert("Only borrower can repay a loan");
+        loan.doPayment();
+
+        numberOfPayments = loan.getRemaining() / loan.getSinglePayment();
+        assertEq(numberOfPayments, 9);
+        for (uint256 i = 0; i < numberOfPayments; i++) {
+            vm.prank(barry);
+            oneCoin.approve(address(loan), singlePayment);
+            vm.prank(barry);
+            if (i == numberOfPayments - 1) {
+                vm.expectCall(address(barry), collateral, emptyBytes);
+                loan.doPayment();
+            } else {
+                loan.doPayment();
+            }
+            vm.warp((3 + i) * interval);
+        }
+
+        vm.prank(barry);
+        oneCoin.approve(address(loan), singlePayment);
+
+        vm.prank(barry);
+        vm.expectRevert("Loan has been paid on time");
+        loan.doPayment();
+
+        assertEq(loan.getRemaining(), 0);
+
+        vm.prank(address(loan));
+        (bool ok3,) = barry.call{ value: 1 }(""); // Wallet should be empty
+        assertFalse(ok3);
+        assertEq(oneCoin.balanceOf(address(loan)), 0);
     }
 
-    function testPaymentCoinCoin() public {
+    /*function testPaymentCoinCoin() public {
 
     }
 

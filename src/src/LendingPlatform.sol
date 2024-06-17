@@ -196,7 +196,7 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         (bool found, uint256 getFromIndex) = _findLoanOfferIndex(id);
         require(found, "Loan already taken");
         LoanOffer memory loanOfferAt = _loanOffers[getFromIndex];
-        require(msg.sender == loanOfferAt.from || owner() == loanOfferAt.from, "Loan offer can only be removed by contract owner or loan issuer");
+        require(msg.sender == loanOfferAt.from, "Loan offer can only be removed by loan issuer");
         if (loanOfferAt.isEth) {
             (bool ok,) = address(this).call{ value: loanOfferAt.loanData.amount }("");
             require(ok, "Could not transfer loan amount back to lender");
@@ -402,7 +402,7 @@ contract Loan {
             (bool ok,) = _lender.call{ value: _singlePayment }("");
             require(ok, "Payment couldn't be processed");
         } else {
-            require(_coin.allowance(msg.sender, address(this)) > _singlePayment, "There is not enough allowance to settle your payment");
+            require(_coin.allowance(msg.sender, address(this)) >= _singlePayment, "There is not enough allowance to settle your payment");
             bool okToContract = _coin.transferFrom(msg.sender, address(this), _singlePayment);
             require(okToContract, "Payment to contract couldn't be processed");
             bool okToLender = _coin.transfer(_lender, _singlePayment);
