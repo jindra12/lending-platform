@@ -216,6 +216,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         assertEq(loanOffer.loanData.interval, interval);
         assertEq(loanOffer.loanData.singlePayment, singlePayment);
         assertEq(loanOffer.loanData.toBePaid, toBePaid);
+        assertEq(oneCoin.balanceOf(address(lendingPlatform)), amount);
     }
 
     function testIssuanceCoinCoin() public {
@@ -236,6 +237,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         assertEq(loanOffer.loanData.interval, interval);
         assertEq(loanOffer.loanData.singlePayment, singlePayment);
         assertEq(loanOffer.loanData.toBePaid, toBePaid);
+        assertEq(oneCoin.balanceOf(address(lendingPlatform)), amount);
     }
 
     function testAcceptanceEthEth() public {
@@ -287,6 +289,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         vm.expectRevert("There is no request for early repayment");
         loan.getRequestPaidEarlyAmount();
         assertEq(loan.getSinglePayment(), singlePayment);
+        assertEq(oneCoin.balanceOf(address(loan)), collateral);
     }
 
     function testAcceptanceCoinEth() public {
@@ -336,6 +339,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         vm.expectRevert("There is no request for early repayment");
         loan.getRequestPaidEarlyAmount();
         assertEq(loan.getSinglePayment(), singlePayment);
+        assertEq(twoCoin.balanceOf(address(loan)), collateral);
     }
 
     function testPaymentEthEth() public {
@@ -395,11 +399,66 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         assertFalse(ok3);
     }
 
-    /*function testPaymentEthCoin() public {
+    function testPaymentEthCoin() public {
+        _testIssuanceEthCoin();
+        Loan loan = _testAcceptanceEthCoin();
 
+        uint256 numberOfPayments = loan.getRemaining() / loan.getSinglePayment();
+        assertEq(numberOfPayments, 10);
+
+        (bool ok,) = barry.call{ value: singlePayment * numberOfPayments }("");
+        (bool ok2,) = mallory.call{ value: singlePayment * numberOfPayments }("");
+        assertTrue(ok);
+        assertTrue(ok2);
+    
+        vm.prank(barry);
+        vm.expectRevert("Not yet time to pay your loan");
+        loan.doPayment{ value: singlePayment }();
+        
+        vm.prank(barry);
+        vm.warp(interval);
+        vm.expectRevert("Incorrect value of message value, must equal your single payment");
+        loan.doPayment();
+        
+        vm.prank(barry);
+        loan.doPayment{ value: singlePayment }();
+        assertEq(loan.getRemaining(), toBePaid - singlePayment);
+    
+        vm.prank(barry);
+        vm.expectRevert("Not yet time to pay your loan");
+        loan.doPayment{ value: singlePayment }();
+    
+        vm.warp(2 * interval);
+        vm.prank(mallory);
+        vm.expectRevert("Only borrower can repay a loan");
+        loan.doPayment{ value: singlePayment }();
+
+        numberOfPayments = loan.getRemaining() / loan.getSinglePayment();
+        assertEq(numberOfPayments, 9);
+        for (uint256 i = 0; i < numberOfPayments; i++) {
+            vm.prank(barry);
+            if (i == numberOfPayments - 1) {
+                loan.doPayment{ value: singlePayment }();
+            } else {
+                loan.doPayment{ value: singlePayment }();
+            }
+            vm.warp((3 + i) * interval);
+        }
+
+        vm.expectRevert("Loan has been paid on time");
+        loan.doPayment{ value: singlePayment }();
+
+        assertEq(loan.getRemaining(), 0);
+
+        vm.prank(address(loan));
+        (bool ok3,) = barry.call{ value: 1 }(""); // Wallet should be empty
+        assertFalse(ok3);
+
+        assertEq(oneCoin.balanceOf(barry), collateral);
+        assertEq(oneCoin.balanceOf(address(loan)), 0);
     }
 
-    function testPaymentCoinEth() public {
+    /*function testPaymentCoinEth() public {
 
     }
 

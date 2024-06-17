@@ -216,7 +216,9 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         } else {
             require(loanOfferAt.loanData.collateral.collateralCoin.allowance(msg.sender, address(this)) >= loanOfferAt.loanData.collateral.value, "Not enough allowance for collateral");
             bool okcollateral = loanOfferAt.loanData.collateral.collateralCoin.transferFrom(msg.sender, address(this), loanOfferAt.loanData.collateral.value);
-            require(okcollateral, "Collateral transfer failed");
+            require(okcollateral, "Collateral transfer to lending platform failed");
+            bool okloancollateral = loanOfferAt.loanData.collateral.collateralCoin.transfer(address(loan), loanOfferAt.loanData.collateral.value);
+            require(okloancollateral, "Collateral transfer to loan failed");
             loan.setCoinCollateral(loanOfferAt.loanData.collateral.collateralCoin, loanOfferAt.loanData.collateral.value);
         }
 
