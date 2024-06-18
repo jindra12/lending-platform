@@ -32,6 +32,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
     uint256 immutable collateral = 100;
     uint256 immutable singlePayment = 100;
     uint256 immutable loanFee = 100;
+    uint256 immutable earlyRepayment = 800;
     bytes public emptyBytes;
 
     function makeAccount(uint32 random, uint256 funds) internal returns(address) {
@@ -710,19 +711,68 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         loan.defaultOnLoan();
     }
 
-    /*function testEarlyRepaiment() public {
+    function testEarlyRepaymentEthEth() public {
+        _testIssuanceEthEth();
+        Loan loan = _testAcceptanceEthEth();
+
+        vm.prank(andrea);
+        vm.expectRevert("Early repayment not requested");
+        loan.acceptEarlyRepayment();
+
+        (bool earlyRepaymentRequested,) = barry.call{ value: earlyRepayment }("");
+        assertTrue(earlyRepaymentRequested);
+        vm.prank(barry);
+        loan.requestEarlyRepayment{ value: earlyRepayment }();
+
+        vm.prank(barry);
+        vm.expectRevert("Already requested early repayment");
+        loan.requestEarlyRepayment{ value: earlyRepayment }();
+
+        vm.prank(mallory);
+        vm.expectRevert("Incorrect sender in request");
+        loan.acceptEarlyRepayment();
+
+        vm.prank(andrea);
+        vm.expectCall(barry, collateral, emptyBytes);
+        vm.expectCall(andrea, earlyRepayment, emptyBytes);
+        loan.acceptEarlyRepayment();
+
+        vm.prank(address(loan));
+        (bool shouldFail,) = barry.call{ value: 1 }("");
+        assertFalse(shouldFail);
+    }
+
+    /*function testEarlyRepaymentEthCoin() public {
+        _testIssuanceEthCoin();
+        Loan loan = _testAcceptanceEthCoin();
 
     }
 
-    function testEarlyRepaimentRefusal() public {
+    function testEarlyRepaymentCoinEth() public {
+        _testIssuanceCoinEth();
+        Loan loan = _testAcceptanceCoinEth();
 
     }
 
-    function testEarlyRepaimentEth() public {
+    function testEarlyRepaymentCoinCoin() public {
+        _testIssuanceCoinCoin();
+        Loan loan = _testAcceptanceCoinCoin();
 
     }
 
-    function testEarlyRepaimentCoin() public {
+    function testEarlyRepaymentRefusalEthEth() public {
+
+    }
+
+    function testEarlyRepaymentRefusalEthCoin() public {
+
+    }
+
+    function testEarlyRepaymentRefusalCoinEth() public {
+
+    }
+
+    function testEarlyRepaymentRefusalCoinCoin() public {
 
     }
     

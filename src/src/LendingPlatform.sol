@@ -426,42 +426,48 @@ contract Loan {
         }
     }
 
-    function _checkRequestEarlyRepaiment() internal view {
+    function _checkRequestEarlyRepayment() internal view {
         require(!_inDefault, "Loan has defaulted already");
         require(!_paidEarly, "Loan has been paid early");
         require(_remaining != 0, "Loan has been paid for");
         require(msg.sender == _borrower, "Incorrect sender in request");
-        require(!_requestPaidEarly, "Already requested early repaiment");
+        require(!_requestPaidEarly, "Already requested early repayment");
     }
 
-    function requestEarlyRepaiment() public payable {
-        _checkRequestEarlyRepaiment();
-        require(_isEth, "Repaiment must be in loan currency");
+    function requestEarlyRepayment() public payable {
+        _checkRequestEarlyRepayment();
+        require(_isEth, "Repayment must be in loan currency");
         _requestPaidEarlyAmount = msg.value;
         _requestPaidEarly = true;
         emit RequestEarlyRepayment(msg.value);
     }
 
-    function requestEarlyRepaiment(uint256 amount) public {
-        _checkRequestEarlyRepaiment();
-        require(!_isEth, "Repaiment must be in loan currency");
+    function requestEarlyRepayment(uint256 amount) public {
+        _checkRequestEarlyRepayment();
+        require(!_isEth, "Repayment must be in loan currency");
         _requestPaidEarlyAmount = amount;
         _requestPaidEarly = true;
+        require(_coin.allowance(_borrower, address(this)) >= amount, "Not enough in allowance for early repayment");
+        bool ok = _coin.transfer(_borrower, amount);
+        require(ok, "Early repayment transfer failed");
         emit RequestEarlyRepayment(amount);
     }
 
-    function _earlyRepaimentDecisionCheck() internal view {
+    function _earlyRepaymentDecisionCheck() internal view {
         require(!_inDefault, "Loan has defaulted already");
         require(!_paidEarly, "Loan has been paid early");
         require(_remaining != 0, "Loan has been paid for");
-        require(_requestPaidEarly, "Early repaiment not requested");
+        require(_requestPaidEarly, "Early repayment not requested");
     }
 
-    function rejectEarlyRepaiment() public {
-        _earlyRepaimentDecisionCheck();
+    function rejectEarlyRepayment() public {
+        _earlyRepaymentDecisionCheck();
         require(msg.sender == _lender || msg.sender == _borrower, "Incorrect sender in request");
         if (_isEth) {
             (bool okReturn,) = _borrower.call{ value: _requestPaidEarlyAmount }("");
+            require(okReturn, "Could not return requested early repayment");
+        } else {
+            bool okReturn = _coin.transfer(_borrower, _requestPaidEarlyAmount);
             require(okReturn, "Could not return requested early repayment");
         }
         _requestPaidEarly = false;
@@ -469,17 +475,23 @@ contract Loan {
         emit RejectEarlyRepayment();
     }
 
-    function acceptEarlyRepaiment() public {
-        _earlyRepaimentDecisionCheck();
+    function acceptEarlyRepayment() public {
+        _earlyRepaymentDecisionCheck();
         require(msg.sender == _lender, "Incorrect sender in request");
         _paidEarly = true;
         if (_isEth) {
             (bool ok,) = _lender.call{ value: _requestPaidEarlyAmount }("");
-            require(ok, "Early repaiment transaction failed");
+            require(ok, "Early repayment transaction failed");
         } else {
-            require(_coin.allowance(_borrower, _lender) > _requestPaidEarlyAmount, "Not enough allowance in borrowers wallet");
-            bool ok = _coin.transferFrom(_borrower, _lender, _requestPaidEarlyAmount);
-            require(ok, "Early repaiment transaction failed");
+            bool ok = _coin.transfer(_lender, _requestPaidEarlyAmount);
+            require(ok, "Early repayment transaction failed");
+        }
+        if (_isCollateralEth) {
+            (bool ok,) = _borrower.call{ value: _collateral }("");
+            require(ok, "Early repayment collateral return failed");
+        } else {
+            bool ok = _collateralCoin.transfer(_borrower, _collateral);
+            require(ok, "Early repayment collateral return failed");
         }
         emit AcceptEarlyRepayment(_requestPaidEarlyAmount);
     }
