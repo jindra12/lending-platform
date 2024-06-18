@@ -722,11 +722,11 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         (bool earlyRepaymentRequested,) = barry.call{ value: earlyRepayment }("");
         assertTrue(earlyRepaymentRequested);
         vm.prank(barry);
-        loan.requestEarlyRepayment{ value: earlyRepayment }();
+        loan.requestEarlyRepaymentEth{ value: earlyRepayment }();
 
         vm.prank(barry);
         vm.expectRevert("Already requested early repayment");
-        loan.requestEarlyRepayment{ value: earlyRepayment }();
+        loan.requestEarlyRepaymentEth{ value: earlyRepayment }();
 
         vm.prank(mallory);
         vm.expectRevert("Incorrect sender in request");
@@ -740,43 +740,199 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         vm.prank(address(loan));
         (bool shouldFail,) = barry.call{ value: 1 }("");
         assertFalse(shouldFail);
+        assertTrue(loan.getPaidEarly());
     }
 
-    /*function testEarlyRepaymentEthCoin() public {
+    function testEarlyRepaymentEthCoin() public {
         _testIssuanceEthCoin();
         Loan loan = _testAcceptanceEthCoin();
 
+        vm.prank(andrea);
+        vm.expectRevert("Early repayment not requested");
+        loan.acceptEarlyRepayment();
+
+        (bool earlyRepaymentRequested,) = barry.call{ value: earlyRepayment }("");
+        assertTrue(earlyRepaymentRequested);
+        vm.prank(barry);
+        loan.requestEarlyRepaymentEth{ value: earlyRepayment }();
+
+        vm.prank(barry);
+        vm.expectRevert("Already requested early repayment");
+        loan.requestEarlyRepaymentEth{ value: earlyRepayment }();
+
+        vm.prank(mallory);
+        vm.expectRevert("Incorrect sender in request");
+        loan.acceptEarlyRepayment();
+
+        assertEq(oneCoin.balanceOf(address(loan)), collateral);
+        vm.expectCall(andrea, earlyRepayment, emptyBytes);
+        vm.prank(andrea);
+        loan.acceptEarlyRepayment();
+        assertEq(oneCoin.balanceOf(address(loan)), 0);
+        assertEq(oneCoin.balanceOf(barry), collateral);
+
+        vm.prank(address(loan));
+        (bool shouldFail,) = barry.call{ value: 1 }("");
+        assertFalse(shouldFail);
+        assertTrue(loan.getPaidEarly());
     }
 
     function testEarlyRepaymentCoinEth() public {
         _testIssuanceCoinEth();
         Loan loan = _testAcceptanceCoinEth();
+        vm.prank(andrea);
+        vm.expectRevert("Early repayment not requested");
+        loan.acceptEarlyRepayment();
 
+        oneCoin.mint(barry, earlyRepayment);
+        vm.prank(barry);
+        oneCoin.approve(address(loan), earlyRepayment);
+        vm.prank(barry);
+        loan.requestEarlyRepaymentCoin(earlyRepayment);
+
+        vm.prank(mallory);
+        vm.expectRevert("Incorrect sender in request");
+        loan.requestEarlyRepaymentCoin(earlyRepayment);
+
+        vm.prank(barry);
+        vm.expectRevert("Already requested early repayment");
+        loan.requestEarlyRepaymentCoin(earlyRepayment);
+
+        vm.prank(mallory);
+        vm.expectRevert("Incorrect sender in request");
+        loan.acceptEarlyRepayment();
+
+        assertEq(oneCoin.balanceOf(address(loan)), earlyRepayment);
+        vm.prank(andrea);
+        vm.expectCall(barry, collateral, emptyBytes);
+        loan.acceptEarlyRepayment();
+        assertEq(oneCoin.balanceOf(address(loan)), 0);
+
+        vm.prank(address(loan));
+        (bool shouldFail,) = barry.call{ value: 1 }("");
+        assertFalse(shouldFail);
+        assertTrue(loan.getPaidEarly());
     }
 
     function testEarlyRepaymentCoinCoin() public {
         _testIssuanceCoinCoin();
         Loan loan = _testAcceptanceCoinCoin();
+        vm.prank(andrea);
+        vm.expectRevert("Early repayment not requested");
+        loan.acceptEarlyRepayment();
 
+        oneCoin.mint(barry, earlyRepayment);
+        vm.prank(barry);
+        oneCoin.approve(address(loan), earlyRepayment);
+        vm.prank(barry);
+        loan.requestEarlyRepaymentCoin(earlyRepayment);
+
+        vm.prank(mallory);
+        vm.expectRevert("Incorrect sender in request");
+        loan.requestEarlyRepaymentCoin(earlyRepayment);
+
+        vm.prank(barry);
+        vm.expectRevert("Already requested early repayment");
+        loan.requestEarlyRepaymentCoin(earlyRepayment);
+
+        vm.prank(mallory);
+        vm.expectRevert("Incorrect sender in request");
+        loan.acceptEarlyRepayment();
+
+        assertEq(oneCoin.balanceOf(address(loan)), earlyRepayment);
+        vm.prank(andrea);
+        loan.acceptEarlyRepayment();
+        assertEq(oneCoin.balanceOf(address(loan)), 0);
+        assertTrue(loan.getPaidEarly());
     }
 
     function testEarlyRepaymentRefusalEthEth() public {
+        _testIssuanceEthEth();
+        Loan loan = _testAcceptanceEthEth();
 
+        (bool earlyRepaymentRequested,) = barry.call{ value: earlyRepayment }("");
+        assertTrue(earlyRepaymentRequested);
+        vm.prank(barry);
+        loan.requestEarlyRepaymentEth{ value: earlyRepayment }();
+        vm.prank(barry);
+        vm.expectCall(barry, earlyRepayment, emptyBytes);
+        loan.rejectEarlyRepayment();
+        assertFalse(loan.getRequestPaidEarly());
+        vm.expectRevert("There is no request for early repayment");
+        loan.getRequestPaidEarlyAmount();
+
+        vm.prank(andrea);
+        vm.expectRevert("Early repayment not requested");
+        loan.acceptEarlyRepayment();
     }
 
     function testEarlyRepaymentRefusalEthCoin() public {
+        _testIssuanceEthCoin();
+        Loan loan = _testAcceptanceEthCoin();
 
+        (bool earlyRepaymentRequested,) = barry.call{ value: earlyRepayment }("");
+        assertTrue(earlyRepaymentRequested);
+        vm.prank(barry);
+        loan.requestEarlyRepaymentEth{ value: earlyRepayment }();
+        vm.prank(barry);
+        vm.expectCall(barry, earlyRepayment, emptyBytes);
+        loan.rejectEarlyRepayment();
+        assertFalse(loan.getRequestPaidEarly());
+        vm.expectRevert("There is no request for early repayment");
+        loan.getRequestPaidEarlyAmount();
+
+        vm.prank(andrea);
+        vm.expectRevert("Early repayment not requested");
+        loan.acceptEarlyRepayment();
     }
 
     function testEarlyRepaymentRefusalCoinEth() public {
+        _testIssuanceCoinEth();
+        Loan loan = _testAcceptanceCoinEth();
 
+        oneCoin.mint(barry, earlyRepayment);
+        vm.prank(barry);
+        oneCoin.approve(address(loan), earlyRepayment);
+        vm.prank(barry);
+        loan.requestEarlyRepaymentCoin(earlyRepayment);
+
+        assertEq(oneCoin.balanceOf(address(loan)), earlyRepayment);
+        vm.prank(andrea);
+        loan.rejectEarlyRepayment();
+        assertFalse(loan.getRequestPaidEarly());
+        assertEq(oneCoin.balanceOf(address(loan)), 0);
+        vm.expectRevert("There is no request for early repayment");
+        loan.getRequestPaidEarlyAmount();
+
+        vm.prank(andrea);
+        vm.expectRevert("Early repayment not requested");
+        loan.acceptEarlyRepayment();
     }
 
     function testEarlyRepaymentRefusalCoinCoin() public {
+        _testIssuanceCoinCoin();
+        Loan loan = _testAcceptanceCoinCoin();
 
+        oneCoin.mint(barry, earlyRepayment);
+        vm.prank(barry);
+        oneCoin.approve(address(loan), earlyRepayment);
+        vm.prank(barry);
+        loan.requestEarlyRepaymentCoin(earlyRepayment);
+
+        assertEq(oneCoin.balanceOf(address(loan)), earlyRepayment);
+        vm.prank(andrea);
+        loan.rejectEarlyRepayment();
+        assertFalse(loan.getRequestPaidEarly());
+        assertEq(oneCoin.balanceOf(address(loan)), 0);
+        vm.expectRevert("There is no request for early repayment");
+        loan.getRequestPaidEarlyAmount();
+
+        vm.prank(andrea);
+        vm.expectRevert("Early repayment not requested");
+        loan.acceptEarlyRepayment();
     }
     
-    function testRemoveLoan() public {
+    /*function testRemoveLoan() public {
 
     }
 

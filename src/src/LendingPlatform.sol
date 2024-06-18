@@ -434,7 +434,7 @@ contract Loan {
         require(!_requestPaidEarly, "Already requested early repayment");
     }
 
-    function requestEarlyRepayment() public payable {
+    function requestEarlyRepaymentEth() public payable {
         _checkRequestEarlyRepayment();
         require(_isEth, "Repayment must be in loan currency");
         _requestPaidEarlyAmount = msg.value;
@@ -442,13 +442,13 @@ contract Loan {
         emit RequestEarlyRepayment(msg.value);
     }
 
-    function requestEarlyRepayment(uint256 amount) public {
+    function requestEarlyRepaymentCoin(uint256 amount) public {
         _checkRequestEarlyRepayment();
         require(!_isEth, "Repayment must be in loan currency");
         _requestPaidEarlyAmount = amount;
         _requestPaidEarly = true;
         require(_coin.allowance(_borrower, address(this)) >= amount, "Not enough in allowance for early repayment");
-        bool ok = _coin.transfer(_borrower, amount);
+        bool ok = _coin.transferFrom(_borrower, address(this), amount);
         require(ok, "Early repayment transfer failed");
         emit RequestEarlyRepayment(amount);
     }
