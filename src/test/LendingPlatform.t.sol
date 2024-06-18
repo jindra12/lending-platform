@@ -677,11 +677,40 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         loan.defaultOnLoan();
     }
 
-    /*function testDefaultCoinCoin() public {
+    function testDefaultCoinCoin() public {
+        _testIssuanceCoinCoin();
+        Loan loan = _testAcceptanceCoinCoin();
+        oneCoin.mint(barry, singlePayment);
+        oneCoin.mint(mallory, singlePayment);
 
+        vm.prank(barry);
+        oneCoin.approve(address(loan), singlePayment);
+
+        vm.prank(mallory);
+        oneCoin.approve(address(loan), singlePayment);
+
+        vm.prank(andrea);
+        vm.expectRevert("Borrower has not yet reached default time");
+        loan.defaultOnLoan();
+        vm.warp(interval);
+        vm.prank(barry);
+        loan.doPayment();
+        vm.warp(interval + defaultLimit);
+        vm.prank(mallory);
+        vm.expectRevert("Only lender can trigger default");
+        loan.defaultOnLoan();
+        assertEq(twoCoin.balanceOf(address(loan)), collateral);
+        vm.prank(andrea);
+        loan.defaultOnLoan();
+        assertTrue(loan.getIsDefault());
+        assertEq(twoCoin.balanceOf(address(loan)), 0);
+        assertEq(twoCoin.balanceOf(andrea), collateral);
+        vm.prank(andrea);
+        vm.expectRevert("Loan already in default");
+        loan.defaultOnLoan();
     }
 
-    function testEarlyRepaiment() public {
+    /*function testEarlyRepaiment() public {
 
     }
 
@@ -695,5 +724,23 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
 
     function testEarlyRepaimentCoin() public {
 
-    }*/
+    }
+    
+    function testRemoveLoan() public {
+
+    }
+
+    function testMultipleLoans() public {
+
+    }
+
+    function testDefaultWithEarlyRepayment() public {
+
+    }
+
+    function testDefaultWithEarlyRepaymentWithCoins() public {
+
+    }
+
+    */
 }
