@@ -157,10 +157,10 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         return _loanOffers.length;
     }
 
-    function listLoanOffers(uint256 from, uint256 to) public view returns(LoanOffer[] memory) {
-        LoanOffer[] memory acc = new LoanOffer[](to - from);
-        for (uint256 i = from; i < to; i++) {
-            acc[i] = _loanOffers[i];
+    function listLoanOffers(uint256 from, uint256 count) public view returns(LoanOffer[] memory) {
+        LoanOffer[] memory acc = new LoanOffer[](count);
+        for (uint256 i = 0; i < count; i++) {
+            acc[i] = _loanOffers[from + i];
         }
         return acc;
     }
@@ -198,7 +198,7 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         LoanOffer memory loanOfferAt = _loanOffers[getFromIndex];
         require(msg.sender == loanOfferAt.from, "Loan offer can only be removed by loan issuer");
         if (loanOfferAt.isEth) {
-            (bool ok,) = address(this).call{ value: loanOfferAt.loanData.amount }("");
+            (bool ok,) = loanOfferAt.from.call{ value: loanOfferAt.loanData.amount }("");
             require(ok, "Could not transfer loan amount back to lender");
         } else {
             bool ok = loanOfferAt.coin.transfer(loanOfferAt.from, loanOfferAt.loanData.amount);

@@ -55,37 +55,37 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         emptyBytes = new bytes(0);
     }
 
-    function _testIssuanceEthEth() internal {
+    function _testIssuanceEthEth(uint256 loanId) internal {
         vm.prank(andrea);
         vm.warp(0);
         vm.expectEmit(true, false, false, false, address(lendingPlatform));
-        emit IssuedLoan(1);
+        emit IssuedLoan(loanId);
         lendingPlatform.offerLoanEthEth{ value: amount }(toBePaid, interval, defaultLimit, singlePayment, collateral);
     }
 
-    function _testIssuanceEthCoin() internal {
+    function _testIssuanceEthCoin(uint256 loanId) internal {
         oneCoin.mint(barry, collateral);
         vm.prank(barry);
         oneCoin.approve(address(lendingPlatform), collateral);
         vm.prank(andrea);
         vm.warp(0);
         vm.expectEmit(true, false, false, false, address(lendingPlatform));
-        emit IssuedLoan(1);
+        emit IssuedLoan(loanId);
         lendingPlatform.offerLoanEthCoin{ value: amount }(toBePaid, interval, defaultLimit, singlePayment, collateral, oneCoin);
     }
 
-    function _testIssuanceCoinEth() internal {
+    function _testIssuanceCoinEth(uint256 loanId) internal {
         oneCoin.mint(andrea, amount);
         vm.prank(andrea);
         oneCoin.approve(address(lendingPlatform), amount);
         vm.prank(andrea);
         vm.warp(0);
         vm.expectEmit(true, false, false, false, address(lendingPlatform));
-        emit IssuedLoan(1);
+        emit IssuedLoan(loanId);
         lendingPlatform.offerLoanCoinEth(amount, toBePaid, interval, defaultLimit, singlePayment, collateral, oneCoin);
     }
 
-    function _testIssuanceCoinCoin() internal {
+    function _testIssuanceCoinCoin(uint256 loanId) internal {
         oneCoin.mint(andrea, amount);
         vm.prank(andrea);
         oneCoin.approve(address(lendingPlatform), amount);
@@ -95,8 +95,24 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         vm.prank(andrea);
         vm.warp(0);
         vm.expectEmit(true, false, false, false, address(lendingPlatform));
-        emit IssuedLoan(1);
+        emit IssuedLoan(loanId);
         lendingPlatform.offerLoanCoinCoin(amount, toBePaid, interval, defaultLimit, singlePayment, collateral, oneCoin, twoCoin);
+    }
+
+    function _testIssuanceEthEth() internal {
+        _testIssuanceEthEth(1);
+    }
+
+    function _testIssuanceEthCoin() internal {
+        _testIssuanceEthCoin(1);
+    }
+
+    function _testIssuanceCoinEth() internal {
+        _testIssuanceCoinEth(1);
+    }
+
+    function _testIssuanceCoinCoin() internal {
+        _testIssuanceCoinCoin(1);
     }
 
     function _testAcceptanceEthEth() internal returns(Loan) {
@@ -932,14 +948,47 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         loan.acceptEarlyRepayment();
     }
     
-    /*function testRemoveLoan() public {
+    function testRemoveLoan() public {
+        _testIssuanceEthEth(1);
+        _testIssuanceCoinCoin(2);
+        _testIssuanceEthCoin(3);
 
+        assertEq(lendingPlatform.getLoanOffersLength(), 3);
+
+        LoanOffer[] memory loanOffers = lendingPlatform.listLoanOffers(1, 2);
+        assertEq(loanOffers.length, 2);
+        assertEq(loanOffers[0].id, 2);
+        assertEq(loanOffers[1].id, 3);
+
+        vm.prank(mallory);
+        vm.expectRevert("Loan offer can only be removed by loan issuer");
+        lendingPlatform.removeLoan(2);
+
+        assertEq(oneCoin.balanceOf(address(lendingPlatform)), amount);
+        vm.prank(andrea);
+        lendingPlatform.removeLoan(2);
+        assertEq(oneCoin.balanceOf(address(lendingPlatform)), 0);
+
+        assertEq(lendingPlatform.getLoanOffersLength(), 2);
+
+        vm.prank(andrea);
+        vm.expectCall(andrea, amount, emptyBytes);
+        lendingPlatform.removeLoan(1);
+
+        assertEq(lendingPlatform.getLoanOffersLength(), 1);
+
+        vm.prank(andrea);
+        vm.expectCall(andrea, amount, emptyBytes);
+        lendingPlatform.removeLoan(3);
+
+        assertEq(lendingPlatform.getLoanOffersLength(), 0);
+
+        vm.prank(address(lendingPlatform));
+        (bool notOk,) = andrea.call{ value: 1 }("");
+        assertFalse(notOk);
     }
 
-    function testMultipleLoans() public {
-
-    }
-
+    /*
     function testDefaultWithEarlyRepayment() public {
 
     }
