@@ -490,18 +490,23 @@ contract Loan {
         require(!_inDefault, "Loan already in default");
         require(_remaining > 0, "Loan paid off fully");
         _inDefault = true;
-        if (_isEth) {
+        if (_isCollateralEth) {
             (bool ok,) = msg.sender.call{ value: _collateral }("");
             require(ok, "Collateral payment failed");
-            if (_requestPaidEarly) {
-                _requestPaidEarly = false;
-                _requestPaidEarlyAmount = 0;
+        } else {
+            bool ok = _collateralCoin.transfer(_lender, _collateral);
+            require(ok, "Collateral payment failed");
+        }
+        if (_requestPaidEarly) {
+            if (_isEth) {
                 (bool okReturnEarly,) = _borrower.call{ value: _requestPaidEarlyAmount }("");
                 require(okReturnEarly, "Could not return early repayment request");
+            } else {
+                bool okReturnEarly = _collateralCoin.transfer(_borrower, _requestPaidEarlyAmount);
+                require(okReturnEarly, "Could not return early repayment request");
             }
-        } else {
-            bool ok = _coin.transfer(_lender, _collateral);
-            require(ok, "Collateral payment failed");
+            _requestPaidEarly = false;
+            _requestPaidEarlyAmount = 0;
         }
         emit DefaultOnLoan(block.timestamp, _collateral);
     }

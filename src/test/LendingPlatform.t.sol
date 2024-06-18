@@ -618,11 +618,35 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         loan.defaultOnLoan();
     }
 
-    /*function testDefaultEthCoin() public {
+    function testDefaultEthCoin() public {
+        _testIssuanceEthCoin();
+        Loan loan = _testAcceptanceEthCoin();
+        vm.prank(andrea);
+        vm.expectRevert("Borrower has not yet reached default time");
+        loan.defaultOnLoan();
 
+        vm.warp(interval);
+        vm.prank(barry);
+        loan.doPayment{ value: singlePayment }();
+
+        vm.warp(interval + defaultLimit);
+        vm.prank(mallory);
+        vm.expectRevert("Only lender can trigger default");
+        loan.defaultOnLoan();
+
+        assertEq(oneCoin.balanceOf(address(loan)), collateral);
+        vm.prank(andrea);
+        loan.defaultOnLoan();
+        assertEq(oneCoin.balanceOf(address(loan)), 0);
+        assertEq(oneCoin.balanceOf(andrea), collateral);
+        assertTrue(loan.getIsDefault());
+
+        vm.prank(andrea);
+        vm.expectRevert("Loan already in default");
+        loan.defaultOnLoan();
     }
 
-    function testDefaultCoinEth() public {
+    /*function testDefaultCoinEth() public {
 
     }
 
