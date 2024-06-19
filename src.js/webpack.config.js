@@ -2,7 +2,10 @@ const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
-  entry: "./index.ts",
+  entry: {
+    index: "./index.tsx",
+    styles: "./styles/index.scss",
+  },
   module: {
     rules: [
       {
