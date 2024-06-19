@@ -514,7 +514,7 @@ contract Loan {
                 (bool okReturnEarly,) = _borrower.call{ value: _requestPaidEarlyAmount }("");
                 require(okReturnEarly, "Could not return early repayment request");
             } else {
-                bool okReturnEarly = _collateralCoin.transfer(_borrower, _requestPaidEarlyAmount);
+                bool okReturnEarly = _coin.transfer(_borrower, _requestPaidEarlyAmount);
                 require(okReturnEarly, "Could not return early repayment request");
             }
             _requestPaidEarly = false;

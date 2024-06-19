@@ -988,14 +988,41 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         assertFalse(notOk);
     }
 
-    /*
     function testDefaultWithEarlyRepayment() public {
+        (bool ok,) = barry.call{ value: earlyRepayment }("");
+        assertTrue(ok);
+        
+        _testIssuanceEthEth();
+        Loan loan = _testAcceptanceEthEth();
 
+        vm.prank(barry);
+        loan.requestEarlyRepaymentEth{ value: earlyRepayment }();
+
+        vm.warp(defaultLimit);
+        vm.prank(andrea);
+        vm.expectCall(andrea, collateral, emptyBytes);
+        vm.expectCall(barry, earlyRepayment, emptyBytes);
+        loan.defaultOnLoan();
     }
 
     function testDefaultWithEarlyRepaymentWithCoins() public {
+        _testIssuanceCoinCoin();
+        Loan loan = _testAcceptanceCoinCoin();
 
+        oneCoin.mint(barry, earlyRepayment);
+        vm.prank(barry);
+        bool ok = oneCoin.approve(address(loan), earlyRepayment);
+        assertTrue(ok);
+        vm.prank(barry);
+        loan.requestEarlyRepaymentCoin(earlyRepayment);
+
+        assertEq(oneCoin.balanceOf(address(loan)), earlyRepayment);
+        assertEq(twoCoin.balanceOf(address(loan)), collateral);
+        vm.warp(defaultLimit);
+        vm.prank(andrea);
+        loan.defaultOnLoan();
+
+        assertEq(oneCoin.balanceOf(address(loan)), 0);
+        assertEq(twoCoin.balanceOf(address(loan)), 0);
     }
-
-    */
 }
