@@ -27,8 +27,8 @@ contract LendingPlatFormStructs {
 }
 
 contract LendingPlatformEvents {
-    event IssuedLoan(uint256 indexed loanId);
-    event AcceptedLoan(address indexed loan);
+    event IssuedLoan(uint256 indexed loanId, address indexed from);
+    event AcceptedLoan(uint256 indexed loanId, address indexed from, address indexed to, address loan);
     event RequestLoanLimit(address indexed borrower);
     event SetLoanFee(uint256 indexed amount);
     event IncreaseCoinLoanLimit(uint256 indexed amount, address indexed borrower, string indexed coinSymbol);
@@ -75,7 +75,7 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         loanOffer.id = _loanOfferId;
         _loanOfferId++;
         _loanOffers.push(loanOffer);
-        emit IssuedLoan(loanOffer.id);
+        emit IssuedLoan(loanOffer.id, loanOffer.from);
     }
 
     function _findLoanOfferIndex(uint256 id) internal view returns(bool,uint256) {
@@ -253,7 +253,7 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
             _loanCoinLimit[address(loanOfferAt.coin)][msg.sender] -= loanOfferAt.loanData.amount;
         }
         loan.finalize();
-        emit AcceptedLoan(address(loan));
+        emit AcceptedLoan(loanOfferAt.id, loanOfferAt.from, msg.sender, address(loan));
         return loan;
     }
 }

@@ -58,8 +58,8 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
     function _testIssuanceEthEth(uint256 loanId) internal {
         vm.prank(andrea);
         vm.warp(0);
-        vm.expectEmit(true, false, false, false, address(lendingPlatform));
-        emit IssuedLoan(loanId);
+        vm.expectEmit(true, true, false, false, address(lendingPlatform));
+        emit IssuedLoan(loanId, andrea);
         lendingPlatform.offerLoanEthEth{ value: amount }(toBePaid, interval, defaultLimit, singlePayment, collateral);
     }
 
@@ -69,8 +69,8 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         oneCoin.approve(address(lendingPlatform), collateral);
         vm.prank(andrea);
         vm.warp(0);
-        vm.expectEmit(true, false, false, false, address(lendingPlatform));
-        emit IssuedLoan(loanId);
+        vm.expectEmit(true, true, false, false, address(lendingPlatform));
+        emit IssuedLoan(loanId, andrea);
         lendingPlatform.offerLoanEthCoin{ value: amount }(toBePaid, interval, defaultLimit, singlePayment, collateral, oneCoin);
     }
 
@@ -80,8 +80,8 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         oneCoin.approve(address(lendingPlatform), amount);
         vm.prank(andrea);
         vm.warp(0);
-        vm.expectEmit(true, false, false, false, address(lendingPlatform));
-        emit IssuedLoan(loanId);
+        vm.expectEmit(true, true, false, false, address(lendingPlatform));
+        emit IssuedLoan(loanId, andrea);
         lendingPlatform.offerLoanCoinEth(amount, toBePaid, interval, defaultLimit, singlePayment, collateral, oneCoin);
     }
 
@@ -94,8 +94,8 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         twoCoin.approve(address(lendingPlatform), collateral);
         vm.prank(andrea);
         vm.warp(0);
-        vm.expectEmit(true, false, false, false, address(lendingPlatform));
-        emit IssuedLoan(loanId);
+        vm.expectEmit(true, true, false, false, address(lendingPlatform));
+        emit IssuedLoan(loanId, andrea);
         lendingPlatform.offerLoanCoinCoin(amount, toBePaid, interval, defaultLimit, singlePayment, collateral, oneCoin, twoCoin);
     }
 
@@ -126,8 +126,8 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         lendingPlatform.setLoanLimit(barry, amount);
 
         vm.prank(barry);
-        vm.expectEmit(false, false, false, false, address(lendingPlatform));
-        emit AcceptedLoan(address(0));
+        vm.expectEmit(true, true, true, false, address(lendingPlatform));
+        emit AcceptedLoan(1, andrea, barry, address(0));
         return lendingPlatform.acceptLoan{ value: collateral }(1);
     }
 
@@ -142,8 +142,8 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         lendingPlatform.setLoanLimit(barry, amount);
 
         vm.prank(barry);
-        vm.expectEmit(false, false, false, false, address(lendingPlatform));
-        emit AcceptedLoan(address(0));
+        vm.expectEmit(true, true, true, false, address(lendingPlatform));
+        emit AcceptedLoan(1, andrea, barry, address(0));
         return lendingPlatform.acceptLoan{ value: collateral }(1);
     }
 
@@ -158,8 +158,8 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         lendingPlatform.setLoanLimit(barry, amount, oneCoin);
 
         vm.prank(barry);
-        vm.expectEmit(false, false, false, false, address(lendingPlatform));
-        emit AcceptedLoan(address(0));
+        vm.expectEmit(true, true, true, false, address(lendingPlatform));
+        emit AcceptedLoan(1, andrea, barry, address(0));
         return lendingPlatform.acceptLoan{ value: collateral }(1);
     }
 
@@ -174,8 +174,8 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         lendingPlatform.setLoanLimit(barry, amount, oneCoin);
 
         vm.prank(barry);
-        vm.expectEmit(false, false, false, false, address(lendingPlatform));
-        emit AcceptedLoan(address(0));
+        vm.expectEmit(true, true, true, false, address(lendingPlatform));
+        emit AcceptedLoan(1, andrea, barry, address(0));
         return lendingPlatform.acceptLoan{ value: collateral }(1);
     }
 
