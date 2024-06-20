@@ -6,18 +6,26 @@
   "repository": "https://github.com/jindra12/lending-platform",
   "author": "Jan Jindráček",
   "license": "MIT",
+  "scripts": {
+    "compile": "cd ../src; forge build --force --extra-output-files abi; cd ../src.js; yarn typechain --target=ethers-v6 --out-dir=./contracts ../src/out/**/{ERC20,LendingPlatform}.abi.json"
+  },
   "dependencies": {
+    "@typechain/ethers-v6": "^0.5.1",
     "antd": "^5.18.2",
+    "ethers": "^6.13.1",
     "lodash-es": "^4.17.21",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.52.0",
+    "react-query": "^3.39.3",
     "react-router-dom": "^6.23.1",
+    "typechain": "^8.3.2",
     "web3": "^4.9.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "glob": "^10.4.2",
     "mini-css-extract-plugin": "^2.9.0",
     "sass": "^1.77.5",
     "sass-loader": "^14.2.1",

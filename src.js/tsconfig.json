@@ -3,9 +3,11 @@
         "outDir": "./dist/",
         "noImplicitAny": true,
         "module": "es6",
-        "target": "es2020",
+        "target": "ESNext",
         "jsx": "react",
         "allowJs": true,
-        "moduleResolution": "node"
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
     }
 }

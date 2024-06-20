@@ -18,7 +18,8 @@ export const AppRouter: React.FunctionComponent = () => {
                 </Route>
                 <Route path="/limit">
                     <Route path="/request" />
-                    <Route path="/issue" />
+                    <Route path="/requests" />
+                    <Route path="/issue/:borrower" />
                 </Route>
                 <Route path="/issue-loan" />
             </Routes>
