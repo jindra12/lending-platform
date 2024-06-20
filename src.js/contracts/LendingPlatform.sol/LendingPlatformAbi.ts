@@ -94,6 +94,7 @@ export interface LendingPlatformAbiInterface extends Interface {
       | "getLoanLimitRequest"
       | "getLoanOffersLength"
       | "listLoanOffers"
+      | "listLoanOffersByLender"
       | "offerLoanCoinCoin"
       | "offerLoanCoinEth"
       | "offerLoanEthCoin"
@@ -146,6 +147,10 @@ export interface LendingPlatformAbiInterface extends Interface {
   encodeFunctionData(
     functionFragment: "listLoanOffers",
     values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "listLoanOffersByLender",
+    values: [BigNumberish, BigNumberish, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "offerLoanCoinCoin",
@@ -243,6 +248,10 @@ export interface LendingPlatformAbiInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "listLoanOffers",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "listLoanOffersByLender",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -469,6 +478,12 @@ export interface LendingPlatformAbi extends BaseContract {
     "view"
   >;
 
+  listLoanOffersByLender: TypedContractMethod<
+    [from: BigNumberish, count: BigNumberish, lender: AddressLike],
+    [LendingPlatFormStructs.LoanOfferStructOutput[]],
+    "view"
+  >;
+
   offerLoanCoinCoin: TypedContractMethod<
     [
       amount: BigNumberish,
@@ -585,6 +600,13 @@ export interface LendingPlatformAbi extends BaseContract {
     nameOrSignature: "listLoanOffers"
   ): TypedContractMethod<
     [from: BigNumberish, count: BigNumberish],
+    [LendingPlatFormStructs.LoanOfferStructOutput[]],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "listLoanOffersByLender"
+  ): TypedContractMethod<
+    [from: BigNumberish, count: BigNumberish, lender: AddressLike],
     [LendingPlatFormStructs.LoanOfferStructOutput[]],
     "view"
   >;

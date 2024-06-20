@@ -7,7 +7,7 @@
   "author": "Jan Jindráček",
   "license": "MIT",
   "scripts": {
-    "compile": "cd ../src; forge build --force --extra-output-files abi; cd ../src.js; yarn typechain --target=ethers-v6 --out-dir=./contracts ../src/out/**/{ERC20,LendingPlatform}.abi.json"
+    "compile": "cd ../src; forge build --force --extra-output-files abi; cd ../src.js; yarn typechain --target=ethers-v6 --out-dir=./contracts ../src/out/**/{IERC20Metadata,LendingPlatform,Loan}.abi.json"
   },
   "dependencies": {
     "@typechain/ethers-v6": "^0.5.1",
@@ -19,8 +19,8 @@
     "react-hook-form": "^7.52.0",
     "react-query": "^3.39.3",
     "react-router-dom": "^6.23.1",
-    "typechain": "^8.3.2",
-    "web3": "^4.9.0"
+    "throw-expression": "^2.1.0",
+    "typechain": "^8.3.2"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

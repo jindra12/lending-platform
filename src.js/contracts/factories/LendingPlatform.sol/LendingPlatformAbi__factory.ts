@@ -218,6 +218,111 @@ const _abi = [
   },
   {
     type: "function",
+    name: "listLoanOffersByLender",
+    inputs: [
+      {
+        name: "from",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "count",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "lender",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "tuple[]",
+        internalType: "struct LendingPlatFormStructs.LoanOffer[]",
+        components: [
+          {
+            name: "coin",
+            type: "address",
+            internalType: "contract IERC20Metadata",
+          },
+          {
+            name: "loanData",
+            type: "tuple",
+            internalType: "struct LendingPlatFormStructs.LoanData",
+            components: [
+              {
+                name: "amount",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "toBePaid",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "interval",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "singlePayment",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "defaultLimit",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "collateral",
+                type: "tuple",
+                internalType: "struct LendingPlatFormStructs.Collateral",
+                components: [
+                  {
+                    name: "value",
+                    type: "uint256",
+                    internalType: "uint256",
+                  },
+                  {
+                    name: "isCollateralEth",
+                    type: "bool",
+                    internalType: "bool",
+                  },
+                  {
+                    name: "collateralCoin",
+                    type: "address",
+                    internalType: "contract IERC20Metadata",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            name: "from",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "id",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "isEth",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     name: "offerLoanCoinCoin",
     inputs: [
       {

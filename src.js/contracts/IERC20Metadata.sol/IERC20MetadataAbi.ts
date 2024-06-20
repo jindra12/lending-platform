@@ -23,15 +23,13 @@ import type {
   TypedContractMethod,
 } from "../common";
 
-export interface ERC20AbiInterface extends Interface {
+export interface IERC20MetadataAbiInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "allowance"
       | "approve"
       | "balanceOf"
       | "decimals"
-      | "decreaseAllowance"
-      | "increaseAllowance"
       | "name"
       | "symbol"
       | "totalSupply"
@@ -54,14 +52,6 @@ export interface ERC20AbiInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "decreaseAllowance",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "increaseAllowance",
-    values: [AddressLike, BigNumberish]
-  ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
@@ -81,14 +71,6 @@ export interface ERC20AbiInterface extends Interface {
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "decreaseAllowance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "increaseAllowance",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(
@@ -138,11 +120,11 @@ export namespace TransferEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export interface ERC20Abi extends BaseContract {
-  connect(runner?: ContractRunner | null): ERC20Abi;
+export interface IERC20MetadataAbi extends BaseContract {
+  connect(runner?: ContractRunner | null): IERC20MetadataAbi;
   waitForDeployment(): Promise<this>;
 
-  interface: ERC20AbiInterface;
+  interface: IERC20MetadataAbiInterface;
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
@@ -197,18 +179,6 @@ export interface ERC20Abi extends BaseContract {
 
   decimals: TypedContractMethod<[], [bigint], "view">;
 
-  decreaseAllowance: TypedContractMethod<
-    [spender: AddressLike, subtractedValue: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
-
-  increaseAllowance: TypedContractMethod<
-    [spender: AddressLike, addedValue: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
-
   name: TypedContractMethod<[], [string], "view">;
 
   symbol: TypedContractMethod<[], [string], "view">;
@@ -251,20 +221,6 @@ export interface ERC20Abi extends BaseContract {
   getFunction(
     nameOrSignature: "decimals"
   ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "decreaseAllowance"
-  ): TypedContractMethod<
-    [spender: AddressLike, subtractedValue: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "increaseAllowance"
-  ): TypedContractMethod<
-    [spender: AddressLike, addedValue: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
   getFunction(
     nameOrSignature: "name"
   ): TypedContractMethod<[], [string], "view">;

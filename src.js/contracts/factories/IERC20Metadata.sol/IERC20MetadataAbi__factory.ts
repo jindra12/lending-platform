@@ -3,25 +3,12 @@
 /* eslint-disable */
 
 import { Contract, Interface, type ContractRunner } from "ethers";
-import type { ERC20Abi, ERC20AbiInterface } from "../../ERC20.sol/ERC20Abi";
+import type {
+  IERC20MetadataAbi,
+  IERC20MetadataAbiInterface,
+} from "../../IERC20Metadata.sol/IERC20MetadataAbi";
 
 const _abi = [
-  {
-    type: "constructor",
-    inputs: [
-      {
-        name: "name_",
-        type: "string",
-        internalType: "string",
-      },
-      {
-        name: "symbol_",
-        type: "string",
-        internalType: "string",
-      },
-    ],
-    stateMutability: "nonpayable",
-  },
   {
     type: "function",
     name: "allowance",
@@ -101,54 +88,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "decreaseAllowance",
-    inputs: [
-      {
-        name: "spender",
-        type: "address",
-        internalType: "address",
-      },
-      {
-        name: "subtractedValue",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "bool",
-        internalType: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    name: "increaseAllowance",
-    inputs: [
-      {
-        name: "spender",
-        type: "address",
-        internalType: "address",
-      },
-      {
-        name: "addedValue",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "bool",
-        internalType: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
   },
   {
     type: "function",
@@ -294,12 +233,15 @@ const _abi = [
   },
 ] as const;
 
-export class ERC20Abi__factory {
+export class IERC20MetadataAbi__factory {
   static readonly abi = _abi;
-  static createInterface(): ERC20AbiInterface {
-    return new Interface(_abi) as ERC20AbiInterface;
+  static createInterface(): IERC20MetadataAbiInterface {
+    return new Interface(_abi) as IERC20MetadataAbiInterface;
   }
-  static connect(address: string, runner?: ContractRunner | null): ERC20Abi {
-    return new Contract(address, _abi, runner) as unknown as ERC20Abi;
+  static connect(
+    address: string,
+    runner?: ContractRunner | null
+  ): IERC20MetadataAbi {
+    return new Contract(address, _abi, runner) as unknown as IERC20MetadataAbi;
   }
 }

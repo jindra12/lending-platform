@@ -157,6 +157,20 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         return _loanOffers.length;
     }
 
+    function listLoanOffersByLender(uint256 from, uint256 count, address lender) public view returns(LoanOffer[] memory) {
+        LoanOffer[] memory acc = new LoanOffer[](count);
+        uint256 i = 0;
+        uint256 j = 0;
+        while (i < _loanOffers.length && j < count) {
+            if (lender == _loanOffers[from + i].from) {
+                acc[j] = _loanOffers[from + i];
+                j++;
+            }
+            i++;
+        }
+        return acc;
+    }
+
     function listLoanOffers(uint256 from, uint256 count) public view returns(LoanOffer[] memory) {
         LoanOffer[] memory acc = new LoanOffer[](count);
         for (uint256 i = 0; i < count; i++) {
