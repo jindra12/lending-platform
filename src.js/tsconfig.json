@@ -2,6 +2,9 @@
     "compilerOptions": {
         "outDir": "./dist/",
         "noImplicitAny": true,
+        "strictNullChecks": true,
+        "alwaysStrict": true,
+        "experimentalDecorators": true,
         "module": "es6",
         "target": "ESNext",
         "jsx": "react",

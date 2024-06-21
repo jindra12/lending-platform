@@ -1,4 +1,5 @@
 import * as React from "react";
+import EncryptRsa from "encrypt-rsa";
 import {
     LoanAbi__factory,
     LoanAbi,
@@ -7,40 +8,55 @@ import {
     LendingPlatformAbi__factory,
     IERC20MetadataAbi__factory,
 } from "../contracts";
-import { BrowserProvider } from 'ethers';
+import { BrowserProvider, ethers } from "ethers";
 import { Throw } from "throw-expression";
 import { getConfig } from "../config";
-import { useQuery as useQueryInternal, useInfiniteQuery, useMutation } from "react-query";
+import {
+    useQuery as useQueryInternal,
+    useInfiniteQuery,
+    useMutation,
+} from "react-query";
+import { LoanIssuance } from "../types";
 
 const Context = React.createContext<{
     loans: Record<string, LoanAbi>;
-    lendingPlatform: React.MutableRefObject<LendingPlatformAbi>,
-    ercs: Record<string, IERC20MetadataAbi>,
-    provider: React.MutableRefObject<BrowserProvider>,
+    lendingPlatform: React.MutableRefObject<LendingPlatformAbi>;
+    ercs: Record<string, IERC20MetadataAbi>;
+    provider: React.MutableRefObject<BrowserProvider>;
 }>(null!);
 
-const getProvider = () => new BrowserProvider((window as any).ethereum || Throw("Please install metamask"));
+const getProvider = () =>
+    new BrowserProvider(
+        (window as any).ethereum || Throw("Please install metamask")
+    );
 
 const useContext = () => React.useContext(Context)!;
 
-export const ContextProvider: React.FunctionComponent<React.PropsWithChildren> = (props) => {
+export const ContextProvider: React.FunctionComponent<
+    React.PropsWithChildren
+> = (props) => {
     const loansRef = React.useRef<Record<string, LoanAbi>>({});
     const lendingPlatformRef = React.useRef<LendingPlatformAbi>(null!);
     const ercs = React.useRef<Record<string, IERC20MetadataAbi>>({});
     const provider = React.useRef<BrowserProvider>(null!);
     return (
-        <Context.Provider value={{
-            ercs: ercs.current,
-            lendingPlatform: lendingPlatformRef,
-            loans: loansRef.current,
-            provider: provider,
-        }}>
+        <Context.Provider
+            value={{
+                ercs: ercs.current,
+                lendingPlatform: lendingPlatformRef,
+                loans: loansRef.current,
+                provider: provider,
+            }}
+        >
             {props.children}
         </Context.Provider>
     );
 };
 
-const useQuery = <TResult extends object>(getter: () => (TResult | Promise<TResult>), ...deps: any[]) => {
+const useQuery = <TResult extends object>(
+    getter: () => TResult | Promise<TResult>,
+    ...deps: any[]
+) => {
     const query = useQueryInternal(getter.toString(), getter, {
         enabled: false,
     });
@@ -52,7 +68,10 @@ const useQuery = <TResult extends object>(getter: () => (TResult | Promise<TResu
     return query;
 };
 
-const useRenewQuery = <TResult extends object>(getter: () => (TResult | Promise<TResult>), ...deps: any[]) => {
+const useRenewQuery = <TResult extends object>(
+    getter: () => TResult | Promise<TResult>,
+    ...deps: any[]
+) => {
     const query = useQueryInternal(getter.toString(), getter, {
         enabled: false,
     });
@@ -65,13 +84,21 @@ const useRenewQuery = <TResult extends object>(getter: () => (TResult | Promise<
     return query;
 };
 
-const usePaginationQuery = <TResult extends object>(getter: (pageParam: number) => (TResult[] | Promise<TResult[]>), ...deps: any[]) => {
-    const query = useInfiniteQuery(getter.toString(), ({ pageParam = 1 }) => getter(pageParam), {
-        enabled: false,
-        getNextPageParam: (lastPage, allPages) => {
-            return lastPage.length > 0 ? allPages.length + 1 : undefined;
-        },
-    });
+const usePaginationQuery = <TResult extends object>(
+    getter: (pageParam: number) => TResult[] | Promise<TResult[]>,
+    ignoreEmpty: boolean,
+    ...deps: any[]
+) => {
+    const query = useInfiniteQuery(
+        getter.toString(),
+        ({ pageParam = 1 }) => getter(pageParam),
+        {
+            enabled: false,
+            getNextPageParam: (lastPage, allPages) => {
+                return lastPage.length > 0 || ignoreEmpty ? allPages.length + 1 : undefined;
+            },
+        }
+    );
 
     React.useEffect(() => {
         query.remove();
@@ -84,63 +111,141 @@ const usePaginationQuery = <TResult extends object>(getter: (pageParam: number) 
 export const useProvider = () => {
     const { provider } = useContext();
 
-    return provider.current ||= getProvider();
+    return (provider.current ||= getProvider());
 };
 
 export const useLoan = (address: string) => {
     const { loans } = useContext();
     const provider = useProvider();
 
-    return loans[address] ||= LoanAbi__factory.connect(
-        address,
-        provider,
-    );
+    return (loans[address] ||= LoanAbi__factory.connect(address, provider));
 };
 
 export const useLendingPlatform = () => {
     const { lendingPlatform } = useContext();
     const provider = useProvider();
 
-    return lendingPlatform.current ||= LendingPlatformAbi__factory.connect(
+    return (lendingPlatform.current ||= LendingPlatformAbi__factory.connect(
         getConfig().platformContract,
-        provider,
-    );
+        provider
+    ));
 };
 
 export const useERC20 = (address: string) => {
     const { ercs } = useContext();
     const provider = useProvider();
 
-    return ercs[address] ||= IERC20MetadataAbi__factory.connect(
+    return (ercs[address] ||= IERC20MetadataAbi__factory.connect(
         address,
-        provider,
+        provider
+    ));
+};
+
+export const useLoanSearch = (count: number, lender: string | undefined) => {
+    const lendingPlatform = useLendingPlatform();
+    return usePaginationQuery(
+        (page) => {
+            return lender
+                ? lendingPlatform.listLoanOffersByLender(
+                    (page - 1) * count,
+                    count,
+                    lender
+                )
+                : lendingPlatform.listLoanOffers((page - 1) * count, count);
+        },
+        false,
+        [lender]
     );
 };
 
-export const useLoanSearch = (
-    count: number,
-    lender: string | undefined,
-) => {
+export const useIssueLoan = () => {
     const lendingPlatform = useLendingPlatform();
-    return usePaginationQuery((page) => {
-        return lender
-            ? lendingPlatform.listLoanOffersByLender((page - 1) * count, count, lender)
-            : lendingPlatform.listLoanOffers((page - 1) * count, count);
-    }, [lender]);
+    return useMutation((params: LoanIssuance) => {
+        switch (params.type) {
+            case "EthEth":
+                return lendingPlatform.offerLoanEthEth(
+                    params.toBePaid,
+                    params.interval,
+                    params.defaultLimit,
+                    params.singlePayment,
+                    params.collateral
+                );
+            case "EthCoin":
+                return lendingPlatform.offerLoanEthCoin(
+                    params.toBePaid,
+                    params.interval,
+                    params.defaultLimit,
+                    params.singlePayment,
+                    params.collateral,
+                    params.collateralCoin
+                );
+            case "CoinEth":
+                return lendingPlatform.offerLoanCoinEth(
+                    params.amount,
+                    params.toBePaid,
+                    params.interval,
+                    params.defaultLimit,
+                    params.singlePayment,
+                    params.collateral,
+                    params.coin
+                );
+            case "CoinCoin":
+                return lendingPlatform.offerLoanCoinCoin(
+                    params.amount,
+                    params.toBePaid,
+                    params.interval,
+                    params.defaultLimit,
+                    params.singlePayment,
+                    params.collateral,
+                    params.coin,
+                    params.collateralCoin
+                );
+        }
+    });
 };
 
-export const issueLoan = (type: "EthEth" | "EthCoin" | "CoinEth" | "CoinCoin") => {
+export const useRequestLendingLimit = () => {
     const lendingPlatform = useLendingPlatform();
-    return useMutation((toBePaid: number, interval: number, defaultLimit: number, singlepayment: number, collateral: number) => {
-        switch (type) {
-            case "EthEth":
-                return lendingPlatform.offerLoanEthEth(toBePaid, interval, defaultLimit, singlepayment, collateral);
-            case "EthCoin":
-                return lendingPlatform.offerLoanEthCoin(toBePaid, interval, defaultLimit, singlepayment, collateral, );
-            case "CoinEth":
-                return lendingPlatform.offerLoanCoinEth();
-            case "CoinCoin":
-                return lendingPlatform.offerLoanCoinCoin();
-        }
+    const crypto = new EncryptRsa();
+    return useMutation(async (files: File[]) => {
+        const encrypted = new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const arrayBuffer = reader.result;
+                const array = new Uint8Array(arrayBuffer as ArrayBuffer);
+                const binaryString = String.fromCharCode.apply(null, array);
+                resolve(crypto.encrypt({
+                    text: binaryString,
+                    privateKey: getConfig().publicKey,
+                }));
+            };
+            reader.readAsArrayBuffer(files[0]);
+        });
+
+        return lendingPlatform.setLoanLimitRequest(await encrypted);
+    });
+};
+
+export const useLendingRequests = () => {
+    const lendingPlatform = useLendingPlatform();
+    const provider = useProvider();
+    return usePaginationQuery(async (page) => {
+        const latestBlock = await provider.getBlockNumber();
+        const query = await lendingPlatform.queryFilter(lendingPlatform.getEvent("RequestLoanLimit"), latestBlock - (page * 1000), latestBlock);
+        return query.map(({ topics }) => ({ borrower: topics[0] }));
+    }, true);
+};
+
+export const useApproveLendingRequest = () => {
+    const lendingPlatform = useLendingPlatform();
+    return useMutation((params: { address: string, amount: number, coin: string | undefined }) => {
+        return params.coin ? lendingPlatform["setLoanLimit(address,uint256,address)"](
+            params.address,
+            params.amount,
+            params.coin,
+        ) : lendingPlatform["setLoanLimit(address,uint256)"](
+            params.address,
+            params.amount,
+        );
     });
 };
