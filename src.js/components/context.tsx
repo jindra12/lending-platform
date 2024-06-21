@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as ReactDOM from "react-dom/client";
 import EncryptRsa from "encrypt-rsa";
 import {
     LoanAbi__factory,
@@ -236,6 +237,27 @@ export const useLendingRequests = () => {
     }, true);
 };
 
+export const useLendingRequestFile = (privateKey: string) => {
+    const lendingPlatform = useLendingPlatform();
+    const crypto = new EncryptRsa();
+    return useMutation(async (borrower: string) => {
+        const file = await lendingPlatform.getLoanLimitRequest(borrower);
+        const decrypted = crypto.decrypt({
+            text: file,
+            publicKey: privateKey,
+        });
+        var blob = new Blob([decrypted], { type: "application/pdf" });
+        const link = <a href={URL.createObjectURL(blob)} id="download" download={borrower} style={{ display: "none" }} />;
+        const wrapper = document.createElement("div");
+        document.body.appendChild(wrapper);
+        const root = ReactDOM.createRoot(wrapper);
+        root.render(link);
+        document.getElementById("download")?.click();
+        root.unmount();
+        document.body.removeChild(wrapper);
+    });
+};
+
 export const useApproveLendingRequest = () => {
     const lendingPlatform = useLendingPlatform();
     return useMutation((params: { address: string, amount: number, coin: string | undefined }) => {
@@ -247,5 +269,15 @@ export const useApproveLendingRequest = () => {
             params.address,
             params.amount,
         );
+    });
+};
+
+export const useLoans = (borrower: string, lender?: string) => {
+    const lendingPlatform = useLendingPlatform();
+    return useQuery(async () => {
+        const acceptedLoans = await lendingPlatform.filters["AcceptedLoan(uint256,address,address,address)"](undefined, lender, borrower).getTopicFilter();
+        return acceptedLoans.map((topics: string[]) => ({
+            address: topics[3],
+        }));
     });
 };

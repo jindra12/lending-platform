@@ -21,6 +21,7 @@ export const AppRouter: React.FunctionComponent = () => {
                     <Route path="/requests" />
                     <Route path="/issue/:borrower" />
                 </Route>
+                <Route path="/search" />
                 <Route path="/issue-loan" />
             </Routes>
         </HashRouter>
