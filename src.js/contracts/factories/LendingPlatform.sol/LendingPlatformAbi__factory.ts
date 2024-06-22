@@ -218,7 +218,7 @@ const _abi = [
   },
   {
     type: "function",
-    name: "listLoanOffersByLender",
+    name: "listLoanOffersBy",
     inputs: [
       {
         name: "from",
@@ -231,9 +231,66 @@ const _abi = [
         internalType: "uint256",
       },
       {
-        name: "lender",
-        type: "address",
-        internalType: "address",
+        name: "search",
+        type: "tuple",
+        internalType: "struct LendingPlatFormStructs.LoanOfferSearch",
+        components: [
+          {
+            name: "from",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "includeEth",
+            type: "bool",
+            internalType: "bool",
+          },
+          {
+            name: "coins",
+            type: "address[]",
+            internalType: "contract IERC20Metadata[]",
+          },
+          {
+            name: "amount",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
+          {
+            name: "toBePaid",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
+          {
+            name: "interval",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
+          {
+            name: "singlePayment",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
+          {
+            name: "defaultLimit",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
+          {
+            name: "collateral",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
+          {
+            name: "includeCollateralEth",
+            type: "bool",
+            internalType: "bool",
+          },
+          {
+            name: "collateralCoins",
+            type: "address[]",
+            internalType: "contract IERC20Metadata[]",
+          },
+        ],
       },
     ],
     outputs: [

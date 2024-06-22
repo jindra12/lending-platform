@@ -82,6 +82,46 @@ export declare namespace LendingPlatFormStructs {
     id: bigint;
     isEth: boolean;
   };
+
+  export type LoanOfferSearchStruct = {
+    from: AddressLike;
+    includeEth: boolean;
+    coins: AddressLike[];
+    amount: BigNumberish[];
+    toBePaid: BigNumberish[];
+    interval: BigNumberish[];
+    singlePayment: BigNumberish[];
+    defaultLimit: BigNumberish[];
+    collateral: BigNumberish[];
+    includeCollateralEth: boolean;
+    collateralCoins: AddressLike[];
+  };
+
+  export type LoanOfferSearchStructOutput = [
+    from: string,
+    includeEth: boolean,
+    coins: string[],
+    amount: bigint[],
+    toBePaid: bigint[],
+    interval: bigint[],
+    singlePayment: bigint[],
+    defaultLimit: bigint[],
+    collateral: bigint[],
+    includeCollateralEth: boolean,
+    collateralCoins: string[]
+  ] & {
+    from: string;
+    includeEth: boolean;
+    coins: string[];
+    amount: bigint[];
+    toBePaid: bigint[];
+    interval: bigint[];
+    singlePayment: bigint[];
+    defaultLimit: bigint[];
+    collateral: bigint[];
+    includeCollateralEth: boolean;
+    collateralCoins: string[];
+  };
 }
 
 export interface LendingPlatformAbiInterface extends Interface {
@@ -94,7 +134,7 @@ export interface LendingPlatformAbiInterface extends Interface {
       | "getLoanLimitRequest"
       | "getLoanOffersLength"
       | "listLoanOffers"
-      | "listLoanOffersByLender"
+      | "listLoanOffersBy"
       | "offerLoanCoinCoin"
       | "offerLoanCoinEth"
       | "offerLoanEthCoin"
@@ -149,8 +189,12 @@ export interface LendingPlatformAbiInterface extends Interface {
     values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "listLoanOffersByLender",
-    values: [BigNumberish, BigNumberish, AddressLike]
+    functionFragment: "listLoanOffersBy",
+    values: [
+      BigNumberish,
+      BigNumberish,
+      LendingPlatFormStructs.LoanOfferSearchStruct
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "offerLoanCoinCoin",
@@ -251,7 +295,7 @@ export interface LendingPlatformAbiInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "listLoanOffersByLender",
+    functionFragment: "listLoanOffersBy",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -478,8 +522,12 @@ export interface LendingPlatformAbi extends BaseContract {
     "view"
   >;
 
-  listLoanOffersByLender: TypedContractMethod<
-    [from: BigNumberish, count: BigNumberish, lender: AddressLike],
+  listLoanOffersBy: TypedContractMethod<
+    [
+      from: BigNumberish,
+      count: BigNumberish,
+      search: LendingPlatFormStructs.LoanOfferSearchStruct
+    ],
     [LendingPlatFormStructs.LoanOfferStructOutput[]],
     "view"
   >;
@@ -604,9 +652,13 @@ export interface LendingPlatformAbi extends BaseContract {
     "view"
   >;
   getFunction(
-    nameOrSignature: "listLoanOffersByLender"
+    nameOrSignature: "listLoanOffersBy"
   ): TypedContractMethod<
-    [from: BigNumberish, count: BigNumberish, lender: AddressLike],
+    [
+      from: BigNumberish,
+      count: BigNumberish,
+      search: LendingPlatFormStructs.LoanOfferSearchStruct
+    ],
     [LendingPlatFormStructs.LoanOfferStructOutput[]],
     "view"
   >;

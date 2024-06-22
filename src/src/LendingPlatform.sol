@@ -24,6 +24,19 @@ contract LendingPlatFormStructs {
         uint256 id;
         bool isEth;
     }
+    struct LoanOfferSearch {
+        address from;
+        bool includeEth;
+        IERC20Metadata[] coins;
+        uint256[] amount;
+        uint256[] toBePaid;
+        uint256[] interval;
+        uint256[] singlePayment;
+        uint256[] defaultLimit;
+        uint256[] collateral;
+        bool includeCollateralEth;
+        IERC20Metadata[] collateralCoins;
+    }
 }
 
 contract LendingPlatformEvents {
@@ -157,12 +170,76 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         return _loanOffers.length;
     }
 
-    function listLoanOffersByLender(uint256 from, uint256 count, address lender) public view returns(LoanOffer[] memory) {
+    function _coinMatch(IERC20Metadata[] memory coins, IERC20Metadata coin) internal pure returns(bool) {
+        for (uint256 i = 0; i < coins.length; i++) {
+            if (coin == coins[i]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function _compareInterval(uint256[] memory interval, uint256 value) internal pure returns(bool) {
+        if (interval.length != 2) {
+            return true;
+        }
+        return interval[0] >= value && interval[1] <= value;
+    }
+
+    function _loanOfferMatchesSearch(LoanOffer memory loanOffer, LoanOfferSearch memory search) internal pure returns(bool) {
+        if (search.from != address(0) && loanOffer.from != search.from) {
+            return false;
+        }
+
+        if (!search.includeEth && loanOffer.isEth) {
+            return false;
+        }
+
+        if (search.coins.length > 0 && !loanOffer.isEth && !_coinMatch(search.coins, loanOffer.coin)) {
+            return false;
+        }
+
+        if (!_compareInterval(search.amount, loanOffer.loanData.amount)) {
+            return false;
+        }
+
+        if (!_compareInterval(search.toBePaid, loanOffer.loanData.toBePaid)) {
+            return false;
+        }
+
+        if (!_compareInterval(search.interval, loanOffer.loanData.interval)) {
+            return false;
+        }
+
+        if (!_compareInterval(search.singlePayment, loanOffer.loanData.singlePayment)) {
+            return false;
+        }
+
+        if (!_compareInterval(search.defaultLimit, loanOffer.loanData.defaultLimit)) {
+            return false;
+        }
+
+        if (!_compareInterval(search.collateral, loanOffer.loanData.collateral.value)) {
+            return false;
+        }
+        
+        if (!search.includeCollateralEth && loanOffer.loanData.collateral.isCollateralEth) {
+            return false;
+        }
+
+        if (search.collateralCoins.length > 0 && !loanOffer.loanData.collateral.isCollateralEth && !_coinMatch(search.collateralCoins, loanOffer.loanData.collateral.collateralCoin)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    function listLoanOffersBy(uint256 from, uint256 count, LoanOfferSearch calldata search) public view returns(LoanOffer[] memory) {
         LoanOffer[] memory acc = new LoanOffer[](count);
         uint256 i = 0;
         uint256 j = 0;
         while (i < _loanOffers.length && j < count) {
-            if (lender == _loanOffers[from + i].from) {
+            if (_loanOfferMatchesSearch(_loanOffers[from + i], search)) {
                 acc[j] = _loanOffers[from + i];
                 j++;
             }
