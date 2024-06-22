@@ -8,9 +8,9 @@ export const AppRouter: React.FunctionComponent = () => {
                 <Route path="/" />
                 <Route path="/loan-detail/:id">
                     <Route path="/early-repayment">
+                        <Route path="/issue" />
                         <Route path="/accept" />
                         <Route path="/reject" />
-                        <Route path="/issue" />
                     </Route>
                     <Route path="/default" />
                     <Route path="/payment" />
