@@ -17,7 +17,9 @@ export const ApproveLendingRequest: React.FunctionComponent<
 > = (props) => {
 	const approve = useApproveLendingRequest(props.borrower);
 	const [form] = Form.useForm<ApproveLendingRequestType>();
-	const coin = form.getFieldValue("coin");
+	const isEth: boolean = form.getFieldValue("isEth");
+	const coin: string = form.getFieldValue("coin");
+
 	return (
 		<Form<ApproveLendingRequestType> onFinish={approve.mutate} form={form}>
 			<Form.Item<ApproveLendingRequestType>
@@ -33,39 +35,22 @@ export const ApproveLendingRequest: React.FunctionComponent<
 			>
 				<Input type="number" />
 			</Form.Item>
-			<Collapse
-				collapsible="header"
-				defaultActiveKey={["eth"]}
-				items={[
-					{
-						key: "eth",
-						label: "Assign a loan limit for ETH loans",
-						children: (
-							<Form.Item<ApproveLendingRequestType>
-								name="isEth"
-								label="Eth limit"
-								rules={[{ required: true }]}
-							>
-								<Checkbox defaultChecked />
-							</Form.Item>
-						),
-					},
-					{
-						key: "coin",
-						label: "Assign a loan limit for ERC20 loans",
-						children: (
-							<Form.Item<ApproveLendingRequestType>
-								name="coin"
-								label="Currency"
-								help={coin ? <CoinDisplay address={coin} /> : undefined}
-								rules={[{ required: true, message: "Set ERC20 coin address" }, addressValidator]}
-							>
-								<Input />
-							</Form.Item>
-						),
-					},
-				]}
-			/>
+			<Form.Item<ApproveLendingRequestType>
+				name="isEth"
+				label="Eth limit"
+				rules={[{ required: true }]}
+			>
+				<Checkbox defaultChecked />
+			</Form.Item>
+			<Form.Item<ApproveLendingRequestType>
+				name="coin"
+				label="Currency"
+				hidden={!isEth}
+				help={coin ? <CoinDisplay address={coin} /> : undefined}
+				rules={[{ required: true, message: "Set ERC20 coin address" }, addressValidator]}
+			>
+				<Input />
+			</Form.Item>
 			<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
 				<Button
 					type="primary"
