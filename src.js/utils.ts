@@ -1,3 +1,4 @@
+import { Rule } from "antd/es/form";
 import { FormLoanIssuance, LoanIssuance } from "./types";
 
 export const convertLoanIssuanceToApi = (loanIssue: FormLoanIssuance): LoanIssuance => {
@@ -47,4 +48,9 @@ export const convertLoanIssuanceToApi = (loanIssue: FormLoanIssuance): LoanIssua
                 collateralCoin: loanIssue.collateralCoin!,
             };
     }
+};
+
+export const addressValidator: Rule = {
+    pattern: /0x[a-zA-Z-0-9]{40}/,
+    message: "Invalid address",
 };

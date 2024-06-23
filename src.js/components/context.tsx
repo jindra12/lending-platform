@@ -74,6 +74,22 @@ const useQuery = <TResult extends any>(
     return query;
 };
 
+const useRenewQuery = <TResult extends any>(
+    getter: () => TResult | Promise<TResult>,
+    ...deps: any[]
+) => {
+    const query = useQueryInternal(getter.toString(), getter, {
+        enabled: false,
+    });
+
+    React.useEffect(() => {
+        query.remove();
+        query.refetch();
+    }, deps);
+
+    return query;
+};
+
 const usePaginationQuery = <TResult extends any>(
     getter: (pageParam: number) => TResult[] | Promise<TResult[]>,
     ignoreEmpty: boolean,
@@ -102,7 +118,6 @@ const usePaginationQuery = <TResult extends any>(
 
 export const useProvider = () => {
     const { provider } = useContext();
-
     return (provider.current ||= getProvider());
 };
 
@@ -147,6 +162,11 @@ export const useGetERC20 = () => {
                 )
             )
     );
+};
+
+export const useCoinName = (address: string) => {
+    const coin = useERC20(address);
+    return useRenewQuery(() => coin.name(), address);
 };
 
 export const useLoanSearch = (
@@ -286,18 +306,19 @@ export const useLendingRequestFile = (privateKey: string) => {
     });
 };
 
-export const useApproveLendingRequest = () => {
+export type ApproveLendingRequestType = { amount: number; coin: string | undefined, isEth: boolean };
+export const useApproveLendingRequest = (address: string) => {
     const lendingPlatform = useLendingPlatform();
     return useMutation(
-        (params: { address: string; amount: number; coin: string | undefined }) => {
+        (params: ApproveLendingRequestType) => {
             return params.coin
                 ? lendingPlatform["setLoanLimit(address,uint256,address)"](
-                    params.address,
+                    address,
                     params.amount,
                     params.coin
                 )
                 : lendingPlatform["setLoanLimit(address,uint256)"](
-                    params.address,
+                    address,
                     params.amount
                 );
         }
