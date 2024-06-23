@@ -43,7 +43,7 @@ export const ApproveLendingRequest: React.FunctionComponent<
 						children: (
 							<Form.Item<ApproveLendingRequestType>
 								name="isEth"
-								label="Use eth loan"
+								label="Eth limit"
 								rules={[{ required: true }]}
 							>
 								<Checkbox defaultChecked />
