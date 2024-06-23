@@ -1,0 +1,32 @@
+import * as React from "react";
+import { Form } from "antd";
+import { InboxOutlined } from "@ant-design/icons"
+import { useRequestLendingLimit } from "../context";
+import Dragger from "antd/es/upload/Dragger";
+
+type RequestLendingLimitType = {
+    files: File[];
+};
+
+export const RequestLendingLimit: React.FunctionComponent = () => {
+    const requestLendingLimit = useRequestLendingLimit();
+    const [form] = Form.useForm<RequestLendingLimitType>();
+    return (
+        <Form<RequestLendingLimitType> form={form} onFinish={({ files }) => requestLendingLimit.mutate(files)}>
+            <Form.Item<RequestLendingLimitType> name="files" rules={[{ required: true, message: "Upload file request for loan limit" }]}>
+                <Dragger
+                    name="files"
+                    multiple={false}
+                >
+                    <p className="ant-upload-drag-icon">
+                        <InboxOutlined />
+                    </p>
+                    <p className="ant-upload-text">Click or drag file to this area to upload</p>
+                    <p className="ant-upload-hint">
+                        Upload a single PDF file with information about yourself and the loan limit request
+                    </p>
+                </Dragger>
+            </Form.Item>
+        </Form>
+    );
+};

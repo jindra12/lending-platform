@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Button, Checkbox, Collapse, Form, Input, Space } from "antd";
-import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import { MinusCircleOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { LendingPlatFormStructs } from "../../contracts/LendingPlatform.sol/LendingPlatformAbi";
 import { addressValidator } from "../../utils";
 import { CoinHint } from "../utils/CoinHint";
@@ -9,6 +9,7 @@ export interface LoanSearchProps {
     setSearchParams: (
         search: LendingPlatFormStructs.LoanOfferSearchStruct
     ) => void;
+    isFetching?: boolean;
 }
 
 export const LoanSearch: React.FunctionComponent<LoanSearchProps> = (props) => {
@@ -227,6 +228,16 @@ export const LoanSearch: React.FunctionComponent<LoanSearchProps> = (props) => {
                     }
                 ]}
             />
+            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                <Button
+                    type="primary"
+                    htmlType="submit"
+                    icon={<SearchOutlined />}
+                    loading={props.isFetching}
+                >
+                    Search
+                </Button>
+            </Form.Item>
         </Form>
     );
 };

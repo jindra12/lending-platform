@@ -1,6 +1,6 @@
 import * as React from "react";
 import { CheckCircleFilled } from "@ant-design/icons";
-import { Button, Checkbox, Collapse, Form, Input } from "antd";
+import { Button, Checkbox, Form, Input } from "antd";
 import {
 	ApproveLendingRequestType,
 	useApproveLendingRequest,

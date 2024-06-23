@@ -1,18 +1,19 @@
 import * as React from "react";
-import { Flex, Form, Input, Radio, Space } from "antd";
+import { Button, Flex, Form, Input, Radio, Space } from "antd";
+import { CheckCircleFilled } from "@ant-design/icons";
 import { useIssueLoan } from "../context";
 import { FormLoanIssuance } from "../../types";
 import { addressValidator, convertLoanIssuanceToApi } from "../../utils";
 import { CoinDisplay } from "../utils/CoinDisplay";
 
 export const IssueLoan: React.FunctionComponent = () => {
-    const approve = useIssueLoan();
+    const issue = useIssueLoan();
     const [form] = Form.useForm<FormLoanIssuance>();
     const type: FormLoanIssuance["type"] = form.getFieldValue("type");
     const coin: FormLoanIssuance["coin"] = form.getFieldValue("coin");
 
     return (
-        <Form<FormLoanIssuance> form={form} onFinish={(values) => approve.mutate(convertLoanIssuanceToApi(values))}>
+        <Form<FormLoanIssuance> form={form} onFinish={(values) => issue.mutate(convertLoanIssuanceToApi(values))}>
             <Form.Item<FormLoanIssuance> label="Loan type" name="type">
                 <Flex vertical gap="middle">
                     <Radio.Group defaultValue="EthEth" buttonStyle="solid">
@@ -136,6 +137,14 @@ export const IssueLoan: React.FunctionComponent = () => {
                 >
                     <Input type="number" />
                 </Form.Item>
+                <Button
+					type="primary"
+					htmlType="submit"
+					icon={<CheckCircleFilled />}
+					loading={issue.isLoading}
+				>
+					Approve
+				</Button>
             </Space.Compact>
         </Form>
     );
