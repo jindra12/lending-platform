@@ -56,3 +56,45 @@ export type FormLoanIssuance = Partial<
         type?: "EthEth" | "EthCoin" | "CoinEth" | "CoinCoin";
     }
 >;
+
+interface LoanDataCollateral {
+    value: string;
+    isCollateralEth: boolean;
+    collateralCoin: string;
+}
+
+interface LoanOfferData {
+    amount: string;
+    toBePaid: string;
+    interval: string;
+    singlePayment: string;
+    defaultLimit: string;
+    collateral: LoanDataCollateral;
+}
+
+export interface LoanOfferStruct {
+    coin: string;
+    loanData: LoanOfferData;
+    from: string;
+    id: string;
+    isEth: boolean;
+}
+
+export interface LoanDetails {
+    lender: string;
+    borrower: string;
+    remaining: string;
+    singlePayment: string;
+    interval: string;
+    defaultLimit: string;
+    lastPayment: string;
+    collateral: string;
+    isCollateralEth: boolean;
+    collateralCoin: string;
+    coin: string;
+    isEth: boolean;
+    inDefault: boolean;
+    paidEarly: boolean;
+    requestPaidEarly: boolean;
+    requestPaidEarlyAmount: string;
+}

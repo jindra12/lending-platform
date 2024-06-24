@@ -223,6 +223,101 @@ const _abi = [
   },
   {
     type: "function",
+    name: "getLoanDetails",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "tuple",
+        internalType: "struct Loan.LoanDetails",
+        components: [
+          {
+            name: "lender",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "borrower",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "remaining",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "singlePayment",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "interval",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "defaultLimit",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "lastPayment",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "collateral",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "isCollateralEth",
+            type: "bool",
+            internalType: "bool",
+          },
+          {
+            name: "collateralCoin",
+            type: "address",
+            internalType: "contract IERC20Metadata",
+          },
+          {
+            name: "coin",
+            type: "address",
+            internalType: "contract IERC20Metadata",
+          },
+          {
+            name: "isEth",
+            type: "bool",
+            internalType: "bool",
+          },
+          {
+            name: "inDefault",
+            type: "bool",
+            internalType: "bool",
+          },
+          {
+            name: "paidEarly",
+            type: "bool",
+            internalType: "bool",
+          },
+          {
+            name: "requestPaidEarly",
+            type: "bool",
+            internalType: "bool",
+          },
+          {
+            name: "requestPaidEarlyAmount",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     name: "getPaidEarly",
     inputs: [],
     outputs: [

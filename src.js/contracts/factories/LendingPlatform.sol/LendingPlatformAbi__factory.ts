@@ -776,6 +776,12 @@ const _abi = [
         indexed: true,
         internalType: "address",
       },
+      {
+        name: "requestIndex",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
+      },
     ],
     anonymous: false,
   },

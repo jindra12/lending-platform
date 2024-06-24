@@ -8,13 +8,13 @@ export interface CoinDisplayProps {
 export const CoinDisplay: React.FunctionComponent<CoinDisplayProps> = (props) => {
     const coin = useCoinName(props.address);
     if (coin.isFetching) {
-        return "Loading coin name...";
+        return `Loading ${props.address.slice(0, 5)}...`;
     }
     if (coin.isError) {
-        return "Coin not found";
+        return `Error: ${props.address}`;
     }
     if (coin.data) {
-        return "Coin data";
+        return coin.data;
     }
-    return "Provide address for coin";
+    return props.address;
 };

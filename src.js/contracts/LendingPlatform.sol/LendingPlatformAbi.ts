@@ -426,10 +426,11 @@ export namespace OwnershipTransferredEvent {
 }
 
 export namespace RequestLoanLimitEvent {
-  export type InputTuple = [borrower: AddressLike];
-  export type OutputTuple = [borrower: string];
+  export type InputTuple = [borrower: AddressLike, requestIndex: BigNumberish];
+  export type OutputTuple = [borrower: string, requestIndex: bigint];
   export interface OutputObject {
     borrower: string;
+    requestIndex: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -859,7 +860,7 @@ export interface LendingPlatformAbi extends BaseContract {
       OwnershipTransferredEvent.OutputObject
     >;
 
-    "RequestLoanLimit(address)": TypedContractEvent<
+    "RequestLoanLimit(address,uint256)": TypedContractEvent<
       RequestLoanLimitEvent.InputTuple,
       RequestLoanLimitEvent.OutputTuple,
       RequestLoanLimitEvent.OutputObject

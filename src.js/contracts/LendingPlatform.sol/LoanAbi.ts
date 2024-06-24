@@ -23,6 +23,63 @@ import type {
   TypedContractMethod,
 } from "../common";
 
+export declare namespace Loan {
+  export type LoanDetailsStruct = {
+    lender: AddressLike;
+    borrower: AddressLike;
+    remaining: BigNumberish;
+    singlePayment: BigNumberish;
+    interval: BigNumberish;
+    defaultLimit: BigNumberish;
+    lastPayment: BigNumberish;
+    collateral: BigNumberish;
+    isCollateralEth: boolean;
+    collateralCoin: AddressLike;
+    coin: AddressLike;
+    isEth: boolean;
+    inDefault: boolean;
+    paidEarly: boolean;
+    requestPaidEarly: boolean;
+    requestPaidEarlyAmount: BigNumberish;
+  };
+
+  export type LoanDetailsStructOutput = [
+    lender: string,
+    borrower: string,
+    remaining: bigint,
+    singlePayment: bigint,
+    interval: bigint,
+    defaultLimit: bigint,
+    lastPayment: bigint,
+    collateral: bigint,
+    isCollateralEth: boolean,
+    collateralCoin: string,
+    coin: string,
+    isEth: boolean,
+    inDefault: boolean,
+    paidEarly: boolean,
+    requestPaidEarly: boolean,
+    requestPaidEarlyAmount: bigint
+  ] & {
+    lender: string;
+    borrower: string;
+    remaining: bigint;
+    singlePayment: bigint;
+    interval: bigint;
+    defaultLimit: bigint;
+    lastPayment: bigint;
+    collateral: bigint;
+    isCollateralEth: boolean;
+    collateralCoin: string;
+    coin: string;
+    isEth: boolean;
+    inDefault: boolean;
+    paidEarly: boolean;
+    requestPaidEarly: boolean;
+    requestPaidEarlyAmount: bigint;
+  };
+}
+
 export interface LoanAbiInterface extends Interface {
   getFunction(
     nameOrSignature:
@@ -41,6 +98,7 @@ export interface LoanAbiInterface extends Interface {
       | "getIsEth"
       | "getLastPayment"
       | "getLender"
+      | "getLoanDetails"
       | "getPaidEarly"
       | "getRemaining"
       | "getRequestPaidEarly"
@@ -110,6 +168,10 @@ export interface LoanAbiInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "getLender", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getLoanDetails",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "getPaidEarly",
     values?: undefined
@@ -201,6 +263,10 @@ export interface LoanAbiInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getLender", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getLoanDetails",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getPaidEarly",
     data: BytesLike
@@ -397,6 +463,12 @@ export interface LoanAbi extends BaseContract {
 
   getLender: TypedContractMethod<[], [string], "view">;
 
+  getLoanDetails: TypedContractMethod<
+    [],
+    [Loan.LoanDetailsStructOutput],
+    "view"
+  >;
+
   getPaidEarly: TypedContractMethod<[], [boolean], "view">;
 
   getRemaining: TypedContractMethod<[], [bigint], "view">;
@@ -478,6 +550,9 @@ export interface LoanAbi extends BaseContract {
   getFunction(
     nameOrSignature: "getLender"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "getLoanDetails"
+  ): TypedContractMethod<[], [Loan.LoanDetailsStructOutput], "view">;
   getFunction(
     nameOrSignature: "getPaidEarly"
   ): TypedContractMethod<[], [boolean], "view">;

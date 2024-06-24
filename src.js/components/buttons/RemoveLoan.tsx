@@ -1,39 +1,39 @@
 import * as React from "react";
 import { Button, Modal } from "antd";
-import { BankOutlined } from "@ant-design/icons";
-import { useAcceptLoan } from "../context";
+import { DeleteOutlined } from "@ant-design/icons";
+import { useRemoveLoan } from "../context";
 import { LendingPlatFormStructs } from "../../contracts/LendingPlatform.sol/LendingPlatformAbi";
 
-export interface AcceptLoanProps {
+export interface RemoveLoanProps {
     offer: LendingPlatFormStructs.LoanOfferStructOutput;
 }
 
-export const AcceptLoan: React.FunctionComponent<
-    AcceptLoanProps
+export const RemoveLoan: React.FunctionComponent<
+    RemoveLoanProps
 > = (props) => {
-    const acceptLoan = useAcceptLoan(props.offer);
+    const removeLoan = useRemoveLoan(props.offer.id);
     const [isModalOpen, setModalOpen] = React.useState(false);
     return (
         <>
             <Button
                 type="primary"
                 danger
-                icon={<BankOutlined />}
-                loading={acceptLoan.isLoading}
+                icon={<DeleteOutlined />}
+                loading={removeLoan.isLoading}
                 onClick={() => setModalOpen(true)}
             >
-                Accept loan
+                Remove loan
             </Button>
             <Modal
-                title="Accept loan"
+                title="Remove loan"
                 open={isModalOpen}
                 onOk={() => {
-                    acceptLoan.mutate();
+                    removeLoan.mutate();
                     setModalOpen(false);
                 }}
                 onCancel={() => setModalOpen(false)}
             >
-                Are you sure you want to take out this loan?
+                Are you sure you want to remove this loan?
             </Modal>
         </>
     );

@@ -1,5 +1,7 @@
 import { Rule } from "antd/es/form";
-import { FormLoanIssuance, LoanIssuance } from "./types";
+import { FormLoanIssuance, LoanDetails, LoanIssuance, LoanOfferStruct } from "./types";
+import { LendingPlatFormStructs } from "./contracts/LendingPlatform.sol/LendingPlatformAbi";
+import { Loan } from "./contracts/LendingPlatform.sol/LoanAbi";
 
 export const convertLoanIssuanceToApi = (loanIssue: FormLoanIssuance): LoanIssuance => {
     switch (loanIssue.type!) {
@@ -53,4 +55,48 @@ export const convertLoanIssuanceToApi = (loanIssue: FormLoanIssuance): LoanIssua
 export const addressValidator: Rule = {
     pattern: /0x[a-zA-Z-0-9]{40}/,
     message: "Invalid address",
+};
+
+export const dayInSeconds = 24 * 60 * 60;
+
+export const translateLoanOffer = (offer: LendingPlatFormStructs.LoanOfferStructOutput): LoanOfferStruct => {
+    return {
+        coin: offer.coin,
+        from: offer.from,
+        id: offer.id.toString(),
+        isEth: offer.isEth,
+        loanData: {
+            amount: offer.loanData.amount.toString(),
+            collateral: {
+                collateralCoin: offer.loanData.collateral.collateralCoin,
+                isCollateralEth: offer.loanData.collateral.isCollateralEth,
+                value: offer.loanData.collateral.value.toString(),
+            },
+            defaultLimit: `${Math.round(parseFloat(offer.loanData.defaultLimit.toString()) / dayInSeconds)} days`,
+            interval: `${Math.round(parseFloat(offer.loanData.interval.toString()) / dayInSeconds)} days`,
+            singlePayment: offer.loanData.singlePayment.toString(),
+            toBePaid: offer.loanData.toBePaid.toString(),
+        }
+    };
+};
+
+export const translateLoan = (loan: Loan.LoanDetailsStructOutput): LoanDetails => {
+    return {
+        borrower: loan.borrower,
+        coin: loan.coin,
+        collateral: loan.collateral.toString(),
+        collateralCoin: loan.isCollateralEth ? loan.collateralCoin : "",
+        defaultLimit: `${Math.round(parseFloat(loan.defaultLimit.toString()) / dayInSeconds)} days`,
+        inDefault: loan.inDefault,
+        interval: `${Math.round(parseFloat(loan.interval.toString()) / dayInSeconds)} days`,
+        isCollateralEth: loan.isCollateralEth,
+        isEth: loan.isEth,
+        lastPayment: new Date(parseFloat(loan.lastPayment.toString())).toString(),
+        lender: loan.lender,
+        paidEarly: loan.paidEarly,
+        remaining: loan.remaining.toString(),
+        requestPaidEarly: loan.requestPaidEarly,
+        requestPaidEarlyAmount: loan.requestPaidEarly ? loan.requestPaidEarlyAmount.toString() : "",
+        singlePayment: loan.singlePayment.toString(),
+    };
 };

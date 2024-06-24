@@ -1025,4 +1025,36 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         assertEq(oneCoin.balanceOf(address(loan)), 0);
         assertEq(twoCoin.balanceOf(address(loan)), 0);
     }
+
+    function testNotAllowedToTakeOutLoan() public {
+        _testIssuanceEthEth(1);
+        _testIssuanceCoinCoin(2);
+
+        (bool ok,) = mallory.call{ value: collateral }("");
+        assertTrue(ok);
+
+        twoCoin.mint(mallory, collateral);
+
+        bool ok2 = twoCoin.approve(address(lendingPlatform), collateral);
+        assertTrue(ok2);
+
+        vm.prank(mallory);
+        vm.expectRevert("Loan limit exceeded");
+        lendingPlatform.acceptLoan{ value: collateral }(1);
+
+        vm.prank(mallory);
+        vm.expectRevert("Loan limit exceeded");
+        lendingPlatform.acceptLoan(2);
+
+        lendingPlatform.setLoanLimit(mallory, amount - 1);
+        lendingPlatform.setLoanLimit(mallory, amount - 1, oneCoin);
+
+        vm.prank(mallory);
+        vm.expectRevert("Loan limit exceeded");
+        lendingPlatform.acceptLoan{ value: collateral }(1);
+
+        vm.prank(mallory);
+        vm.expectRevert("Loan limit exceeded");
+        lendingPlatform.acceptLoan(2);
+    }
 }
