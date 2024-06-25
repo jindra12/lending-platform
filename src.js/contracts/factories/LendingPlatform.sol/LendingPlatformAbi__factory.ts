@@ -118,6 +118,30 @@ const _abi = [
   },
   {
     type: "function",
+    name: "listActiveRequests",
+    inputs: [
+      {
+        name: "from",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "count",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "address[]",
+        internalType: "address[]",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     name: "listLoanOffers",
     inputs: [
       {
@@ -600,6 +624,16 @@ const _abi = [
         type: "uint256",
         internalType: "uint256",
       },
+      {
+        name: "coin",
+        type: "address",
+        internalType: "contract IERC20Metadata",
+      },
+      {
+        name: "requestId",
+        type: "uint256",
+        internalType: "uint256",
+      },
     ],
     outputs: [],
     stateMutability: "nonpayable",
@@ -619,9 +653,9 @@ const _abi = [
         internalType: "uint256",
       },
       {
-        name: "coin",
-        type: "address",
-        internalType: "contract IERC20Metadata",
+        name: "requestId",
+        type: "uint256",
+        internalType: "uint256",
       },
     ],
     outputs: [],
@@ -777,7 +811,7 @@ const _abi = [
         internalType: "address",
       },
       {
-        name: "requestIndex",
+        name: "uniqueId",
         type: "uint256",
         indexed: true,
         internalType: "uint256",
@@ -791,6 +825,25 @@ const _abi = [
     inputs: [
       {
         name: "amount",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "SetLoanLimit",
+    inputs: [
+      {
+        name: "borrower",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "requestIndex",
         type: "uint256",
         indexed: true,
         internalType: "uint256",

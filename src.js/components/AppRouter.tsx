@@ -6,16 +6,6 @@ export const AppRouter: React.FunctionComponent = () => {
         <HashRouter>
             <Routes>
                 <Route path="/" />
-                <Route path="/loan-detail/:id">
-                    <Route path="/early-repayment">
-                        <Route path="/issue" />
-                        <Route path="/accept" />
-                        <Route path="/reject" />
-                    </Route>
-                    <Route path="/default" />
-                    <Route path="/payment" />
-                    <Route path="/remove" />
-                </Route>
                 <Route path="/limit">
                     <Route path="/request" />
                     <Route path="/requests" />

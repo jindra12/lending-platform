@@ -37,12 +37,17 @@ contract LendingPlatFormStructs {
         bool includeCollateralEth;
         IERC20Metadata[] collateralCoins;
     }
+    struct ActiveRequest {
+        uint256 uniqueId;
+        address borrower;
+    }
 }
 
 contract LendingPlatformEvents {
     event IssuedLoan(uint256 indexed loanId, address indexed from);
     event AcceptedLoan(uint256 indexed loanId, address indexed from, address indexed to, address loan);
-    event RequestLoanLimit(address indexed borrower, uint256 indexed requestIndex);
+    event RequestLoanLimit(address indexed borrower, uint256 indexed uniqueId);
+    event SetLoanLimit(address indexed borrower, uint256 indexed requestIndex);
     event SetLoanFee(uint256 indexed amount);
     event IncreaseCoinLoanLimit(uint256 indexed amount, address indexed borrower, string indexed coinSymbol);
     event IncreaseEthLoanLimit(uint256 indexed amount, address indexed borrower);
@@ -54,12 +59,15 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
     mapping(address => uint256) internal _loanEthLimit;
     mapping(address => bytes) internal _loanLimitRequestLinks;
     
+    ActiveRequest[] internal _activeRequestIds;
+
     uint256 internal _loanLimitFee;
 
     LoanOffer[] internal _loanOffers;
 
     uint256 internal _loanOfferId = 1;
-    uint256 internal _requestIndex = 0;
+    uint256 internal _requestPageIndex = 0;
+    uint256 internal _requestUniqueIndex = 0;
 
     function _loanCheck(uint256 amount, uint256 toBePaid, uint256 singlePayment) internal pure {
         require(amount < toBePaid, "Invalid amount");
@@ -92,6 +100,27 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         emit IssuedLoan(loanOffer.id, loanOffer.from);
     }
 
+    function _findIdInActiveRequests(uint256 id) internal view returns(bool, uint256) {
+        for (uint256 i = 0; i < _activeRequestIds.length; i++) {
+            if (id == _activeRequestIds[i].uniqueId) {
+                return (true, i);
+            }
+        }
+        return (false, 0);
+    }
+
+    function _removeIdFromActiveRequests(uint256 id) internal {
+        (bool found, uint256 index) = _findIdInActiveRequests(id);
+        require(found, "Request ID not found");
+        if (index == _activeRequestIds.length - 1) {
+            _activeRequestIds.pop();
+        } else {
+            ActiveRequest memory lastActiveId = _activeRequestIds[index];
+            _activeRequestIds[index] = lastActiveId;
+            _activeRequestIds.pop();
+        }
+    }
+
     function _findLoanOfferIndex(uint256 id) internal view returns(bool,uint256) {
         for (uint256 i = 0; i < _loanOffers.length; i++) {
             if (id == _loanOffers[i].id) {
@@ -118,8 +147,12 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
     function setLoanLimitRequest(bytes calldata info) public payable {
         require(msg.value == _loanLimitFee, "Message does not contain enough eth to pay for fee");
         _loanLimitRequestLinks[msg.sender] = info;
-        emit RequestLoanLimit(msg.sender, (10 + _requestIndex) / 10);
-        _requestIndex++;
+        ActiveRequest memory activeRequest;
+        activeRequest.uniqueId = _requestUniqueIndex;
+        activeRequest.borrower = msg.sender;
+        _activeRequestIds.push(activeRequest);
+        emit RequestLoanLimit(msg.sender, _requestUniqueIndex);
+        _requestUniqueIndex++;
     }
 
     function offerLoanEthEth(uint256 toBePaid, uint256 interval, uint256 defaultLimit, uint256 singlePayment, uint256 collateral) public payable {
@@ -250,6 +283,10 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         return acc;
     }
 
+    function listActiveRequests(uint256 from, uint256 count) public view returns(address[] memory) {
+        
+    }
+
     function listLoanOffers(uint256 from, uint256 count) public view returns(LoanOffer[] memory) {
         LoanOffer[] memory acc = new LoanOffer[](count);
         for (uint256 i = 0; i < count; i++) {
@@ -271,8 +308,9 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         return _loanEthLimit[to];
     }
 
-    function setLoanLimit(address to, uint256 amount) onlyOwner public {
+    function setLoanLimit(address to, uint256 amount, uint256 requestId) onlyOwner public {
         _loanEthLimit[to] = amount;
+        _removeIdFromActiveRequests(requestId);
         emit IncreaseEthLoanLimit(amount, to);
     }
 
@@ -280,8 +318,9 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         return _loanCoinLimit[address(coin)][to];
     }
 
-    function setLoanLimit(address to, uint256 amount, IERC20Metadata coin) onlyOwner public {
+    function setLoanLimit(address to, uint256 amount, IERC20Metadata coin, uint256 requestId) onlyOwner public {
         _loanCoinLimit[address(coin)][to] = amount;
+        _removeIdFromActiveRequests(requestId);
         emit IncreaseCoinLoanLimit(amount, to, coin.symbol());
     }
 

@@ -10,12 +10,13 @@ import { addressValidator } from "../../utils";
 
 export interface ApproveLendingRequestProps {
 	borrower: string;
+	uniqueId: number;
 }
 
 export const ApproveLendingRequest: React.FunctionComponent<
 	ApproveLendingRequestProps
 > = (props) => {
-	const approve = useApproveLendingRequest(props.borrower);
+	const approve = useApproveLendingRequest(props.borrower, props.uniqueId);
 	const [form] = Form.useForm<ApproveLendingRequestType>();
 	const isEth: boolean = form.getFieldValue("isEth");
 	const coin: string = form.getFieldValue("coin");

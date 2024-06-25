@@ -263,11 +263,10 @@ export const useRequestLendingLimit = () => {
     });
 };
 
-export const useLendingRequests = () => {
+export const useLendingRequests = (count: number) => {
     const lendingPlatform = useLendingPlatform();
-    return usePaginationQuery(async (page) => {
-        const query = await lendingPlatform.filters["RequestLoanLimit(address,uint256)"](undefined, page).getTopicFilter();
-        return query.map((event: string[]) => ({ borrower: event[0] }));
+    return usePaginationQuery((page) => {
+        return lendingPlatform.listActiveRequests(count * (page - 1), count);
     });
 };
 
@@ -300,19 +299,21 @@ export const useLendingRequestFile = (privateKey: string) => {
 };
 
 export type ApproveLendingRequestType = { amount: number; coin: string | undefined, isEth: boolean };
-export const useApproveLendingRequest = (address: string) => {
+export const useApproveLendingRequest = (address: string, requestId: number) => {
     const lendingPlatform = useLendingPlatform();
     return useMutation(
         (params: ApproveLendingRequestType) => {
             return params.coin
-                ? lendingPlatform["setLoanLimit(address,uint256,address)"](
+                ? lendingPlatform["setLoanLimit(address,uint256,address,uint256)"](
                     address,
                     params.amount,
-                    params.coin
+                    params.coin,
+                    requestId,
                 )
-                : lendingPlatform["setLoanLimit(address,uint256)"](
+                : lendingPlatform["setLoanLimit(address,uint256,uint256)"](
                     address,
-                    params.amount
+                    params.amount,
+                    requestId,
                 );
         }
     );

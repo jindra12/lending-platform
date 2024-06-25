@@ -133,6 +133,7 @@ export interface LendingPlatformAbiInterface extends Interface {
       | "getLoanLimit(address,address)"
       | "getLoanLimitRequest"
       | "getLoanOffersLength"
+      | "listActiveRequests"
       | "listLoanOffers"
       | "listLoanOffersBy"
       | "offerLoanCoinCoin"
@@ -143,8 +144,8 @@ export interface LendingPlatformAbiInterface extends Interface {
       | "removeLoan"
       | "renounceOwnership"
       | "setLoanFee"
-      | "setLoanLimit(address,uint256)"
-      | "setLoanLimit(address,uint256,address)"
+      | "setLoanLimit(address,uint256,address,uint256)"
+      | "setLoanLimit(address,uint256,uint256)"
       | "setLoanLimitRequest"
       | "transferOwnership"
   ): FunctionFragment;
@@ -158,6 +159,7 @@ export interface LendingPlatformAbiInterface extends Interface {
       | "OwnershipTransferred"
       | "RequestLoanLimit"
       | "SetLoanFee"
+      | "SetLoanLimit"
   ): EventFragment;
 
   encodeFunctionData(
@@ -183,6 +185,10 @@ export interface LendingPlatformAbiInterface extends Interface {
   encodeFunctionData(
     functionFragment: "getLoanOffersLength",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "listActiveRequests",
+    values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "listLoanOffers",
@@ -256,12 +262,12 @@ export interface LendingPlatformAbiInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "setLoanLimit(address,uint256)",
-    values: [AddressLike, BigNumberish]
+    functionFragment: "setLoanLimit(address,uint256,address,uint256)",
+    values: [AddressLike, BigNumberish, AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "setLoanLimit(address,uint256,address)",
-    values: [AddressLike, BigNumberish, AddressLike]
+    functionFragment: "setLoanLimit(address,uint256,uint256)",
+    values: [AddressLike, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setLoanLimitRequest",
@@ -288,6 +294,10 @@ export interface LendingPlatformAbiInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getLoanOffersLength",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "listActiveRequests",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -322,11 +332,11 @@ export interface LendingPlatformAbiInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "setLoanFee", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "setLoanLimit(address,uint256)",
+    functionFragment: "setLoanLimit(address,uint256,address,uint256)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setLoanLimit(address,uint256,address)",
+    functionFragment: "setLoanLimit(address,uint256,uint256)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -426,11 +436,11 @@ export namespace OwnershipTransferredEvent {
 }
 
 export namespace RequestLoanLimitEvent {
-  export type InputTuple = [borrower: AddressLike, requestIndex: BigNumberish];
-  export type OutputTuple = [borrower: string, requestIndex: bigint];
+  export type InputTuple = [borrower: AddressLike, uniqueId: BigNumberish];
+  export type OutputTuple = [borrower: string, uniqueId: bigint];
   export interface OutputObject {
     borrower: string;
-    requestIndex: bigint;
+    uniqueId: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -443,6 +453,19 @@ export namespace SetLoanFeeEvent {
   export type OutputTuple = [amount: bigint];
   export interface OutputObject {
     amount: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace SetLoanLimitEvent {
+  export type InputTuple = [borrower: AddressLike, requestIndex: BigNumberish];
+  export type OutputTuple = [borrower: string, requestIndex: bigint];
+  export interface OutputObject {
+    borrower: string;
+    requestIndex: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -516,6 +539,12 @@ export interface LendingPlatformAbi extends BaseContract {
   >;
 
   getLoanOffersLength: TypedContractMethod<[], [bigint], "view">;
+
+  listActiveRequests: TypedContractMethod<
+    [from: BigNumberish, count: BigNumberish],
+    [string[]],
+    "view"
+  >;
 
   listLoanOffers: TypedContractMethod<
     [from: BigNumberish, count: BigNumberish],
@@ -595,14 +624,19 @@ export interface LendingPlatformAbi extends BaseContract {
 
   setLoanFee: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
 
-  "setLoanLimit(address,uint256)": TypedContractMethod<
-    [to: AddressLike, amount: BigNumberish],
+  "setLoanLimit(address,uint256,address,uint256)": TypedContractMethod<
+    [
+      to: AddressLike,
+      amount: BigNumberish,
+      coin: AddressLike,
+      requestId: BigNumberish
+    ],
     [void],
     "nonpayable"
   >;
 
-  "setLoanLimit(address,uint256,address)": TypedContractMethod<
-    [to: AddressLike, amount: BigNumberish, coin: AddressLike],
+  "setLoanLimit(address,uint256,uint256)": TypedContractMethod<
+    [to: AddressLike, amount: BigNumberish, requestId: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -645,6 +679,13 @@ export interface LendingPlatformAbi extends BaseContract {
   getFunction(
     nameOrSignature: "getLoanOffersLength"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "listActiveRequests"
+  ): TypedContractMethod<
+    [from: BigNumberish, count: BigNumberish],
+    [string[]],
+    "view"
+  >;
   getFunction(
     nameOrSignature: "listLoanOffers"
   ): TypedContractMethod<
@@ -734,16 +775,21 @@ export interface LendingPlatformAbi extends BaseContract {
     nameOrSignature: "setLoanFee"
   ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "setLoanLimit(address,uint256)"
+    nameOrSignature: "setLoanLimit(address,uint256,address,uint256)"
   ): TypedContractMethod<
-    [to: AddressLike, amount: BigNumberish],
+    [
+      to: AddressLike,
+      amount: BigNumberish,
+      coin: AddressLike,
+      requestId: BigNumberish
+    ],
     [void],
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "setLoanLimit(address,uint256,address)"
+    nameOrSignature: "setLoanLimit(address,uint256,uint256)"
   ): TypedContractMethod<
-    [to: AddressLike, amount: BigNumberish, coin: AddressLike],
+    [to: AddressLike, amount: BigNumberish, requestId: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -802,6 +848,13 @@ export interface LendingPlatformAbi extends BaseContract {
     SetLoanFeeEvent.InputTuple,
     SetLoanFeeEvent.OutputTuple,
     SetLoanFeeEvent.OutputObject
+  >;
+  getEvent(
+    key: "SetLoanLimit"
+  ): TypedContractEvent<
+    SetLoanLimitEvent.InputTuple,
+    SetLoanLimitEvent.OutputTuple,
+    SetLoanLimitEvent.OutputObject
   >;
 
   filters: {
@@ -880,6 +933,17 @@ export interface LendingPlatformAbi extends BaseContract {
       SetLoanFeeEvent.InputTuple,
       SetLoanFeeEvent.OutputTuple,
       SetLoanFeeEvent.OutputObject
+    >;
+
+    "SetLoanLimit(address,uint256)": TypedContractEvent<
+      SetLoanLimitEvent.InputTuple,
+      SetLoanLimitEvent.OutputTuple,
+      SetLoanLimitEvent.OutputObject
+    >;
+    SetLoanLimit: TypedContractEvent<
+      SetLoanLimitEvent.InputTuple,
+      SetLoanLimitEvent.OutputTuple,
+      SetLoanLimitEvent.OutputObject
     >;
   };
 }
