@@ -48,7 +48,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
     function setUp() public {
         oneCoin = new OneCoin();
         twoCoin = new TwoCoin();
-        lendingPlatform = new LendingPlatform(ENS(address(0)), "test.eth", bytes());
+        lendingPlatform = new LendingPlatform(ENS(address(0)), "test.eth", 0x0);
         lendingPlatform.setLoanFee(100);
         andrea = makeAccount(1, 1000);
         barry = makeAccount(2, 600);

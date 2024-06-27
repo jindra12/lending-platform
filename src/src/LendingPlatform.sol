@@ -71,7 +71,7 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
     uint256 internal _requestPageIndex = 0;
     uint256 internal _requestUniqueIndex = 0;
 
-    constructor(ENS ens, string memory name, bytes32 memory addressReverseNode) {
+    constructor(ENS ens, string memory name, bytes32 addressReverseNode) {
         if (address(ens) != address(0)) {
             ReverseRegistrar reverseRegistrar = ReverseRegistrar(ens.owner(addressReverseNode));
             reverseRegistrar.claim(address(this));

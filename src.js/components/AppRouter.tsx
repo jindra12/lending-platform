@@ -6,12 +6,10 @@ import { LoanOfferList } from "./lists/LoanOfferList";
 import { IssueLoan } from "./forms/IssueLoan";
 import { Layout } from "./Layout";
 import { LoanSearch } from "./forms/LoanSearch";
+import { ContextProvider } from "./context";
 
-export interface AppRouterProps {
-    self: string;
-}
 
-export const AppRouter: React.FunctionComponent<AppRouterProps> = (props) => {
+export const AppRouter: React.FunctionComponent = () => {
     return (
         <QueryClientProvider
             client={
@@ -28,42 +26,40 @@ export const AppRouter: React.FunctionComponent<AppRouterProps> = (props) => {
                 })
             }
         >
-            <HashRouter>
-                <Routes>
-                    <Route
-                        path="/"
-                        Component={() => (
-                            <Layout>
-                                <LoanSearch self={props.self} />
-                            </Layout>
+            <ContextProvider>
+                <HashRouter>
+                    <Layout>
+                        {(account) => (
+                            <Routes>
+                                <Route
+                                    path="/"
+                                    Component={() => (
+                                        <LoanSearch self={account.address} />
+                                    )}
+                                />
+                                <Route
+                                    path="/requests"
+                                    Component={() => (
+                                        <LoanLimitRequestList />
+                                    )}
+                                />
+                                <Route
+                                    path="/offers"
+                                    Component={() => (
+                                        <LoanOfferList self={account.address} />
+                                    )}
+                                />
+                                <Route
+                                    path="/issue-loan"
+                                    Component={() => (
+                                        <IssueLoan />
+                                    )}
+                                />
+                            </Routes>
                         )}
-                    />
-                    <Route
-                        path="/requests"
-                        Component={() => (
-                            <Layout>
-                                <LoanLimitRequestList />
-                            </Layout>
-                        )}
-                    />
-                    <Route
-                        path="/offers"
-                        Component={() => (
-                            <Layout>
-                                <LoanOfferList self={props.self} />
-                            </Layout>
-                        )}
-                    />
-                    <Route
-                        path="/issue-loan"
-                        Component={() => (
-                            <Layout>
-                                <IssueLoan />
-                            </Layout>
-                        )}
-                    />
-                </Routes>
-            </HashRouter>
+                    </Layout>
+                </HashRouter>
+            </ContextProvider>
         </QueryClientProvider>
     );
 };

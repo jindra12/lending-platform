@@ -124,8 +124,12 @@ export const useProvider = () => {
 export const useLoan = (address: string) => {
     const { loans } = useContext();
     const provider = useProvider();
-
     return (loans[address] ||= LoanAbi__factory.connect(address, provider));
+};
+
+export const useAccounts = () => {
+    const provider = useProvider();
+    return useQuery(() => provider.listAccounts());
 };
 
 export const useLendingPlatform = () => {
