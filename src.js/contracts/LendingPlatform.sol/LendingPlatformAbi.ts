@@ -24,6 +24,16 @@ import type {
 } from "../common";
 
 export declare namespace LendingPlatFormStructs {
+  export type ActiveRequestStruct = {
+    uniqueId: BigNumberish;
+    borrower: AddressLike;
+  };
+
+  export type ActiveRequestStructOutput = [
+    uniqueId: bigint,
+    borrower: string
+  ] & { uniqueId: bigint; borrower: string };
+
   export type CollateralStruct = {
     value: BigNumberish;
     isCollateralEth: boolean;
@@ -542,7 +552,7 @@ export interface LendingPlatformAbi extends BaseContract {
 
   listActiveRequests: TypedContractMethod<
     [from: BigNumberish, count: BigNumberish],
-    [string[]],
+    [LendingPlatFormStructs.ActiveRequestStructOutput[]],
     "view"
   >;
 
@@ -683,7 +693,7 @@ export interface LendingPlatformAbi extends BaseContract {
     nameOrSignature: "listActiveRequests"
   ): TypedContractMethod<
     [from: BigNumberish, count: BigNumberish],
-    [string[]],
+    [LendingPlatFormStructs.ActiveRequestStructOutput[]],
     "view"
   >;
   getFunction(

@@ -269,6 +269,17 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         return true;
     }
 
+    function listActiveRequests(uint256 from, uint256 count) public view returns(ActiveRequest[] memory) {
+        ActiveRequest[] memory acc = new ActiveRequest[](count);
+        for (uint256 i = 0; i < count; i++) {
+            if (from + i >= _activeRequestIds.length) {
+                break;
+            }
+            acc[i] = _activeRequestIds[from + i];
+        }
+        return acc;        
+    }
+
     function listLoanOffersBy(uint256 from, uint256 count, LoanOfferSearch calldata search) public view returns(LoanOffer[] memory) {
         LoanOffer[] memory acc = new LoanOffer[](count);
         uint256 i = 0;
@@ -283,13 +294,12 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         return acc;
     }
 
-    function listActiveRequests(uint256 from, uint256 count) public view returns(address[] memory) {
-        
-    }
-
     function listLoanOffers(uint256 from, uint256 count) public view returns(LoanOffer[] memory) {
         LoanOffer[] memory acc = new LoanOffer[](count);
         for (uint256 i = 0; i < count; i++) {
+            if (from + i >= _loanOffers.length) {
+                break;
+            }
             acc[i] = _loanOffers[from + i];
         }
         return acc;

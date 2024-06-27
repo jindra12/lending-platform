@@ -4,19 +4,19 @@ import ReactVisibilitySensor from "react-visibility-sensor";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useLoanSearch } from "../context";
 import { LendingPlatFormStructs } from "../../contracts/LendingPlatform.sol/LendingPlatformAbi";
-import { LoanSearch } from "../forms/LoanSearch";
+import { LoanOfferSearch } from "../forms/LoanOfferSearch";
 import { LoanOfferDetail } from "../views/LoanOfferDetail";
 
 export interface LoanOfferListProps {
     self: string;
 }
 
-export const LoanOferList: React.FunctionComponent<LoanOfferListProps> = (props) => {
+export const LoanOfferList: React.FunctionComponent<LoanOfferListProps> = (props) => {
     const [search, setSearch] = React.useState<LendingPlatFormStructs.LoanOfferSearchStruct>();
     const loans = useLoanSearch(20, search);
     return (
         <div>
-            <LoanSearch setSearchParams={setSearch} isFetching={loans.isFetching} />
+            <LoanOfferSearch setSearchParams={setSearch} isFetching={loans.isFetching} />
             {loans.data?.pages.map((page, i) => (
                 <React.Fragment key={i}>
                     {page.map((result, i) => (

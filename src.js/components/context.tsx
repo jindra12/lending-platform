@@ -299,7 +299,7 @@ export const useLendingRequestFile = (privateKey: string) => {
 };
 
 export type ApproveLendingRequestType = { amount: number; coin: string | undefined, isEth: boolean };
-export const useApproveLendingRequest = (address: string, requestId: number) => {
+export const useApproveLendingRequest = (address: string, requestId: number | bigint) => {
     const lendingPlatform = useLendingPlatform();
     return useMutation(
         (params: ApproveLendingRequestType) => {
@@ -319,7 +319,7 @@ export const useApproveLendingRequest = (address: string, requestId: number) => 
     );
 };
 
-export const useLoans = (borrower: string, lender?: string) => {
+export const useLoans = (borrower?: string, lender?: string) => {
     const lendingPlatform = useLendingPlatform();
     return useQuery(async () => {
         const acceptedLoans = await lendingPlatform.filters[
@@ -327,6 +327,8 @@ export const useLoans = (borrower: string, lender?: string) => {
         ](undefined, lender, borrower).getTopicFilter();
         return acceptedLoans.map((topics: string[]) => ({
             address: topics[3],
+            lender: topics[1],
+            borrower: topics[2],
         }));
     });
 };

@@ -10,7 +10,7 @@ import { addressValidator } from "../../utils";
 
 export interface ApproveLendingRequestProps {
 	borrower: string;
-	uniqueId: number;
+	uniqueId: number | bigint;
 }
 
 export const ApproveLendingRequest: React.FunctionComponent<

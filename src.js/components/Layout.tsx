@@ -1,26 +1,29 @@
 import * as React from "react";
-import { Layout, Menu, theme } from "antd";
+import { Layout as LibraryLayout, Menu, theme } from "antd";
 import { MoneyCollectFilled, MoneyCollectOutlined, UserAddOutlined, ApiFilled } from '@ant-design/icons';
 import Sider from "antd/es/layout/Sider";
 import { Header, Content, Footer } from "antd/es/layout/layout";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getConfig } from "../config";
 
-export const Main: React.FunctionComponent<React.PropsWithChildren> = (props) => {
+export const Layout: React.FunctionComponent<React.PropsWithChildren> = (props) => {
     const {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
     
     const navigate = useNavigate();
+    const { hash } = useLocation();
+
+    const selected = hash.split("#")[1];
     
     return (
-        <Layout>
+        <LibraryLayout>
             <Sider
                 breakpoint="lg"
                 collapsedWidth="0"
             >
                 <div className="demo-logo-vertical" />
-                <Menu theme="dark" mode="inline" defaultSelectedKeys={['4']} items={[
+                <Menu theme="dark" mode="inline" defaultSelectedKeys={[selected]} items={[
                     {
                         key: "/",
                         icon: <UserAddOutlined />,
@@ -45,7 +48,7 @@ export const Main: React.FunctionComponent<React.PropsWithChildren> = (props) =>
                     navigate(key);
                 }} />
             </Sider>
-            <Layout>
+            <LibraryLayout>
                 <Header style={{ padding: 0, background: colorBgContainer }} />
                 <Content style={{ margin: '24px 16px 0' }}>
                     <div
@@ -64,7 +67,7 @@ export const Main: React.FunctionComponent<React.PropsWithChildren> = (props) =>
                     Authored by: Jan Jindráček. You can contact me at <a href="mailto:jindra12.underdark@gmail.com">jindra12.underdark@gmail.com</a>.
                     Check out my git <a href="https://github.com/jindra12/lending-platform">git repo</a>!.
                 </Footer>
-            </Layout>
-        </Layout>
+            </LibraryLayout>
+        </LibraryLayout>
     );
 }

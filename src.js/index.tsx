@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
-import { Main } from "./components/Main";
+import { Layout } from "./components/Layout";
 
 const root = document.querySelector("#root");
 
-ReactDOM.createRoot(root!).render(<Main />);
+ReactDOM.createRoot(root!).render(<Layout />);

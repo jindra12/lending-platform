@@ -12,7 +12,7 @@ export interface LoanSearchProps {
     isFetching?: boolean;
 }
 
-export const LoanSearch: React.FunctionComponent<LoanSearchProps> = (props) => {
+export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (props) => {
     const [form] = Form.useForm<LendingPlatFormStructs.LoanOfferSearchStruct>();
     return (
         <Form<LendingPlatFormStructs.LoanOfferSearchStruct>

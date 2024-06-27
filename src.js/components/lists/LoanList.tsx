@@ -5,12 +5,18 @@ import { useLoans } from "../context";
 import { LoanDetail } from "../views/LoanDetail";
 
 export interface LoanListProps {
-    borrower: string;
     self: string;
 }
 
 export const LoanList: React.FunctionComponent<LoanListProps> = (props) => {
-    const loans = useLoans(props.borrower);
+    const [search, setSearch] = React.useState<{
+        borrower?: string;
+        lender?: string;
+    }>({
+        borrower: props.self,
+    });
+
+    const loans = useLoans(search.borrower);
 
     if (loans.isFetching) {
         return <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />

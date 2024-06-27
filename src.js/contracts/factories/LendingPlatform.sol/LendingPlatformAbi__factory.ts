@@ -134,8 +134,20 @@ const _abi = [
     outputs: [
       {
         name: "",
-        type: "address[]",
-        internalType: "address[]",
+        type: "tuple[]",
+        internalType: "struct LendingPlatFormStructs.ActiveRequest[]",
+        components: [
+          {
+            name: "uniqueId",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "borrower",
+            type: "address",
+            internalType: "address",
+          },
+        ],
       },
     ],
     stateMutability: "view",
