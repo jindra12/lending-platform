@@ -53,7 +53,7 @@ contract LendingPlatformEvents {
     event IncreaseEthLoanLimit(uint256 indexed amount, address indexed borrower);
 }
 
-contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents {
+contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents,ReverseClaimer {
     mapping(address => address) internal _loansByBorrowers;
     mapping(address => mapping(address => uint256)) internal _loanCoinLimit;
     mapping(address => uint256) internal _loanEthLimit;
@@ -68,6 +68,10 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
     uint256 internal _loanOfferId = 1;
     uint256 internal _requestPageIndex = 0;
     uint256 internal _requestUniqueIndex = 0;
+
+    constructor(string calldata name) {
+
+    }
 
     function _loanCheck(uint256 amount, uint256 toBePaid, uint256 singlePayment) internal pure {
         require(amount < toBePaid, "Invalid amount");
