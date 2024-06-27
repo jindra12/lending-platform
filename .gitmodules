@@ -4,6 +4,6 @@
 [submodule "src/lib/openzeppelin-contracts"]
 	path = src/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
-[submodule "lib/ens-contracts"]
-	path = lib/ens-contracts
+[submodule "src/lib/ens-contracts"]
+	path = src/lib/ens-contracts
 	url = https://github.com/ensdomains/ens-contracts
