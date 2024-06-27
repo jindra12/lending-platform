@@ -1,13 +1,17 @@
 import * as React from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
-import { LoanList } from "./lists/LoanList";
+import { QueryClient, QueryClientProvider } from "react-query";
 import { LoanLimitRequestList } from "./lists/LoanLimitRequestList";
 import { LoanOfferList } from "./lists/LoanOfferList";
 import { IssueLoan } from "./forms/IssueLoan";
-import { QueryClient, QueryClientProvider } from "react-query";
 import { Layout } from "./Layout";
+import { LoanSearch } from "./forms/LoanSearch";
 
-export const AppRouter: React.FunctionComponent = () => {
+export interface AppRouterProps {
+    self: string;
+}
+
+export const AppRouter: React.FunctionComponent<AppRouterProps> = (props) => {
     return (
         <QueryClientProvider
             client={
@@ -30,7 +34,7 @@ export const AppRouter: React.FunctionComponent = () => {
                         path="/"
                         Component={() => (
                             <Layout>
-                                <LoanList />
+                                <LoanSearch self={props.self} />
                             </Layout>
                         )}
                     />
@@ -46,7 +50,7 @@ export const AppRouter: React.FunctionComponent = () => {
                         path="/offers"
                         Component={() => (
                             <Layout>
-                                <LoanOfferList />
+                                <LoanOfferList self={props.self} />
                             </Layout>
                         )}
                     />

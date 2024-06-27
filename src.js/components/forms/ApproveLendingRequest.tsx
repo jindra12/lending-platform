@@ -18,8 +18,8 @@ export const ApproveLendingRequest: React.FunctionComponent<
 > = (props) => {
 	const approve = useApproveLendingRequest(props.borrower, props.uniqueId);
 	const [form] = Form.useForm<ApproveLendingRequestType>();
-	const isEth: boolean = form.getFieldValue("isEth");
-	const coin: string = form.getFieldValue("coin");
+	const isEth: boolean = Form.useWatch("isEth", form);
+	const coin = Form.useWatch("coin", form);
 
 	return (
 		<Form<ApproveLendingRequestType> onFinish={approve.mutate} form={form}>

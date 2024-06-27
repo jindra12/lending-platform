@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import {Test, console} from "forge-std/Test.sol";
 import {LendingPlatform,LendingPlatFormStructs,LendingPlatformEvents,Loan} from "../src/LendingPlatform.sol";
 import {ERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import {ENS} from "../lib/ens-contracts/contracts/registry/ENS.sol";
 
 contract OneCoin is ERC20("OneCoin", "one") {
     function mint(address to, uint256 amount) public {
@@ -47,7 +48,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
     function setUp() public {
         oneCoin = new OneCoin();
         twoCoin = new TwoCoin();
-        lendingPlatform = new LendingPlatform();
+        lendingPlatform = new LendingPlatform(ENS(address(0)), "test.eth", bytes());
         lendingPlatform.setLoanFee(100);
         andrea = makeAccount(1, 1000);
         barry = makeAccount(2, 600);

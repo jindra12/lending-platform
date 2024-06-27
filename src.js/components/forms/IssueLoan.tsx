@@ -9,8 +9,8 @@ import { CoinDisplay } from "../utils/CoinDisplay";
 export const IssueLoan: React.FunctionComponent = () => {
     const issue = useIssueLoan();
     const [form] = Form.useForm<FormLoanIssuance>();
-    const type: FormLoanIssuance["type"] = form.getFieldValue("type");
-    const coin: FormLoanIssuance["coin"] = form.getFieldValue("coin");
+    const type: FormLoanIssuance["type"] = Form.useWatch("type", form);
+    const coin: FormLoanIssuance["coin"] = Form.useWatch("coin", form);
 
     return (
         <Form<FormLoanIssuance> form={form} onFinish={(values) => issue.mutate(convertLoanIssuanceToApi(values))}>

@@ -2,6 +2,8 @@
 pragma solidity ^0.8.13;
 import {IERC20Metadata} from "../lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {Ownable} from "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
+import {ReverseRegistrar} from "../lib/ens-contracts/contracts/reverseRegistrar/ReverseRegistrar.sol";
+import {ENS} from "../lib/ens-contracts/contracts/registry/ENS.sol";
 
 contract LendingPlatFormStructs {
     struct Collateral {
@@ -53,7 +55,7 @@ contract LendingPlatformEvents {
     event IncreaseEthLoanLimit(uint256 indexed amount, address indexed borrower);
 }
 
-contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents,ReverseClaimer {
+contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents {
     mapping(address => address) internal _loansByBorrowers;
     mapping(address => mapping(address => uint256)) internal _loanCoinLimit;
     mapping(address => uint256) internal _loanEthLimit;
@@ -69,8 +71,12 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
     uint256 internal _requestPageIndex = 0;
     uint256 internal _requestUniqueIndex = 0;
 
-    constructor(string calldata name) {
-
+    constructor(ENS ens, string memory name, bytes32 memory addressReverseNode) {
+        if (address(ens) != address(0)) {
+            ReverseRegistrar reverseRegistrar = ReverseRegistrar(ens.owner(addressReverseNode));
+            reverseRegistrar.claim(address(this));
+            reverseRegistrar.setName(name);
+        }
     }
 
     function _loanCheck(uint256 amount, uint256 toBePaid, uint256 singlePayment) internal pure {

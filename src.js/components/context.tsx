@@ -64,7 +64,7 @@ const useQuery = <TResult extends any>(
     getter: () => TResult | Promise<TResult>,
     ...deps: any[]
 ) => {
-    const query = useQueryInternal(getter.toString(), getter, {
+    const query = useQueryInternal(getter.toString() + deps.map(d => d.toString().join("|")), getter, {
         enabled: false,
     });
 
@@ -330,7 +330,7 @@ export const useLoans = (borrower?: string, lender?: string) => {
             lender: topics[1],
             borrower: topics[2],
         }));
-    });
+    }, borrower, lender);
 };
 
 export const useLoanDetail = (address: string) => {
