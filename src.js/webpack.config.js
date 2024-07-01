@@ -1,5 +1,7 @@
 const path = require("path");
+const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 
 module.exports = {
   entry: {
@@ -27,18 +29,20 @@ module.exports = {
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
   },
-  plugins: [new MiniCssExtractPlugin()],
+  plugins: [
+    new MiniCssExtractPlugin(),
+    new NodePolyfillPlugin(),
+    new webpack.ProvidePlugin({
+      process: "process/browser",
+    })
+  ],
   output: {
-    filename: "dist/bundle.js",
+    filename: "[name].js",
     path: path.resolve(__dirname, "dist"),
   },
   optimization: {
     splitChunks: {
       cacheGroups: {
-        vendors: {
-          chunks: "all",
-          test: /node_modules/,
-        },
         style: {
           name: "style",
           type: "css/mini-extract",

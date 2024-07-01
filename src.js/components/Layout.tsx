@@ -33,7 +33,9 @@ export const Layout: React.FunctionComponent<LayoutProps> = (
     return (
         <LibraryLayout>
             <Header style={{ display: "flex", alignItems: "center" }}>
-                <div className="demo-logo" />
+                <div>
+                    {getConfig().bankName}
+                </div>
                 <AccountMenu setSelected={setAccount} selected={account} />
             </Header>
             <LibraryLayout>

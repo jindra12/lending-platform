@@ -274,10 +274,10 @@ export const useLendingRequests = (count: number) => {
     });
 };
 
-export const useLendingRequestFile = (privateKey: string) => {
+export const useLendingRequestFile = (borrower: string) => {
     const lendingPlatform = useLendingPlatform();
     const crypto = new EncryptRsa();
-    return useMutation(async (borrower: string) => {
+    return useMutation(async (privateKey: string) => {
         const file = await lendingPlatform.getLoanLimitRequest(borrower);
         const decrypted = crypto.decrypt({
             text: file,

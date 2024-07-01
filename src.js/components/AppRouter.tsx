@@ -1,15 +1,44 @@
 import * as React from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { LoanLimitRequestList } from "./lists/LoanLimitRequestList";
-import { LoanOfferList } from "./lists/LoanOfferList";
-import { IssueLoan } from "./forms/IssueLoan";
+import { Spin } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 import { Layout } from "./Layout";
-import { LoanSearch } from "./forms/LoanSearch";
 import { ContextProvider } from "./context";
 
+const LoanSearch = React.lazy(async () => ({
+    default: (
+        await import(/* webpackChunkName: "LoanSearch" */ "./forms/LoanSearch")
+    ).LoanSearch,
+}));
+const LoanLimitRequestList = React.lazy(async () => ({
+    default: (
+        await import(
+      /* webpackChunkName: "LoanLimitRequestList" */ "./lists/LoanLimitRequestList"
+        )
+    ).LoanLimitRequestList,
+}));
+const LoanOfferList = React.lazy(async () => ({
+    default: (
+        await import(
+      /* webpackChunkName: "LoanOfferList" */ "./lists/LoanOfferList"
+        )
+    ).LoanOfferList,
+}));
+const IssueLoan = React.lazy(async () => ({
+    default: (
+        await import(/* webpackChunkName: "IssueLoan" */ "./forms/IssueLoan")
+    ).IssueLoan,
+}));
 
 export const AppRouter: React.FunctionComponent = () => {
+    const spin = <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />;
+    const suspense = (component: React.ReactNode) => (
+        <React.Suspense fallback={spin}>
+            {component}
+        </React.Suspense>
+    );
+
     return (
         <QueryClientProvider
             client={
@@ -33,28 +62,17 @@ export const AppRouter: React.FunctionComponent = () => {
                             <Routes>
                                 <Route
                                     path="/"
-                                    Component={() => (
-                                        <LoanSearch self={account.address} />
-                                    )}
+                                    Component={() => suspense(<LoanSearch self={account.address} />)}
                                 />
                                 <Route
                                     path="/requests"
-                                    Component={() => (
-                                        <LoanLimitRequestList />
-                                    )}
+                                    Component={() => suspense(<LoanLimitRequestList />)}
                                 />
                                 <Route
                                     path="/offers"
-                                    Component={() => (
-                                        <LoanOfferList self={account.address} />
-                                    )}
+                                    Component={() => suspense(<LoanOfferList self={account.address} />)}
                                 />
-                                <Route
-                                    path="/issue-loan"
-                                    Component={() => (
-                                        <IssueLoan />
-                                    )}
-                                />
+                                <Route path="/issue-loan" Component={() => suspense(<IssueLoan />)} />
                             </Routes>
                         )}
                     </Layout>

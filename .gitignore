@@ -3,3 +3,4 @@ src/.github/
 src.js/dist/
 *.log
 .yarn/
+anvil.json
