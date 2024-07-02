@@ -277,7 +277,7 @@ export const useLendingRequests = (count: number) => {
 export const useLendingRequestFile = (borrower: string) => {
     const lendingPlatform = useLendingPlatform();
     const crypto = new EncryptRsa();
-    return useMutation(async (privateKey: string) => {
+    return useMutation(async (privateKey: string): Promise<void> => {
         const file = await lendingPlatform.getLoanLimitRequest(borrower);
         const decrypted = crypto.decrypt({
             text: file,

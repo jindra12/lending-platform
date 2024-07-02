@@ -9,6 +9,7 @@
   "scripts": {
     "build": "rimraf dist; yarn webpack",
     "serve": "webpack serve",
+    "anvil": "anvil --config-out anvil.json",
     "configure": "node configure.js",
     "compile": "cd ../src; forge build --force --extra-output-files abi; cd ../src.js; yarn typechain --target=ethers-v6 --out-dir=./contracts ../src/out/**/{IERC20Metadata,LendingPlatform,Loan}.abi.json",
     "test": "cd ../src; forge test -vvvvv > test.log"
