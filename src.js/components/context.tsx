@@ -64,7 +64,7 @@ const useQuery = <TResult extends any>(
     getter: () => TResult | Promise<TResult>,
     ...deps: any[]
 ) => {
-    const query = useQueryInternal(getter.toString() + deps.map(d => d.toString().join("|")), getter, {
+    const query = useQueryInternal(getter.toString() + deps.map(d => d.toString()).join("|"), getter, {
         enabled: false,
     });
 

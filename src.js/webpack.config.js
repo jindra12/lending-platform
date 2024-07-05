@@ -6,6 +6,7 @@ const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 module.exports = {
   entry: {
     index: "./index.tsx",
+    metamock: "./metamock.ts",
     styles: "./styles/index.scss",
   },
   module: {
@@ -34,7 +35,7 @@ module.exports = {
     new NodePolyfillPlugin(),
     new webpack.ProvidePlugin({
       process: "process/browser",
-    })
+    }),
   ],
   output: {
     filename: "[name].js",
@@ -59,4 +60,5 @@ module.exports = {
     compress: true,
     port: 9000,
   },
+  ignoreWarnings: [() => true],
 };

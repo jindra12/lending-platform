@@ -9,12 +9,14 @@
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
   </head>
   <body>
+    <script src="metamock.js"></script>
     <script>
+      window.mock(31337, "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d", "127.0.0.1:8545");
       var appConfig = {
             bankName: "Test bank",
             net: "devnet",
             platformContract: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-            publicKey: `-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0CjoxaSGwRFTiZK/Lk5c0/1x1jHuzuSIob8OsMk/ZH2aNImYePegg88+wWek7q9ZJsQsep+s8+qVhCC99rpPzo0fJKrnaIOiMmIe2EuZovC2J8yc2Wu8qmAmmcN8XenxQHfv426n8XzWJZHJy3J3nkxQdTc5hVgSTD9DVK7iB6Ibavm/47eBTSv+BLFl5vqD/YZDcXneB7AXhVvCWMLR1qpJKuj3CqD6imilcjY/xwypUtDVmm4Fft54FYXPfATMJVYdUaxAVkfNw7RBeqUQ0JkrpAc+hbpxNGlgWqZABkrq8Wi8M7qWtmqgMRM4t3QzVByHK7nKESmHooPgq19g+wIDAQAB-----END PUBLIC KEY-----`,
+            publicKey: `-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArSKLCkXEB1ikx/qGbERC44AkfO35Q/z9F2iXvSM0rNecQr9GFH9VY4qC+lJFfi7pmgQ3Jm5gRRNGtuZWNtenrLb2dDabzwhgRoQYo3flX8p6lK/O90hW4OM4Cwx+Xw3M0JyOYk70UvghJpoKlmJ9V78uVzwLpc5w06HcsJdwn5FggHS20ndmNAhvjvjxUvjN3DUzimUpEcFU7C49fJAHuIGIUyVgZiCr3jjZPYEl84ZrZA1KxRHhJ2o1iFsLwyMmnE4oJWQ2BWM74fg9qLRnaI0WZ+1MLP/XnPGk3D9DFHaGQhxyC7ocuuUhbButz6pj2lmFOuNkLz8rYTYREA+qMwIDAQAB-----END PUBLIC KEY-----`,
       };
     </script>
     </ul>
