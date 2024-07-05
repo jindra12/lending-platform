@@ -33,9 +33,7 @@ export const Layout: React.FunctionComponent<LayoutProps> = (
     return (
         <LibraryLayout>
             <Header style={{ display: "flex", alignItems: "center" }}>
-                <div>
-                    {getConfig().bankName}
-                </div>
+                <div className="logo" aria-label={getConfig().bankName} />
                 <AccountMenu setSelected={setAccount} selected={account} />
             </Header>
             <LibraryLayout>
@@ -73,7 +71,6 @@ export const Layout: React.FunctionComponent<LayoutProps> = (
                     />
                 </Sider>
                 <LibraryLayout>
-                    <Header style={{ padding: 0, background: colorBgContainer }} />
                     <Content style={{ margin: "24px 16px 0" }}>
                         <div
                             style={{
