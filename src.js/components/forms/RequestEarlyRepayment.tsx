@@ -1,6 +1,6 @@
 import * as React from "react";
 import { BankOutlined, CheckCircleFilled } from "@ant-design/icons";
-import { Button, Form, Input, Modal } from "antd";
+import { Button, Divider, Form, Input, Modal } from "antd";
 import { useRequestEarlyRepayment } from "../context";
 
 export interface RequestEarlyRepaymentProps {
@@ -51,7 +51,8 @@ export const RequestEarlyRepayment: React.FunctionComponent<RequestEarlyRepaymen
                     >
                         <Input type="number" />
                     </Form.Item>
-                    <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                    <Divider />
+                    <Form.Item>
                         <Button
                             type="primary"
                             htmlType="submit"

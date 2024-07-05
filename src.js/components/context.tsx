@@ -329,7 +329,7 @@ export const useLoans = (borrower?: string, lender?: string) => {
         const acceptedLoans = await lendingPlatform.filters[
             "AcceptedLoan(uint256,address,address,address)"
         ](undefined, lender, borrower).getTopicFilter();
-        return acceptedLoans.map((topics: string[]) => ({
+        return acceptedLoans.filter((topic) => Array.isArray(topic)).map((topics: string[]) => ({
             address: topics[3],
             lender: topics[1],
             borrower: topics[2],

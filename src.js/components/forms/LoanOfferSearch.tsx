@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, Checkbox, Collapse, Form, Input, Space } from "antd";
+import { Button, Checkbox, Collapse, Divider, Form, Input, Space } from "antd";
 import { MinusCircleOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { LendingPlatFormStructs } from "../../contracts/LendingPlatform.sol/LendingPlatformAbi";
 import { addressValidator } from "../../utils";
@@ -228,7 +228,8 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (props)
                     }
                 ]}
             />
-            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+            <Divider />
+            <Form.Item>
                 <Button
                     type="primary"
                     htmlType="submit"

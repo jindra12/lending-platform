@@ -37,7 +37,7 @@ export const Layout: React.FunctionComponent<LayoutProps> = (
                 <AccountMenu setSelected={setAccount} selected={account} />
             </Header>
             <LibraryLayout>
-                <Sider breakpoint="lg" collapsedWidth="0">
+                <Sider breakpoint="lg" collapsedWidth="40px">
                     <Menu
                         theme="dark"
                         mode="inline"
@@ -57,7 +57,7 @@ export const Layout: React.FunctionComponent<LayoutProps> = (
                             {
                                 key: "/limit/requests",
                                 icon: <ApiFilled />,
-                                label: "View requests",
+                                label: "View loan limit requests",
                             },
                             {
                                 key: "/issue-loan",
@@ -76,8 +76,10 @@ export const Layout: React.FunctionComponent<LayoutProps> = (
                             style={{
                                 padding: 24,
                                 minHeight: 360,
+                                maxWidth: 1200,
                                 background: colorBgContainer,
                                 borderRadius: borderRadiusLG,
+                                margin: "0 auto",
                             }}
                         >
                             {account && props.children(account)}

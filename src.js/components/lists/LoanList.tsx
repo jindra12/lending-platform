@@ -26,6 +26,11 @@ export const LoanList: React.FunctionComponent<LoanListProps> = (props) => {
     }
 
     if (loans.data) {
+        if (loans.data.length === 0) {
+            return (
+                <Alert type="info" message="No loans found" />
+            );
+        }
         return (
             <>
                 {loans.data.slice((page - 1) * size, page * size).map((loan, i) => {

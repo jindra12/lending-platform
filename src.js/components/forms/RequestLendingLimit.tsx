@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, Form } from "antd";
+import { Button, Divider, Form } from "antd";
 import { InboxOutlined, CheckCircleFilled } from "@ant-design/icons"
 import { useRequestLendingLimit } from "../context";
 import Dragger from "antd/es/upload/Dragger";
@@ -26,6 +26,9 @@ export const RequestLendingLimit: React.FunctionComponent = () => {
                         Upload a single PDF file with information about yourself and the loan limit request
                     </p>
                 </Dragger>
+            </Form.Item>
+            <Divider />
+            <Form.Item>
                 <Button
 					type="primary"
 					htmlType="submit"

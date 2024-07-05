@@ -1,10 +1,11 @@
 import * as React from "react";
-import { Button, Flex, Form, Input, Radio, Space } from "antd";
+import { Button, Divider, Flex, Form, Input, Radio, Space } from "antd";
 import { CheckCircleFilled } from "@ant-design/icons";
 import { useIssueLoan } from "../context";
 import { FormLoanIssuance } from "../../types";
 import { addressValidator, convertLoanIssuanceToApi } from "../../utils";
 import { CoinDisplay } from "../utils/CoinDisplay";
+import FormItem from "antd/es/form/FormItem";
 
 export const IssueLoan: React.FunctionComponent = () => {
     const issue = useIssueLoan();
@@ -137,15 +138,18 @@ export const IssueLoan: React.FunctionComponent = () => {
                 >
                     <Input type="number" />
                 </Form.Item>
-                <Button
-					type="primary"
-					htmlType="submit"
-					icon={<CheckCircleFilled />}
-					loading={issue.isLoading}
-				>
-					Approve
-				</Button>
             </Space.Compact>
+            <Divider />
+            <FormItem>
+                <Button
+                    type="primary"
+                    htmlType="submit"
+                    icon={<CheckCircleFilled />}
+                    loading={issue.isLoading}
+                >
+                    Approve
+                </Button>
+            </FormItem>
         </Form>
     );
 };

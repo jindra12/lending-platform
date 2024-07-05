@@ -3,6 +3,7 @@ import { SearchOutlined } from "@ant-design/icons";
 import {
     Alert,
     Button,
+    Divider,
     Form,
     Radio,
     RadioChangeEvent,
@@ -77,23 +78,26 @@ export const LoanSearch: React.FunctionComponent<LoanSearchProps> = (props) => {
                                 <Radio value="lender">Search borrowers</Radio>
                             </Radio.Group>
                         </Form.Item>
-                        <Form.Item<LoanSearchType>
-                            label={type === "borrower" ? "Lender" : "Borrower"}
-                            name="subject"
-                            noStyle
-                        >
-                            <Select
-                                options={loans.data.map((data) => ({
-                                    value: data[type],
-                                    label: data[type],
-                                }))}
-                                loading={loans.isFetching}
-                                allowClear
-                            />
-                        </Form.Item>
-                    </Space>
+                        {loans.data.length > 0 && (
+                            <Form.Item<LoanSearchType>
+                                label={type === "borrower" ? "Lender" : "Borrower"}
+                                name="subject"
+                                noStyle
+                            >
+                                <Select
+                                    options={loans.data.map((data) => ({
+                                        value: data[type],
+                                        label: data[type],
+                                    }))}
+                                    loading={loans.isFetching}
+                                    allowClear
+                                />
+                            </Form.Item>
+                        )}
 
-                    <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                    </Space>
+                    <Divider />
+                    <Form.Item>
                         <Button
                             type="primary"
                             htmlType="submit"

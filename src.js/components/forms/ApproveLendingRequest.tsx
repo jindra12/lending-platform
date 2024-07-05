@@ -1,6 +1,6 @@
 import * as React from "react";
 import { CheckCircleFilled, DownloadOutlined } from "@ant-design/icons";
-import { Button, Checkbox, Form, Input, Space, message } from "antd";
+import { Button, Checkbox, Divider, Form, Input, Space, message } from "antd";
 import prompt from 'antd-prompt';
 import {
 	ApproveLendingRequestType,
@@ -77,7 +77,8 @@ export const ApproveLendingRequest: React.FunctionComponent<
 			>
 				<Input />
 			</Form.Item>
-			<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+			<Divider />
+			<Form.Item>
 				<Space>
 					<Button type="primary" icon={<DownloadOutlined />} onClick={onDownload}>
 						View documentation
