@@ -124,7 +124,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         lendingPlatform.setLoanLimitRequest{ value: loanFee }(bytes("https://google.com"));
 
         vm.prank(lendingPlatform.owner());
-        lendingPlatform.setLoanLimit(barry, amount, 0);
+        lendingPlatform.setLoanLimit(barry, amount, 1);
 
         vm.prank(barry);
         vm.expectEmit(true, true, true, false, address(lendingPlatform));
@@ -140,7 +140,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         lendingPlatform.setLoanLimitRequest{ value: loanFee }(bytes("https://google.com"));
 
         vm.prank(lendingPlatform.owner());
-        lendingPlatform.setLoanLimit(barry, amount, 0);
+        lendingPlatform.setLoanLimit(barry, amount, 1);
 
         vm.prank(barry);
         vm.expectEmit(true, true, true, false, address(lendingPlatform));
@@ -156,7 +156,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         lendingPlatform.setLoanLimitRequest{ value: loanFee }(bytes("https://google.com"));
 
         vm.prank(lendingPlatform.owner());
-        lendingPlatform.setLoanLimit(barry, amount, oneCoin, 0);
+        lendingPlatform.setLoanLimit(barry, amount, oneCoin, 1);
 
         vm.prank(barry);
         vm.expectEmit(true, true, true, false, address(lendingPlatform));
@@ -172,7 +172,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         lendingPlatform.setLoanLimitRequest{ value: loanFee }(bytes("https://google.com"));
 
         vm.prank(lendingPlatform.owner());
-        lendingPlatform.setLoanLimit(barry, amount, oneCoin, 0);
+        lendingPlatform.setLoanLimit(barry, amount, oneCoin, 1);
 
         vm.prank(barry);
         vm.expectEmit(true, true, true, false, address(lendingPlatform));
@@ -1052,14 +1052,14 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         vm.prank(mallory);
         lendingPlatform.setLoanLimitRequest{ value: loanFee }(bytes("https://google.com"));
 
-        lendingPlatform.setLoanLimit(mallory, amount - 1, 0);
+        lendingPlatform.setLoanLimit(mallory, amount - 1, 1);
 
         (bool ok4,) = mallory.call{ value: loanFee }("");
         assertTrue(ok4);
         vm.prank(mallory);
         lendingPlatform.setLoanLimitRequest{ value: loanFee }(bytes("https://google.com"));
 
-        lendingPlatform.setLoanLimit(mallory, amount - 1, oneCoin, 1);
+        lendingPlatform.setLoanLimit(mallory, amount - 1, oneCoin, 2);
 
         vm.prank(mallory);
         vm.expectRevert("Loan limit exceeded");

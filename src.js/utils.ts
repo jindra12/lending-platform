@@ -2,6 +2,7 @@ import { Rule } from "antd/es/form";
 import { FormLoanIssuance, LoanDetails, LoanIssuance, LoanOfferStruct } from "./types";
 import { LendingPlatFormStructs } from "./contracts/LendingPlatform.sol/LendingPlatformAbi";
 import { Loan } from "./contracts/LendingPlatform.sol/LoanAbi";
+import { ColProps, RowProps } from "antd";
 
 export const convertLoanIssuanceToApi = (loanIssue: FormLoanIssuance): LoanIssuance => {
     switch (loanIssue.type!) {
@@ -99,4 +100,16 @@ export const translateLoan = (loan: Loan.LoanDetailsStructOutput): LoanDetails =
         requestPaidEarlyAmount: loan.requestPaidEarly ? loan.requestPaidEarlyAmount.toString() : "",
         singlePayment: loan.singlePayment.toString(),
     };
+};
+
+export const colProps: ColProps = {
+    xs: { flex: "100%" },
+    sm: { flex: "100%" },
+    md: { flex: "50%" },
+    lg: { flex: "50%" },
+    xl: { flex: "50%" },
+};
+
+export const rowProps: RowProps = {
+    gutter: [15, 15],
 };

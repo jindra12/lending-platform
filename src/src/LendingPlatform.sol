@@ -68,8 +68,7 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
     LoanOffer[] internal _loanOffers;
 
     uint256 internal _loanOfferId = 1;
-    uint256 internal _requestPageIndex = 0;
-    uint256 internal _requestUniqueIndex = 0;
+    uint256 internal _requestUniqueIndex = 1;
 
     constructor(ENS ens, string memory name, bytes32 addressReverseNode) {
         if (address(ens) != address(0)) {

@@ -62,40 +62,37 @@ export const LoanSearch: React.FunctionComponent<LoanSearchProps> = (props) => {
                         });
                     }
                 }} form={form}>
-                    <Space>
-                        <Form.Item<LoanSearchType>
-                            label="Subject type"
-                            name="subject"
-                            noStyle
+                    <Form.Item<LoanSearchType>
+                        label="Subject type"
+                        name="subject"
+                        layout="vertical"
+                    >
+                        <Radio.Group
+                            onChange={(e: RadioChangeEvent) =>
+                                form.setFieldValue("type", e.target.value)
+                            }
+                            value={type}
                         >
-                            <Radio.Group
-                                onChange={(e: RadioChangeEvent) =>
-                                    form.setFieldValue("type", e.target.value)
-                                }
-                                value={type}
-                            >
-                                <Radio value="borrower">Search lenders</Radio>
-                                <Radio value="lender">Search borrowers</Radio>
-                            </Radio.Group>
+                            <Radio value="borrower">Search lenders</Radio>
+                            <Radio value="lender">Search borrowers</Radio>
+                        </Radio.Group>
+                    </Form.Item>
+                    {loans.data.length > 0 && (
+                        <Form.Item<LoanSearchType>
+                            label={type === "borrower" ? "Lender" : "Borrower"}
+                            name="subject"
+                            layout="vertical"
+                        >
+                            <Select
+                                options={loans.data.map((data) => ({
+                                    value: data[type],
+                                    label: data[type],
+                                }))}
+                                loading={loans.isFetching}
+                                allowClear
+                            />
                         </Form.Item>
-                        {loans.data.length > 0 && (
-                            <Form.Item<LoanSearchType>
-                                label={type === "borrower" ? "Lender" : "Borrower"}
-                                name="subject"
-                                noStyle
-                            >
-                                <Select
-                                    options={loans.data.map((data) => ({
-                                        value: data[type],
-                                        label: data[type],
-                                    }))}
-                                    loading={loans.isFetching}
-                                    allowClear
-                                />
-                            </Form.Item>
-                        )}
-
-                    </Space>
+                    )}
                     <Divider />
                     <Form.Item>
                         <Button

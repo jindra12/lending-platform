@@ -10,6 +10,27 @@ import type {
 
 const _abi = [
   {
+    type: "constructor",
+    inputs: [
+      {
+        name: "ens",
+        type: "address",
+        internalType: "contract ENS",
+      },
+      {
+        name: "name",
+        type: "string",
+        internalType: "string",
+      },
+      {
+        name: "addressReverseNode",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+    ],
+    stateMutability: "nonpayable",
+  },
+  {
     type: "function",
     name: "acceptLoan",
     inputs: [

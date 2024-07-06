@@ -179,12 +179,13 @@ export const useLoanSearch = (
 ) => {
     const lendingPlatform = useLendingPlatform();
     return usePaginationQuery(
-        (page) => {
-            return search
+        async (page): Promise<LendingPlatFormStructs.LoanOfferStructOutput[]> => {
+            const results = await (search
                 ? lendingPlatform.listLoanOffersBy((page - 1) * count, count, search)
-                : lendingPlatform.listLoanOffers((page - 1) * count, count);
+                : lendingPlatform.listLoanOffers((page - 1) * count, count));
+            return results.filter((output) => output.id.toString() !== "0");
         },
-        [search]
+        search,
     );
 };
 
@@ -269,8 +270,9 @@ export const useRequestLendingLimit = () => {
 
 export const useLendingRequests = (count: number) => {
     const lendingPlatform = useLendingPlatform();
-    return usePaginationQuery((page) => {
-        return lendingPlatform.listActiveRequests(count * (page - 1), count);
+    return usePaginationQuery(async (page): Promise<LendingPlatFormStructs.ActiveRequestStructOutput[]> => {
+        const results = await lendingPlatform.listActiveRequests(count * (page - 1), count);
+        return results.filter((output) => output.uniqueId.toString() !== "0");
     });
 };
 
@@ -322,6 +324,21 @@ export const useApproveLendingRequest = (address: string, requestId: number | bi
         }
     );
 };
+
+export const useIsOwner = (self: string) => {
+    const lendingPlatform = useLendingPlatform();
+    return useQuery(async () => {
+        const owner = await lendingPlatform.owner();
+        return owner === self;
+    }, self);
+};
+
+export const useLoanFee = () => {
+    const lendingPlatform = useLendingPlatform();
+    return useMutation((amount: number) => {
+        return lendingPlatform.setLoanFee(amount);
+    });
+}
 
 export const useLoans = (borrower?: string, lender?: string) => {
     const lendingPlatform = useLendingPlatform();

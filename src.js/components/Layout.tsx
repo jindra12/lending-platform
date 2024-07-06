@@ -1,17 +1,12 @@
 import * as React from "react";
-import { Layout as LibraryLayout, Menu, theme } from "antd";
-import {
-    MoneyCollectFilled,
-    MoneyCollectOutlined,
-    UserAddOutlined,
-    ApiFilled,
-} from "@ant-design/icons";
+import { Layout as LibraryLayout, theme } from "antd";
+
 import Sider from "antd/es/layout/Sider";
 import { Header, Content, Footer } from "antd/es/layout/layout";
-import { useNavigate, useLocation } from "react-router-dom";
 import { getConfig } from "../config";
 import { AccountMenu } from "./lists/AccountMenu";
 import { JsonRpcSigner } from "ethers";
+import { SiderMenu } from "./views/SiderMenu";
 
 export interface LayoutProps {
     children: (account: JsonRpcSigner) => React.ReactNode;
@@ -24,10 +19,6 @@ export const Layout: React.FunctionComponent<LayoutProps> = (
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
 
-    const navigate = useNavigate();
-    const { hash } = useLocation();
-
-    const selectedUrl = hash.split("#")[1];
     const [account, setAccount] = React.useState<JsonRpcSigner>();
 
     return (
@@ -38,37 +29,7 @@ export const Layout: React.FunctionComponent<LayoutProps> = (
             </Header>
             <LibraryLayout>
                 <Sider breakpoint="lg" collapsedWidth="40px">
-                    <Menu
-                        theme="dark"
-                        mode="inline"
-                        defaultSelectedKeys={["/"]}
-                        selectedKeys={selectedUrl ? [selectedUrl] : undefined}
-                        items={[
-                            {
-                                key: "/",
-                                icon: <UserAddOutlined />,
-                                label: "View loans",
-                            },
-                            {
-                                key: "/limit/request",
-                                icon: <MoneyCollectFilled />,
-                                label: "Change loan limit",
-                            },
-                            {
-                                key: "/limit/requests",
-                                icon: <ApiFilled />,
-                                label: "View loan limit requests",
-                            },
-                            {
-                                key: "/issue-loan",
-                                icon: <MoneyCollectOutlined />,
-                                label: "Issue loan",
-                            },
-                        ]}
-                        onSelect={({ key }) => {
-                            navigate(key);
-                        }}
-                    />
+                    {account && <SiderMenu account={account} />}
                 </Sider>
                 <LibraryLayout>
                     <Content style={{ margin: "24px 16px 0" }}>
