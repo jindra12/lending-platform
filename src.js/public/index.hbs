@@ -11,7 +11,7 @@
   <body>
     <script src="metamock.js"></script>
     <script>
-      window.mock(31337, "{{ private_keys.[1] }}", "http://127.0.0.1:8545");
+      window.mock(31337, [{{#each private_keys }}"{{ this }}",{{/each}}], "http://127.0.0.1:8545", {{keyIndex}});
       var appConfig = {
             bankName: "Test bank",
             net: "devnet",

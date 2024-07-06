@@ -8,7 +8,7 @@ import {
 	useLendingRequestFile,
 } from "../context";
 import { CoinDisplay } from "../utils/CoinDisplay";
-import { addressValidator } from "../../utils";
+import { addressValidator, numberValidator } from "../../utils";
 
 export interface ApproveLendingRequestProps {
 	borrower: string;
@@ -55,11 +55,11 @@ export const ApproveLendingRequest: React.FunctionComponent<
 					{
 						required: true,
 						message: "No loanable amount specified",
-						type: "number",
 					},
+					numberValidator,
 				]}
 			>
-				<Input type="number" />
+				<Input />
 			</Form.Item>
 			<Form.Item<ApproveLendingRequestType>
 				name="isEth"

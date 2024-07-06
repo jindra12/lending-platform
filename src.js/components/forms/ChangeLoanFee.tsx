@@ -2,7 +2,7 @@ import * as React from "react";
 import { Button, Col, Form, Input, Row } from "antd";
 import { CheckCircleFilled } from "@ant-design/icons";
 import { useLoanFee } from "../context";
-import { colProps, rowProps } from "../../utils";
+import { colProps, numberValidator, rowProps } from "../../utils";
 
 type LoanFeeType = { amount: number };
 
@@ -25,9 +25,10 @@ export const ChangeLoanFee: React.FunctionComponent = () => {
                                 message: "Set loan fee in wei",
                                 type: "number",
                             },
+                            numberValidator,
                         ]}
                     >
-                        <Input type="number" />
+                        <Input />
                     </Form.Item>
                 </Col>
                 <Col {...colProps}>

@@ -2,7 +2,6 @@ import * as React from "react";
 import {
     Button,
     Col,
-    Flex,
     Form,
     Input,
     Radio,
@@ -16,6 +15,7 @@ import {
     addressValidator,
     colProps,
     convertLoanIssuanceToApi,
+    numberValidator,
     rowProps,
 } from "../../utils";
 import { CoinDisplay } from "../utils/CoinDisplay";
@@ -55,12 +55,11 @@ export const IssueLoan: React.FunctionComponent = () => {
                 </Radio.Group>
             </Form.Item>
             <Row {...rowProps}>
-                <Col {...colProps}>
+                <Col {...colProps} hidden={type === "EthEth" || type === "CoinEth"}>
                     <Form.Item<FormLoanIssuance>
                         name="coin"
                         label="Currency"
                         layout="vertical"
-                        hidden={type === "EthEth" || type === "CoinEth"}
                         help={coin ? <CoinDisplay address={coin} /> : undefined}
                         rules={[
                             { required: true, message: "Set ERC20 coin address" },
@@ -70,12 +69,11 @@ export const IssueLoan: React.FunctionComponent = () => {
                         <Input />
                     </Form.Item>
                 </Col>
-                <Col {...colProps}>
+                <Col {...colProps} hidden={type === "EthEth" || type === "EthCoin"}>
                     <Form.Item<FormLoanIssuance>
                         name="collateralCoin"
                         layout="vertical"
                         label="Currency of collateral"
-                        hidden={type === "EthEth" || type === "EthCoin"}
                         help={coin ? <CoinDisplay address={coin} /> : undefined}
                         rules={[
                             { required: true, message: "Set ERC20 coin address" },
@@ -97,11 +95,11 @@ export const IssueLoan: React.FunctionComponent = () => {
                             {
                                 required: true,
                                 message: "No loanable amount specified",
-                                type: "number",
                             },
+                            numberValidator,
                         ]}
                     >
-                        <Input type="number" />
+                        <Input />
                     </Form.Item>
                 </Col>
                 <Col {...colProps}>
@@ -114,11 +112,11 @@ export const IssueLoan: React.FunctionComponent = () => {
                             {
                                 required: true,
                                 message: "Specify final amount",
-                                type: "number",
                             },
+                            numberValidator,
                         ]}
                     >
-                        <Input type="number" />
+                        <Input />
                     </Form.Item>
                 </Col>
             </Row>
@@ -132,11 +130,11 @@ export const IssueLoan: React.FunctionComponent = () => {
                             {
                                 required: true,
                                 message: "No interval specified",
-                                type: "number",
                             },
+                            numberValidator,
                         ]}
                     >
-                        <Input type="number" />
+                        <Input />
                     </Form.Item>
                 </Col>
                 <Col {...colProps}>
@@ -148,11 +146,11 @@ export const IssueLoan: React.FunctionComponent = () => {
                             {
                                 required: true,
                                 message: "No default limit specified",
-                                type: "number",
                             },
+                            numberValidator,
                         ]}
                     >
-                        <Input type="number" />
+                        <Input />
                     </Form.Item>
                 </Col>
             </Row>
@@ -166,11 +164,11 @@ export const IssueLoan: React.FunctionComponent = () => {
                             {
                                 required: true,
                                 message: "No single payment specified",
-                                type: "number",
                             },
+                            numberValidator,
                         ]}
                     >
-                        <Input type="number" />
+                        <Input />
                     </Form.Item>
                 </Col>
                 <Col {...colProps}>
@@ -182,11 +180,11 @@ export const IssueLoan: React.FunctionComponent = () => {
                             {
                                 required: true,
                                 message: "No collateral specified",
-                                type: "number",
                             },
+                            numberValidator,
                         ]}
                     >
-                        <Input type="number" />
+                        <Input />
                     </Form.Item>
                 </Col>
             </Row>

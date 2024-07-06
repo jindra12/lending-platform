@@ -2,6 +2,7 @@ import * as React from "react";
 import { BankOutlined, CheckCircleFilled } from "@ant-design/icons";
 import { Button, Divider, Form, Input, Modal } from "antd";
 import { useRequestEarlyRepayment } from "../context";
+import { numberValidator } from "../../utils";
 
 export interface RequestEarlyRepaymentProps {
     loan: string;
@@ -45,11 +46,11 @@ export const RequestEarlyRepayment: React.FunctionComponent<RequestEarlyRepaymen
                             {
                                 required: true,
                                 message: "No requesting amount specified",
-                                type: "number",
                             },
+                            numberValidator
                         ]}
                     >
-                        <Input type="number" />
+                        <Input />
                     </Form.Item>
                     <Divider />
                     <Form.Item>

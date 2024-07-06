@@ -54,8 +54,13 @@ export const convertLoanIssuanceToApi = (loanIssue: FormLoanIssuance): LoanIssua
 };
 
 export const addressValidator: Rule = {
-    pattern: /0x[a-zA-Z-0-9]{40}/,
+    pattern: /^0x[a-zA-Z-0-9]{40}$/,
     message: "Invalid address",
+};
+
+export const numberValidator: Rule = {
+    pattern: /^[1-9][0-9]?$/,
+    message: "Input a whole number",
 };
 
 export const dayInSeconds = 24 * 60 * 60;

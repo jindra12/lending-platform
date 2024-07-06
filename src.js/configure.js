@@ -1,7 +1,12 @@
 const { exec } = require("node:child_process");
 const fs = require("fs");
 const handlebars = require("handlebars");
-const crypto = require('crypto');
+const crypto = require("crypto");
+const { Command } = require("commander");
+
+const program = new Command();
+program.requiredOption("-k", "--key <index>", "0");
+const result = program.parse();
 
 (async () => {
     const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
@@ -34,7 +39,7 @@ const crypto = require('crypto');
     }));
     const unpacked = JSON.parse(deployed);
     const templated = handlebars.compile(fs.readFileSync("./public/index.hbs", "utf-8"));
-    const html = templated({ ...anvilData, bankAddress: unpacked.deployedTo, publicKey: publicKey.replace(/\n/gmui, "") });
+    const html = templated({ ...anvilData, bankAddress: unpacked.deployedTo, publicKey: publicKey.replace(/\n/gmui, ""), keyIndex: result.args[0] });
     fs.writeFileSync("./public/index.html", html);
     fs.writeFileSync("./public/privatekey.txt", privateKey.replace(/\n/gmui, ""));
     process.exit();

@@ -4,3 +4,5 @@ src.js/dist/
 *.log
 .yarn/
 anvil.json
+privatekey.txt
+index.html

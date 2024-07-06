@@ -10,7 +10,8 @@
     "build": "rimraf dist; yarn webpack --mode production",
     "serve": "webpack serve --mode development",
     "anvil": "anvil --config-out anvil.json",
-    "configure": "node configure.js",
+    "configure": "node configure.js -k 1",
+    "configure:owner": "node configure.js -k 0",
     "compile": "cd ../src; forge build --force --extra-output-files abi; cd ../src.js; yarn typechain --target=ethers-v6 --out-dir=./contracts ../src/out/**/{IERC20Metadata,LendingPlatform,Loan}.abi.json",
     "test": "cd ../src; forge test -vvvvv > test.log"
   },
