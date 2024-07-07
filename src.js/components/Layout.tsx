@@ -7,14 +7,13 @@ import { getConfig } from "../config";
 import { AccountMenu } from "./lists/AccountMenu";
 import { JsonRpcSigner } from "ethers";
 import { SiderMenu } from "./views/SiderMenu";
+import { SignerGuard } from "./views/SignerGuard";
 
 export interface LayoutProps {
     children: (account: JsonRpcSigner) => React.ReactNode;
 }
 
-export const Layout: React.FunctionComponent<LayoutProps> = (
-    props
-) => {
+export const Layout: React.FunctionComponent<LayoutProps> = (props) => {
     const {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
@@ -43,7 +42,11 @@ export const Layout: React.FunctionComponent<LayoutProps> = (
                                 margin: "0 auto",
                             }}
                         >
-                            {account && props.children(account)}
+                            {account && (
+                                <SignerGuard self={account.address}>
+                                    {props.children(account)}
+                                </SignerGuard>
+                            )}
                         </div>
                     </Content>
                     <Footer style={{ textAlign: "center" }}>

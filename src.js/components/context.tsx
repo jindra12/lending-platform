@@ -9,7 +9,7 @@ import {
     LendingPlatformAbi__factory,
     IERC20MetadataAbi__factory,
 } from "../contracts";
-import { BrowserProvider, ethers } from "ethers";
+import { BrowserProvider, JsonRpcSigner, ethers } from "ethers";
 import { Throw } from "throw-expression";
 import { getConfig } from "../config";
 import {
@@ -22,10 +22,8 @@ import { LendingPlatFormStructs } from "../contracts/LendingPlatform.sol/Lending
 import { dayInSeconds, translateLoan } from "../utils";
 
 const Context = React.createContext<{
-    loans: Record<string, LoanAbi>;
-    lendingPlatform: React.MutableRefObject<LendingPlatformAbi>;
-    ercs: Record<string, IERC20MetadataAbi>;
     provider: React.MutableRefObject<BrowserProvider>;
+    signer: React.MutableRefObject<JsonRpcSigner>;
 }>(null!);
 
 const getPayable = (amount: number | bigint) => ({
@@ -42,17 +40,13 @@ const useContext = () => React.useContext(Context)!;
 export const ContextProvider: React.FunctionComponent<
     React.PropsWithChildren
 > = (props) => {
-    const loansRef = React.useRef<Record<string, LoanAbi>>({});
-    const lendingPlatformRef = React.useRef<LendingPlatformAbi>(null!);
-    const ercs = React.useRef<Record<string, IERC20MetadataAbi>>({});
     const provider = React.useRef<BrowserProvider>(null!);
+    const signer = React.useRef<JsonRpcSigner>(null!);
     return (
         <Context.Provider
             value={{
-                ercs: ercs.current,
-                lendingPlatform: lendingPlatformRef,
-                loans: loansRef.current,
                 provider: provider,
+                signer: signer,
             }}
         >
             {props.children}
@@ -121,10 +115,25 @@ export const useProvider = () => {
     return (provider.current ||= getProvider());
 };
 
-export const useLoan = (address: string) => {
-    const { loans } = useContext();
+export const useSigner = () => {
+    const { signer } = useContext();
+    return signer.current || Throw("No signer has been defined");
+};
+
+export const useSetSigner = (self: string) => {
     const provider = useProvider();
-    return (loans[address] ||= LoanAbi__factory.connect(address, provider));
+    const { signer } = useContext();
+    return useQuery(async (): Promise<boolean> => {
+        signer.current = await provider.getSigner(self);
+        return true;
+    }, self);
+};
+
+export const useLoan = (address: string) => {
+    const signer = useSigner();
+    return React.useMemo(() => {
+        return LoanAbi__factory.connect(address, signer)
+    }, [signer, address]);
 };
 
 export const useAccounts = () => {
@@ -133,36 +142,45 @@ export const useAccounts = () => {
 };
 
 export const useLendingPlatform = () => {
-    const { lendingPlatform } = useContext();
-    const provider = useProvider();
+    const signer = useSigner();
+    return React.useMemo(() => {
+        return LendingPlatformAbi__factory.connect(
+            getConfig().platformContract,
+            signer,
+        );
+    }, [signer]);
+};
 
-    return (lendingPlatform.current ||= LendingPlatformAbi__factory.connect(
-        getConfig().platformContract,
-        provider
-    ));
+export const useUnsignedLendingPlatform = () => {
+    const provider = useProvider();
+    return React.useMemo(() => {
+        return LendingPlatformAbi__factory.connect(
+            getConfig().platformContract,
+            provider,
+        );
+    }, [provider]);
 };
 
 export const useERC20 = (address: string) => {
-    const { ercs } = useContext();
-    const provider = useProvider();
-
-    return (ercs[address] ||= IERC20MetadataAbi__factory.connect(
-        address,
-        provider
-    ));
+    const signer = useSigner();
+    return React.useMemo(() => {
+        return IERC20MetadataAbi__factory.connect(
+            address,
+            signer,
+        );
+    }, [address, signer])
 };
 
 export const useGetERC20 = () => {
-    const { ercs } = useContext();
-    const provider = useProvider();
+    const signer = useSigner();
     return useMutation(
         (address: string) =>
             new Promise<IERC20MetadataAbi>((resolve) =>
                 resolve(
-                    (ercs[address] ||= IERC20MetadataAbi__factory.connect(
+                    IERC20MetadataAbi__factory.connect(
                         address,
-                        provider
-                    ))
+                        signer,
+                    )
                 )
             )
     );
@@ -201,7 +219,7 @@ export const useIssueLoan = () => {
                     params.defaultLimit * dayInSeconds,
                     params.singlePayment,
                     params.collateral,
-                    getPayable(params.amount)
+                    getPayable(params.amount),
                 );
             case "EthCoin":
                 return lendingPlatform.offerLoanEthCoin(
@@ -326,7 +344,7 @@ export const useApproveLendingRequest = (address: string, requestId: number | bi
 };
 
 export const useIsOwner = (self: string) => {
-    const lendingPlatform = useLendingPlatform();
+    const lendingPlatform = useUnsignedLendingPlatform();
     return useQuery(async () => {
         const owner = await lendingPlatform.owner();
         return owner === self;
