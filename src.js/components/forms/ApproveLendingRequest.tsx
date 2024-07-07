@@ -10,6 +10,7 @@ import {
 import { CoinDisplay } from "../utils/CoinDisplay";
 import { addressValidator, numberValidator } from "../../utils";
 import { FormError } from "../utils/FormError";
+import { FormSuccess } from "../utils/FormSuccess";
 
 export interface ApproveLendingRequestProps {
 	borrower: string;
@@ -48,8 +49,12 @@ export const ApproveLendingRequest: React.FunctionComponent<
 	}, [download]);
 
 	return (
-		<Form<ApproveLendingRequestType> onFinish={approve.mutate} form={form} scrollToFirstError>
+		<Form<ApproveLendingRequestType> onFinish={(values) => {
+			approve.mutate(values);
+			form.resetFields();
+		}} form={form} scrollToFirstError>
 			<FormError query={approve} />
+			<FormSuccess query={approve} />
 			<Form.Item<ApproveLendingRequestType>
 				label="Approved amount"
 				name="amount"

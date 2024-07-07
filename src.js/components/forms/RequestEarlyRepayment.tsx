@@ -4,6 +4,7 @@ import { Button, Divider, Form, Input, Modal } from "antd";
 import { useRequestEarlyRepayment } from "../context";
 import { numberValidator } from "../../utils";
 import { FormError } from "../utils/FormError";
+import { FormSuccess } from "../utils/FormSuccess";
 
 export interface RequestEarlyRepaymentProps {
     loan: string;
@@ -17,6 +18,10 @@ export const RequestEarlyRepayment: React.FunctionComponent<RequestEarlyRepaymen
     const requestEarlyRepayment = useRequestEarlyRepayment(props.loan);
     const [form] = Form.useForm<RequestEarlyRepaymentType>();
 
+    React.useEffect(() => {
+        setModalOpen(false);
+    }, [requestEarlyRepayment.isSuccess]);
+    
     return (
         <>
             <Button
@@ -35,8 +40,12 @@ export const RequestEarlyRepayment: React.FunctionComponent<RequestEarlyRepaymen
                 closable
                 footer={null}
             >
-                <Form<RequestEarlyRepaymentType> scrollToFirstError onFinish={(values) => requestEarlyRepayment.mutate(values.amount)} form={form}>
+                <Form<RequestEarlyRepaymentType> scrollToFirstError onFinish={(values) => {
+                    requestEarlyRepayment.mutate(values.amount);
+                    setModalOpen(false);
+                }} form={form}>
                     <FormError query={requestEarlyRepayment} />
+                    <FormSuccess query={requestEarlyRepayment} />
                     <Form.Item<RequestEarlyRepaymentType>
                         label={(
                             <>

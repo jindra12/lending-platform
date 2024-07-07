@@ -4,6 +4,7 @@ import { CheckCircleFilled } from "@ant-design/icons";
 import { useLoanFee } from "../context";
 import { colProps, numberValidator, rowProps } from "../../utils";
 import { FormError } from "../utils/FormError";
+import { FormSuccess } from "../utils/FormSuccess";
 
 type LoanFeeType = { amount: number };
 
@@ -13,10 +14,14 @@ export const ChangeLoanFee: React.FunctionComponent = () => {
     return (
         <Form<LoanFeeType>
             form={form}
-            onFinish={({ amount }) => loanFee.mutate(amount)}
+            onFinish={({ amount }) => {
+                loanFee.mutate(amount);
+                form.resetFields();
+            }}
             scrollToFirstError
         >
             <FormError query={loanFee} />
+            <FormSuccess query={loanFee} />
             <Row {...rowProps}>
                 <Col {...colProps}>
                     <Form.Item<LoanFeeType>

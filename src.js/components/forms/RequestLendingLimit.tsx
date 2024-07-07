@@ -4,6 +4,7 @@ import { InboxOutlined, CheckCircleFilled } from "@ant-design/icons";
 import { useRequestLendingLimit } from "../context";
 import Dragger from "antd/es/upload/Dragger";
 import { FormError } from "../utils/FormError";
+import { FormSuccess } from "../utils/FormSuccess";
 
 type RequestLendingLimitType = {
     files: File[];
@@ -16,9 +17,13 @@ export const RequestLendingLimit: React.FunctionComponent = () => {
         <Form<RequestLendingLimitType>
             scrollToFirstError
             form={form}
-            onFinish={({ files }) => requestLendingLimit.mutate(files)}
+            onFinish={({ files }) => {
+                requestLendingLimit.mutate(files);
+                form.resetFields();
+            }}
         >
             <FormError query={requestLendingLimit} />
+            <FormSuccess query={requestLendingLimit} />
             <Form.Item<RequestLendingLimitType>
                 name="files"
                 rules={[

@@ -21,6 +21,7 @@ import {
 import { CoinDisplay } from "../utils/CoinDisplay";
 import FormItem from "antd/es/form/FormItem";
 import { FormError } from "../utils/FormError";
+import { FormSuccess } from "../utils/FormSuccess";
 
 export const IssueLoan: React.FunctionComponent = () => {
     const issue = useIssueLoan();
@@ -38,6 +39,7 @@ export const IssueLoan: React.FunctionComponent = () => {
             layout="horizontal"
             scrollToFirstError
         >
+            <FormSuccess query={issue} />
             <FormError query={issue} />
             <Form.Item<FormLoanIssuance> label="Loan type" name="type" initialValue="EthEth">
                 <Radio.Group
