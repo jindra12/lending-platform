@@ -6,3 +6,4 @@ src.js/dist/
 anvil.json
 privatekey.txt
 index.html
+!.yarn/patches/

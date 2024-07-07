@@ -21,7 +21,7 @@
     "antd-prompt": "^0.7.1",
     "encrypt-rsa": "^3.0.1",
     "error-polyfill": "^0.1.3",
-    "ethers": "^6.13.1",
+    "ethers": "patch:ethers@npm%3A6.13.1#~/patches/ethers-npm-6.13.1-62b44a89af.patch",
     "lodash-es": "^4.17.21",
     "process": "^0.11.10",
     "react": "^18.3.1",

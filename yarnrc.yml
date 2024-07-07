@@ -1,2 +1,2 @@
-nodeLinker: "node-modules"
-patchFolder: "patches"
+nodeLinker: node-modules
+patchFolder: src.js/patches

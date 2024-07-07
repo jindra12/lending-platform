@@ -31,7 +31,10 @@ export const IssueLoan: React.FunctionComponent = () => {
     return (
         <Form<FormLoanIssuance>
             form={form}
-            onFinish={(values) => issue.mutate(convertLoanIssuanceToApi(values))}
+            onFinish={(values) => {
+                issue.mutate(convertLoanIssuanceToApi(values));
+                form.resetFields();
+            }}
             layout="horizontal"
             scrollToFirstError
         >
