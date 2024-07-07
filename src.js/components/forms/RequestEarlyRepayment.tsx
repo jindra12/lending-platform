@@ -37,6 +37,7 @@ export const RequestEarlyRepayment: React.FunctionComponent<RequestEarlyRepaymen
                 title="Request early repayment"
                 open={isModalOpen}
                 onClose={() => setModalOpen(false)}
+                onCancel={() => setModalOpen(false)}
                 closable
                 footer={null}
             >

@@ -6,7 +6,9 @@ export interface FormSuccessProps {
     query: UseQueryResult | UseMutationResult;
 }
 
-export const FormSuccess: React.FunctionComponent<FormSuccessProps> = (props) => {
+export const FormSuccess: React.FunctionComponent<FormSuccessProps> = (
+    props
+) => {
     const [show, setShow] = React.useState(false);
     React.useEffect(() => {
         if (props.query.isSuccess) {
@@ -14,12 +16,20 @@ export const FormSuccess: React.FunctionComponent<FormSuccessProps> = (props) =>
         }
     }, [props.query.isSuccess]);
 
-    if (show) {
-        return (
-            <Modal title="Form submission" closable onClose={() => setShow(false)} footer={null}>
-                <Alert type="success" message="Submit successful!" />
-            </Modal>
-        );
-    }
-    return null;
+    console.log(show);
+
+    return (
+        <Modal
+            open={show}
+            title="Form submission"
+            destroyOnClose
+            closable
+            onCancel={() => {
+                setShow(false);
+            }}
+            footer={null}
+        >
+            <Alert type="success" message="Submit successful!" />
+        </Modal>
+    );
 };

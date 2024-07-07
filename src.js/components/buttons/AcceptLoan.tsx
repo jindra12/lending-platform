@@ -32,6 +32,7 @@ export const AcceptLoan: React.FunctionComponent<
                     setModalOpen(false);
                 }}
                 onCancel={() => setModalOpen(false)}
+                onClose={() => setModalOpen(false)}
             >
                 Are you sure you want to take out this loan?
             </Modal>

@@ -31,6 +31,7 @@ export const Default: React.FunctionComponent<
                     setModalOpen(false);
                 }}
                 onCancel={() => setModalOpen(false)}
+                onClose={() => setModalOpen(false)}
             >
                 Are you sure you want the borrower to default on the loan and get the loan collateral?
             </Modal>

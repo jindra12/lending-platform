@@ -30,6 +30,7 @@ export const ApproveEarlyRepayment: React.FunctionComponent<
                     setModalOpen(false);
                 }}
                 onCancel={() => setModalOpen(false)}
+                onClose={() => setModalOpen(false)}
             >
                 Are you sure you want to approve early repayment and receive funds now?
             </Modal>
