@@ -1,10 +1,18 @@
 import { Rule } from "antd/es/form";
-import { FormLoanIssuance, LoanDetails, LoanIssuance, LoanOfferStruct } from "./types";
+import {
+    FormLoanIssuance,
+    LoanDetails,
+    LoanIssuance,
+    LoanOfferStruct,
+} from "./types";
 import { LendingPlatFormStructs } from "./contracts/LendingPlatform.sol/LendingPlatformAbi";
 import { Loan } from "./contracts/LendingPlatform.sol/LoanAbi";
 import { ColProps, RowProps } from "antd";
+import { BigNumberish } from "ethers";
 
-export const convertLoanIssuanceToApi = (loanIssue: FormLoanIssuance): LoanIssuance => {
+export const convertLoanIssuanceToApi = (
+    loanIssue: FormLoanIssuance
+): LoanIssuance => {
     switch (loanIssue.type!) {
         case "EthEth":
             return {
@@ -65,7 +73,9 @@ export const numberValidator: Rule = {
 
 export const dayInSeconds = 24 * 60 * 60;
 
-export const translateLoanOffer = (offer: LendingPlatFormStructs.LoanOfferStructOutput): LoanOfferStruct => {
+export const translateLoanOffer = (
+    offer: LendingPlatFormStructs.LoanOfferStructOutput
+): LoanOfferStruct => {
     return {
         coin: offer.coin,
         from: offer.from,
@@ -78,23 +88,33 @@ export const translateLoanOffer = (offer: LendingPlatFormStructs.LoanOfferStruct
                 isCollateralEth: offer.loanData.collateral.isCollateralEth,
                 value: offer.loanData.collateral.value.toString(),
             },
-            defaultLimit: `${Math.round(parseFloat(offer.loanData.defaultLimit.toString()) / dayInSeconds)} days`,
-            interval: `${Math.round(parseFloat(offer.loanData.interval.toString()) / dayInSeconds)} days`,
+            defaultLimit: `${Math.round(
+                parseFloat(offer.loanData.defaultLimit.toString()) / dayInSeconds
+            )} days`,
+            interval: `${Math.round(
+                parseFloat(offer.loanData.interval.toString()) / dayInSeconds
+            )} days`,
             singlePayment: offer.loanData.singlePayment.toString(),
             toBePaid: offer.loanData.toBePaid.toString(),
-        }
+        },
     };
 };
 
-export const translateLoan = (loan: Loan.LoanDetailsStructOutput): LoanDetails => {
+export const translateLoan = (
+    loan: Loan.LoanDetailsStructOutput
+): LoanDetails => {
     return {
         borrower: loan.borrower,
         coin: loan.coin,
         collateral: loan.collateral.toString(),
         collateralCoin: loan.isCollateralEth ? loan.collateralCoin : "",
-        defaultLimit: `${Math.round(parseFloat(loan.defaultLimit.toString()) / dayInSeconds)} days`,
+        defaultLimit: `${Math.round(
+            parseFloat(loan.defaultLimit.toString()) / dayInSeconds
+        )} days`,
         inDefault: loan.inDefault,
-        interval: `${Math.round(parseFloat(loan.interval.toString()) / dayInSeconds)} days`,
+        interval: `${Math.round(
+            parseFloat(loan.interval.toString()) / dayInSeconds
+        )} days`,
         isCollateralEth: loan.isCollateralEth,
         isEth: loan.isEth,
         lastPayment: new Date(parseFloat(loan.lastPayment.toString())).toString(),
@@ -102,7 +122,9 @@ export const translateLoan = (loan: Loan.LoanDetailsStructOutput): LoanDetails =
         paidEarly: loan.paidEarly,
         remaining: loan.remaining.toString(),
         requestPaidEarly: loan.requestPaidEarly,
-        requestPaidEarlyAmount: loan.requestPaidEarly ? loan.requestPaidEarlyAmount.toString() : "",
+        requestPaidEarlyAmount: loan.requestPaidEarly
+            ? loan.requestPaidEarlyAmount.toString()
+            : "",
         singlePayment: loan.singlePayment.toString(),
     };
 };
@@ -117,4 +139,26 @@ export const colProps: ColProps = {
 
 export const rowProps: RowProps = {
     gutter: [15, 15],
+};
+
+export const sanitizeOfferSearch = (
+    value: Partial<LendingPlatFormStructs.LoanOfferSearchStruct>
+): LendingPlatFormStructs.LoanOfferSearchStruct => {
+    const sanitizeArray = (array?: (BigNumberish | undefined)[]) => {
+        return (array?.filter((number) => typeof number !== "undefined") ||
+            []) as number[];
+    };
+    return {
+        amount: sanitizeArray(value.amount),
+        coins: value.coins || [],
+        collateral: sanitizeArray(value.collateral),
+        collateralCoins: value.collateralCoins || [],
+        defaultLimit: sanitizeArray(value.defaultLimit),
+        from: value.from || "0x0",
+        includeCollateralEth: value.includeCollateralEth ?? true,
+        includeEth: value.includeCollateralEth ?? true,
+        interval: sanitizeArray(value.interval),
+        singlePayment: sanitizeArray(value.singlePayment),
+        toBePaid: sanitizeArray(value.toBePaid),
+    };
 };

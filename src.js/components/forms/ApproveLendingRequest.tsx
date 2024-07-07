@@ -71,7 +71,7 @@ export const ApproveLendingRequest: React.FunctionComponent<
 			<Form.Item<ApproveLendingRequestType>
 				name="isEth"
 				label="Eth limit"
-				rules={[{ required: true }]}
+				valuePropName="checked"
 			>
 				<Checkbox defaultChecked />
 			</Form.Item>

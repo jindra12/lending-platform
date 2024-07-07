@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Divider, Spin } from "antd";
+import { Alert, Divider, Spin } from "antd";
 import ReactVisibilitySensor from "react-visibility-sensor";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useLoanSearch } from "../context";
@@ -27,6 +27,9 @@ export const LoanOfferList: React.FunctionComponent<LoanOfferListProps> = (props
                     ))}
                 </React.Fragment>
             ))}
+            {loans.isError && (
+                <Alert type="error" message="Could not fetch loan offers" />
+            )}
             {loans.hasNextPage && (
                 <ReactVisibilitySensor onChange={(isVisible: boolean) => isVisible && loans.fetchNextPage()}>
                     <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />

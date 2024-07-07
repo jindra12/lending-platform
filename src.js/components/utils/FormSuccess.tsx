@@ -16,13 +16,10 @@ export const FormSuccess: React.FunctionComponent<FormSuccessProps> = (
         }
     }, [props.query.isSuccess]);
 
-    console.log(show);
-
     return (
         <Modal
             open={show}
             title="Form submission"
-            destroyOnClose
             closable
             onCancel={() => {
                 setShow(false);

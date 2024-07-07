@@ -19,7 +19,7 @@ import {
 } from "react-query";
 import { LoanIssuance } from "../types";
 import { LendingPlatFormStructs } from "../contracts/LendingPlatform.sol/LendingPlatformAbi";
-import { dayInSeconds, translateLoan } from "../utils";
+import { dayInSeconds, sanitizeOfferSearch, translateLoan } from "../utils";
 
 const Context = React.createContext<{
     provider: React.MutableRefObject<BrowserProvider>;
@@ -199,7 +199,7 @@ export const useLoanSearch = (
     return usePaginationQuery(
         async (page): Promise<LendingPlatFormStructs.LoanOfferStructOutput[]> => {
             const results = await (search
-                ? lendingPlatform.listLoanOffersBy((page - 1) * count, count, search)
+                ? lendingPlatform.listLoanOffersBy((page - 1) * count, count, sanitizeOfferSearch(search))
                 : lendingPlatform.listLoanOffers((page - 1) * count, count));
             return results.filter((output) => output.id.toString() !== "0");
         },
