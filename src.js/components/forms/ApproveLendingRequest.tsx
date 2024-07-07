@@ -9,6 +9,7 @@ import {
 } from "../context";
 import { CoinDisplay } from "../utils/CoinDisplay";
 import { addressValidator, numberValidator } from "../../utils";
+import { FormError } from "../utils/FormError";
 
 export interface ApproveLendingRequestProps {
 	borrower: string;
@@ -24,30 +25,31 @@ export const ApproveLendingRequest: React.FunctionComponent<
 	const isEth: boolean = Form.useWatch("isEth", form);
 	const coin = Form.useWatch("coin", form);
 
-    const onDownload = React.useCallback(async () => {
-        try {
-            const privateKey = await prompt({
-                title: "Required for file download",
-                placeholder: "Bank private key",
-                rules: [
-                    {
-                        required: true,
-                        message: "Enter your private key"
-                    }
-                ],
-            });
+	const onDownload = React.useCallback(async () => {
+		try {
+			const privateKey = await prompt({
+				title: "Required for file download",
+				placeholder: "Bank private key",
+				rules: [
+					{
+						required: true,
+						message: "Enter your private key"
+					}
+				],
+			});
 			message.loading("Starting file download");
 			if (!privateKey) {
 				throw "No private key";
 			}
 			await download.mutateAsync(privateKey);
-        } catch (e) {
-            message.error("Please enter your private key");
-        }
-    }, [download]);
+		} catch (e) {
+			message.error("Please enter your private key");
+		}
+	}, [download]);
 
 	return (
-		<Form<ApproveLendingRequestType> onFinish={approve.mutate} form={form}>
+		<Form<ApproveLendingRequestType> onFinish={approve.mutate} form={form} scrollToFirstError>
+			<FormError query={approve} />
 			<Form.Item<ApproveLendingRequestType>
 				label="Approved amount"
 				name="amount"
@@ -68,15 +70,16 @@ export const ApproveLendingRequest: React.FunctionComponent<
 			>
 				<Checkbox defaultChecked />
 			</Form.Item>
-			<Form.Item<ApproveLendingRequestType>
-				name="coin"
-				label="Currency"
-				hidden={!isEth}
-				help={coin ? <CoinDisplay address={coin} /> : undefined}
-				rules={[{ required: true, message: "Set ERC20 coin address" }, addressValidator]}
-			>
-				<Input />
-			</Form.Item>
+			{!isEth && (
+				<Form.Item<ApproveLendingRequestType>
+					name="coin"
+					label="Currency"
+					extra={coin ? <CoinDisplay address={coin} /> : undefined}
+					rules={[{ required: true, message: "Set ERC20 coin address" }, addressValidator]}
+				>
+					<Input />
+				</Form.Item>
+			)}
 			<Divider />
 			<Form.Item>
 				<Space>

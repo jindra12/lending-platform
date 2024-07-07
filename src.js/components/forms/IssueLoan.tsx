@@ -20,11 +20,12 @@ import {
 } from "../../utils";
 import { CoinDisplay } from "../utils/CoinDisplay";
 import FormItem from "antd/es/form/FormItem";
+import { FormError } from "../utils/FormError";
 
 export const IssueLoan: React.FunctionComponent = () => {
     const issue = useIssueLoan();
     const [form] = Form.useForm<FormLoanIssuance>();
-    const type: FormLoanIssuance["type"] = Form.useWatch("type", form) || "EthEth";
+    const type: FormLoanIssuance["type"] = Form.useWatch("type", form);
     const coin: FormLoanIssuance["coin"] = Form.useWatch("coin", form);
 
     return (
@@ -32,8 +33,10 @@ export const IssueLoan: React.FunctionComponent = () => {
             form={form}
             onFinish={(values) => issue.mutate(convertLoanIssuanceToApi(values))}
             layout="horizontal"
+            scrollToFirstError
         >
-            <Form.Item<FormLoanIssuance> label="Loan type" name="type">
+            <FormError query={issue} />
+            <Form.Item<FormLoanIssuance> label="Loan type" name="type" initialValue="EthEth">
                 <Radio.Group
                     value={type}
                     onChange={(e) => form.setFieldValue("type", e.target.value)}
@@ -55,34 +58,38 @@ export const IssueLoan: React.FunctionComponent = () => {
                 </Radio.Group>
             </Form.Item>
             <Row {...rowProps}>
-                <Col {...colProps} hidden={type === "EthEth" || type === "CoinEth"}>
-                    <Form.Item<FormLoanIssuance>
-                        name="coin"
-                        label="Currency"
-                        layout="vertical"
-                        help={coin ? <CoinDisplay address={coin} /> : undefined}
-                        rules={[
-                            { required: true, message: "Set ERC20 coin address" },
-                            addressValidator,
-                        ]}
-                    >
-                        <Input />
-                    </Form.Item>
-                </Col>
-                <Col {...colProps} hidden={type === "EthEth" || type === "EthCoin"}>
-                    <Form.Item<FormLoanIssuance>
-                        name="collateralCoin"
-                        layout="vertical"
-                        label="Currency of collateral"
-                        help={coin ? <CoinDisplay address={coin} /> : undefined}
-                        rules={[
-                            { required: true, message: "Set ERC20 coin address" },
-                            addressValidator,
-                        ]}
-                    >
-                        <Input />
-                    </Form.Item>
-                </Col>
+                {type !== "EthEth" && type !== "CoinEth" && (
+                    <Col {...colProps}>
+                        <Form.Item<FormLoanIssuance>
+                            name="coin"
+                            label="Currency"
+                            layout="vertical"
+                            extra={coin ? <CoinDisplay address={coin} /> : undefined}
+                            rules={[
+                                { required: true, message: "Set ERC20 coin address" },
+                                addressValidator,
+                            ]}
+                        >
+                            <Input />
+                        </Form.Item>
+                    </Col>
+                )}
+                {type !== "EthEth" && type !== "EthCoin" && (
+                    <Col {...colProps}>
+                        <Form.Item<FormLoanIssuance>
+                            name="collateralCoin"
+                            layout="vertical"
+                            label="Currency of collateral"
+                            extra={coin ? <CoinDisplay address={coin} /> : undefined}
+                            rules={[
+                                { required: true, message: "Set ERC20 coin address" },
+                                addressValidator,
+                            ]}
+                        >
+                            <Input />
+                        </Form.Item>
+                    </Col>
+                )}
             </Row>
             <Row {...rowProps}>
                 <Col {...colProps}>
@@ -90,7 +97,7 @@ export const IssueLoan: React.FunctionComponent = () => {
                         label="Lend amount"
                         name="amount"
                         layout="vertical"
-                        help="Will be taken out of your account when submitted"
+                        extra="Will be taken out of your account when submitted"
                         rules={[
                             {
                                 required: true,
@@ -107,7 +114,7 @@ export const IssueLoan: React.FunctionComponent = () => {
                         label="Final amount to be paid back"
                         name="toBePaid"
                         layout="vertical"
-                        help="Borrower will pay this amount to lender"
+                        extra="Borrower will pay this amount to lender"
                         rules={[
                             {
                                 required: true,
@@ -123,7 +130,7 @@ export const IssueLoan: React.FunctionComponent = () => {
             <Row {...rowProps}>
                 <Col {...colProps}>
                     <Form.Item<FormLoanIssuance>
-                        label="Payment interval"
+                        label="Payment interval in days"
                         name="interval"
                         layout="vertical"
                         rules={[

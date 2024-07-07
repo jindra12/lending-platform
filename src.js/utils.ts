@@ -59,7 +59,7 @@ export const addressValidator: Rule = {
 };
 
 export const numberValidator: Rule = {
-    pattern: /^[1-9][0-9]?$/,
+    pattern: /^[1-9][0-9]*$/,
     message: "Input a whole number",
 };
 

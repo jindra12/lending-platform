@@ -4,6 +4,7 @@ import { MinusCircleOutlined, PlusOutlined, SearchOutlined } from "@ant-design/i
 import { LendingPlatFormStructs } from "../../contracts/LendingPlatform.sol/LendingPlatformAbi";
 import { addressValidator, colProps, numberValidator, rowProps } from "../../utils";
 import { CoinHint } from "../utils/CoinHint";
+import { FormError } from "../utils/FormError";
 
 export interface LoanSearchProps {
     setSearchParams: (
@@ -18,6 +19,7 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (props)
         <Form<LendingPlatFormStructs.LoanOfferSearchStruct>
             onFinish={props.setSearchParams}
             form={form}
+            scrollToFirstError
         >
             <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
                 name="from"
@@ -79,7 +81,7 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (props)
                                             {...restField}
                                             name={name}
                                             label="ER20 address"
-                                            help={<CoinHint form={form} name={["coins", name]} />}
+                                            extra={<CoinHint form={form} name={["coins", name]} />}
                                             rules={[{ required: true, message: "Missing coin address" }, addressValidator]}
                                         >
                                             <Input placeholder="ERC20 coin address" />
@@ -115,7 +117,7 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (props)
                                             {...restField}
                                             name={name}
                                             label="ER20 collateral address"
-                                            help={<CoinHint form={form} name={["coins", name]} />}
+                                            extra={<CoinHint form={form} name={["coins", name]} />}
                                             rules={[{ required: true, message: "Missing coin address" }, addressValidator]}
                                         >
                                             <Input placeholder="ERC20 coin address" />

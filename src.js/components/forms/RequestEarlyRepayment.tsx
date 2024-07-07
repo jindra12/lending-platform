@@ -3,6 +3,7 @@ import { BankOutlined, CheckCircleFilled } from "@ant-design/icons";
 import { Button, Divider, Form, Input, Modal } from "antd";
 import { useRequestEarlyRepayment } from "../context";
 import { numberValidator } from "../../utils";
+import { FormError } from "../utils/FormError";
 
 export interface RequestEarlyRepaymentProps {
     loan: string;
@@ -34,7 +35,8 @@ export const RequestEarlyRepayment: React.FunctionComponent<RequestEarlyRepaymen
                 closable
                 footer={null}
             >
-                <Form<RequestEarlyRepaymentType> onFinish={(values) => requestEarlyRepayment.mutate(values.amount)} form={form}>
+                <Form<RequestEarlyRepaymentType> scrollToFirstError onFinish={(values) => requestEarlyRepayment.mutate(values.amount)} form={form}>
+                    <FormError query={requestEarlyRepayment} />
                     <Form.Item<RequestEarlyRepaymentType>
                         label={(
                             <>

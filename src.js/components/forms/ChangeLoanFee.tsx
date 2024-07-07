@@ -3,6 +3,7 @@ import { Button, Col, Form, Input, Row } from "antd";
 import { CheckCircleFilled } from "@ant-design/icons";
 import { useLoanFee } from "../context";
 import { colProps, numberValidator, rowProps } from "../../utils";
+import { FormError } from "../utils/FormError";
 
 type LoanFeeType = { amount: number };
 
@@ -13,7 +14,9 @@ export const ChangeLoanFee: React.FunctionComponent = () => {
         <Form<LoanFeeType>
             form={form}
             onFinish={({ amount }) => loanFee.mutate(amount)}
+            scrollToFirstError
         >
+            <FormError query={loanFee} />
             <Row {...rowProps}>
                 <Col {...colProps}>
                     <Form.Item<LoanFeeType>

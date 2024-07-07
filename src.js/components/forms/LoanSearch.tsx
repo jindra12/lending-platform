@@ -25,7 +25,10 @@ export interface LoanSearchProps {
 export const LoanSearch: React.FunctionComponent<LoanSearchProps> = (props) => {
     const [form] = Form.useForm<LoanSearchType>();
 
-    const [search, setSearch] = React.useState<{ borrower?: string, lender?: string }>({
+    const [search, setSearch] = React.useState<{
+        borrower?: string;
+        lender?: string;
+    }>({
         borrower: props.self,
     });
 
@@ -49,23 +52,28 @@ export const LoanSearch: React.FunctionComponent<LoanSearchProps> = (props) => {
     if (loans.data) {
         return (
             <div>
-                <Form<LoanSearchType> onFinish={(values) => {
-                    if (values.type === "borrower") {
-                        setSearch({
-                            borrower: props.self,
-                            lender: values.subject,
-                        });
-                    } else {
-                        setSearch({
-                            borrower: values.subject,
-                            lender: props.self,
-                        });
-                    }
-                }} form={form}>
+                <Form<LoanSearchType>
+                    onFinish={(values) => {
+                        if (values.type === "borrower") {
+                            setSearch({
+                                borrower: props.self,
+                                lender: values.subject,
+                            });
+                        } else {
+                            setSearch({
+                                borrower: values.subject,
+                                lender: props.self,
+                            });
+                        }
+                    }}
+                    scrollToFirstError
+                    form={form}
+                >
                     <Form.Item<LoanSearchType>
                         label="Subject type"
                         name="subject"
                         layout="vertical"
+                        initialValue="borrower"
                     >
                         <Radio.Group
                             onChange={(e: RadioChangeEvent) =>
@@ -105,7 +113,11 @@ export const LoanSearch: React.FunctionComponent<LoanSearchProps> = (props) => {
                         </Button>
                     </Form.Item>
                 </Form>
-                <LoanList self={props.self} borrower={search.borrower} lender={search.lender} />
+                <LoanList
+                    self={props.self}
+                    borrower={search.borrower}
+                    lender={search.lender}
+                />
             </div>
         );
     }
