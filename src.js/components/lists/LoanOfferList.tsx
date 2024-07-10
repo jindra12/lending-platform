@@ -2,7 +2,7 @@ import * as React from "react";
 import { Alert, Divider, Spin } from "antd";
 import ReactVisibilitySensor from "react-visibility-sensor";
 import { LoadingOutlined } from "@ant-design/icons";
-import { useLoanSearch } from "../context";
+import { useLoanOfferSearch } from "../context";
 import { LendingPlatFormStructs } from "../../contracts/LendingPlatform.sol/LendingPlatformAbi";
 import { LoanOfferSearch } from "../forms/LoanOfferSearch";
 import { LoanOfferDetail } from "../views/LoanOfferDetail";
@@ -13,7 +13,7 @@ export interface LoanOfferListProps {
 
 export const LoanOfferList: React.FunctionComponent<LoanOfferListProps> = (props) => {
     const [search, setSearch] = React.useState<LendingPlatFormStructs.LoanOfferSearchStruct>();
-    const loans = useLoanSearch(20, search);
+    const loans = useLoanOfferSearch(20, search);
     return (
         <div>
             <LoanOfferSearch setSearchParams={setSearch} isFetching={loans.isFetching} />

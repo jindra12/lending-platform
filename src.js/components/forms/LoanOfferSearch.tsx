@@ -23,7 +23,6 @@ import {
     rowProps,
 } from "../../utils";
 import { CoinHint } from "../utils/CoinHint";
-import { FormError } from "../utils/FormError";
 
 export interface LoanSearchProps {
     setSearchParams: (

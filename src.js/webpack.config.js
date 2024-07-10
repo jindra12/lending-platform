@@ -6,7 +6,6 @@ const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 module.exports = {
   entry: {
     index: "./index.tsx",
-    metamock: "./metamock.ts",
     styles: "./styles/index.scss",
   },
   module: {

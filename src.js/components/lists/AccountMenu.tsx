@@ -1,21 +1,24 @@
 import * as React from "react";
-import { Alert, Menu, Spin, Tooltip } from "antd";
+import { Alert, Menu, Spin } from "antd";
 import { ItemType, MenuItemType } from "antd/es/menu/interface";
 import { LoadingOutlined } from "@ant-design/icons";
 import { JsonRpcSigner } from "ethers";
 
 import { useAccounts } from "../context";
+import { AccountTooltip } from "../utils/AccountTooltip";
 
 export interface AccountMenuProps {
     selected?: JsonRpcSigner;
     setSelected: (value: JsonRpcSigner) => void;
 }
 
-export const AccountMenu: React.FunctionComponent<AccountMenuProps> = (props) => {
+export const AccountMenu: React.FunctionComponent<AccountMenuProps> = (
+    props
+) => {
     const accounts = useAccounts();
 
     React.useEffect(() => {
-        if (!props.selected && accounts.data) {
+        if (!props.selected && accounts.data?.length) {
             props.setSelected(accounts.data[0]);
         }
     }, [accounts.data]);
@@ -29,12 +32,13 @@ export const AccountMenu: React.FunctionComponent<AccountMenuProps> = (props) =>
     }
 
     if (accounts.data) {
+        if (accounts.data.length === 0) {
+            return <Alert type="error" message="No accounts found" />;
+        }
         const items = accounts.data.map(
             (signer): ItemType<MenuItemType> => ({
                 label: (
-                    <Tooltip placement="bottom" title={signer.address} arrow={false}>
-                        {signer.address.slice(0, 5)}&hellip;
-                    </Tooltip>
+                    <AccountTooltip address={signer.address} />
                 ),
                 key: signer.address,
             })
@@ -44,11 +48,15 @@ export const AccountMenu: React.FunctionComponent<AccountMenuProps> = (props) =>
                 theme="dark"
                 mode="horizontal"
                 defaultSelectedKeys={[accounts.data[0].address]}
-                selectedKeys={props.selected?.address ? [props.selected?.address] : undefined}
+                selectedKeys={
+                    props.selected?.address ? [props.selected?.address] : undefined
+                }
                 onSelect={(info) => {
-                    const selected = accounts.data.find(acc => acc.address === info.key);
+                    const selected = accounts.data.find(
+                        (acc) => acc.address === info.key
+                    );
                     if (selected) {
-                        props.setSelected(selected)
+                        props.setSelected(selected);
                     }
                 }}
                 items={items}

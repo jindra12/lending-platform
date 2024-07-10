@@ -8,7 +8,12 @@ export interface FormErrorProps {
 
 export const FormError: React.FunctionComponent<FormErrorProps> = (props) => {
     if (props.query.isError) {
-        return <Alert type="error" message="Something went wrong, please try again later!" />;
+        const errorMessage = (props.query.error as any)?.info?.error?.data?.message;
+        const displayMessage =
+            errorMessage && typeof errorMessage === "string"
+                ? errorMessage
+                : "Something went wrong, please try again later!";
+        return <Alert type="error" message={displayMessage} />;
     }
     return null;
 };

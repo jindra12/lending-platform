@@ -9,14 +9,12 @@
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
   </head>
   <body>
-    <script src="metamock.js"></script>
     <script>
-      window.mock(31337, [{{#each private_keys }}"{{ this }}",{{/each}}], "http://127.0.0.1:8545", {{keyIndex}});
       var appConfig = {
-            bankName: "Test bank",
-            net: "devnet",
-            platformContract: "{{ bankAddress }}",
-            publicKey: `{{ publicKey }}`,
+        bankName: "Test bank",
+        net: "devnet",
+        platformContract: "{{ bankAddress }}",
+        publicKey: `{{ publicKey }}`,
       };
     </script>
     </ul>
