@@ -1,13 +1,14 @@
 import * as React from "react";
 import { Alert, Collapse, Descriptions, Space, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
-import { useLoanDetail } from "../context";
+import { useCanDefault, useCanDoEarlyRepayment, useCanDoPayment, useCanRequestEarlyRepayment, useLoanDetail } from "../context";
 import { ApproveEarlyRepayment } from "../buttons/ApproveEarlyRepayment";
 import { Payment } from "../buttons/Payment";
 import { Default } from "../buttons/Default";
 import { RejectEarlyRepayment } from "../buttons/RejectEarlyRepayment";
 import { RequestEarlyRepayment } from "../forms/RequestEarlyRepayment";
 import { CoinDisplay } from "../utils/CoinDisplay";
+import { Guard } from "./Guard";
 
 export interface LoanDetailProps {
     address: string;
@@ -121,19 +122,23 @@ export const LoanDetail: React.FunctionComponent<LoanDetailProps> = (props) => {
                                 <Space>
                                     {props.self === detail.data.borrower && (
                                         <>
-                                            <Payment loan={props.address} />
-                                            <RequestEarlyRepayment loan={props.address} currency={currency} />
+                                            <Guard address={props.address} hook={useCanDoPayment}>
+                                                <Payment loan={props.address} />
+                                            </Guard>
+                                            <Guard address={props.address} hook={useCanRequestEarlyRepayment}>
+                                                <RequestEarlyRepayment loan={props.address} currency={currency} />
+                                            </Guard>
                                         </>  
                                     )}
                                     {props.self === detail.data.lender && (
                                         <>
-                                            {detail.data.requestPaidEarly && (
-                                                <>
-                                                    <ApproveEarlyRepayment loan={props.address} />
-                                                    <RejectEarlyRepayment loan={props.address} />
-                                                </>
-                                            )}
-                                            <Default loan={props.address} />
+                                            <Guard address={props.address} hook={useCanDoEarlyRepayment}>
+                                                <ApproveEarlyRepayment loan={props.address} />
+                                                <RejectEarlyRepayment loan={props.address} />
+                                            </Guard>
+                                            <Guard address={props.address} hook={useCanDefault}>
+                                                <Default loan={props.address} />
+                                            </Guard>
                                         </>  
                                     )}
                                 </Space>

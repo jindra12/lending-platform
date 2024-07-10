@@ -84,6 +84,10 @@ export interface LoanAbiInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "acceptEarlyRepayment"
+      | "canDefaultOnLoan"
+      | "canDoEarlyRepayment"
+      | "canDoPayment"
+      | "canRequestEarlyRepayment"
       | "defaultOnLoan"
       | "doPayment"
       | "finalize"
@@ -125,6 +129,22 @@ export interface LoanAbiInterface extends Interface {
 
   encodeFunctionData(
     functionFragment: "acceptEarlyRepayment",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "canDefaultOnLoan",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "canDoEarlyRepayment",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "canDoPayment",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "canRequestEarlyRepayment",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -220,6 +240,22 @@ export interface LoanAbiInterface extends Interface {
 
   decodeFunctionResult(
     functionFragment: "acceptEarlyRepayment",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "canDefaultOnLoan",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "canDoEarlyRepayment",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "canDoPayment",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "canRequestEarlyRepayment",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -435,6 +471,14 @@ export interface LoanAbi extends BaseContract {
 
   acceptEarlyRepayment: TypedContractMethod<[], [void], "nonpayable">;
 
+  canDefaultOnLoan: TypedContractMethod<[], [boolean], "view">;
+
+  canDoEarlyRepayment: TypedContractMethod<[], [boolean], "view">;
+
+  canDoPayment: TypedContractMethod<[], [boolean], "view">;
+
+  canRequestEarlyRepayment: TypedContractMethod<[], [boolean], "view">;
+
   defaultOnLoan: TypedContractMethod<[], [void], "nonpayable">;
 
   doPayment: TypedContractMethod<[], [void], "payable">;
@@ -508,6 +552,18 @@ export interface LoanAbi extends BaseContract {
   getFunction(
     nameOrSignature: "acceptEarlyRepayment"
   ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "canDefaultOnLoan"
+  ): TypedContractMethod<[], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "canDoEarlyRepayment"
+  ): TypedContractMethod<[], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "canDoPayment"
+  ): TypedContractMethod<[], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "canRequestEarlyRepayment"
+  ): TypedContractMethod<[], [boolean], "view">;
   getFunction(
     nameOrSignature: "defaultOnLoan"
   ): TypedContractMethod<[], [void], "nonpayable">;

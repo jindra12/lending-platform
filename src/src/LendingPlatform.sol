@@ -588,6 +588,10 @@ contract Loan {
         _coin = coin;
     }
 
+    function canDoPayment() public view returns(bool) {
+        return block.timestamp >= _lastPayment + _interval && !_inDefault && !_paidEarly && _remaining >= _singlePayment;
+    }
+
     function doPayment() public payable {
         require(block.timestamp >= _lastPayment + _interval, "Not yet time to pay your loan");
         require(!_inDefault, "Loan has been defaulted on");
@@ -624,6 +628,10 @@ contract Loan {
         }
     }
 
+    function canRequestEarlyRepayment() public view returns(bool) {
+        return !_inDefault && !_paidEarly && _remaining != 0 && !_requestPaidEarly;
+    }
+
     function _checkRequestEarlyRepayment() internal view {
         require(!_inDefault, "Loan has defaulted already");
         require(!_paidEarly, "Loan has been paid early");
@@ -649,6 +657,10 @@ contract Loan {
         bool ok = _coin.transferFrom(_borrower, address(this), amount);
         require(ok, "Early repayment transfer failed");
         emit RequestEarlyRepayment(amount);
+    }
+
+    function canDoEarlyRepayment() public view returns(bool) {
+        return !_inDefault && !_paidEarly && _remaining != 0 && _requestPaidEarly;
     }
 
     function _earlyRepaymentDecisionCheck() internal view {
@@ -692,6 +704,10 @@ contract Loan {
             require(ok, "Early repayment collateral return failed");
         }
         emit AcceptEarlyRepayment(_requestPaidEarlyAmount);
+    }
+
+    function canDefaultOnLoan() public view returns(bool) {
+        return block.timestamp >= _lastPayment + _defaultLimit && !_inDefault && _remaining > 0;
     }
 
     function defaultOnLoan() public {

@@ -456,6 +456,26 @@ export const usePayment = (address: string) => {
     });
 };
 
+export const useCanDoPayment = (address: string) => {
+    const loan = useLoan(address);
+    return useQuery(() => loan.canDoPayment(), address);
+};
+
+export const useCanDefault = (address: string) => {
+    const loan = useLoan(address);
+    return useQuery(() => loan.canDefaultOnLoan(), address);
+};
+
+export const useCanRequestEarlyRepayment = (address: string) => {
+    const loan = useLoan(address);
+    return useQuery(() => loan.canRequestEarlyRepayment(), address);
+};
+
+export const useCanDoEarlyRepayment = (address: string) => {
+    const loan = useLoan(address);
+    return useQuery(() => loan.canDoEarlyRepayment(), address);
+};
+
 export const useAcceptLoan = (
     offer: LendingPlatFormStructs.LoanOfferStructOutput
 ) => {

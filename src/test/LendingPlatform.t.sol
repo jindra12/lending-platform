@@ -405,6 +405,9 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
                 loan.doPayment{ value: singlePayment }();
             }
             vm.warp((3 + i) * interval);
+            if (i != numberOfPayments - 1) {
+                assertTrue(loan.canDoPayment());
+            }
         }
 
         vm.prank(barry);
@@ -416,6 +419,8 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         vm.prank(address(loan));
         (bool ok3,) = barry.call{ value: 1 }(""); // Wallet should be empty
         assertFalse(ok3);
+
+        assertFalse(loan.canDoPayment());
     }
 
     function testPaymentEthCoin() public {
@@ -462,6 +467,9 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
                 loan.doPayment{ value: singlePayment }();
             }
             vm.warp((3 + i) * interval);
+            if (i != numberOfPayments - 1) {
+                assertTrue(loan.canDoPayment());
+            }
         }
 
         vm.expectRevert("Loan has been paid on time");
@@ -528,6 +536,9 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
                 loan.doPayment();
             }
             vm.warp((3 + i) * interval);
+            if (i != numberOfPayments - 1) {
+                assertTrue(loan.canDoPayment());
+            }
         }
 
         vm.prank(barry);
@@ -555,6 +566,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         oneCoin.mint(barry, loan.getRemaining());
         oneCoin.mint(mallory, loan.getRemaining());
     
+        assertFalse(loan.canDoPayment());
         vm.prank(barry);
         vm.expectRevert("Not yet time to pay your loan");
         loan.doPayment();
@@ -597,6 +609,9 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
                 loan.doPayment();
             }
             vm.warp((3 + i) * interval);
+            if (i != numberOfPayments - 1) {
+                assertTrue(loan.canDoPayment());
+            }
         }
 
         vm.prank(barry);
@@ -707,6 +722,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         vm.prank(mallory);
         oneCoin.approve(address(loan), singlePayment);
 
+        assertFalse(loan.canDefaultOnLoan());
         vm.prank(andrea);
         vm.expectRevert("Borrower has not yet reached default time");
         loan.defaultOnLoan();
@@ -714,6 +730,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         vm.prank(barry);
         loan.doPayment();
         vm.warp(interval + defaultLimit);
+        assertTrue(loan.canDefaultOnLoan());
         vm.prank(mallory);
         vm.expectRevert("Only lender can trigger default");
         loan.defaultOnLoan();
@@ -723,6 +740,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         assertTrue(loan.getIsDefault());
         assertEq(twoCoin.balanceOf(address(loan)), 0);
         assertEq(twoCoin.balanceOf(andrea), collateral);
+        assertFalse(loan.canDefaultOnLoan());
         vm.prank(andrea);
         vm.expectRevert("Loan already in default");
         loan.defaultOnLoan();
@@ -801,6 +819,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         vm.expectRevert("Early repayment not requested");
         loan.acceptEarlyRepayment();
 
+        assertTrue(loan.canRequestEarlyRepayment());
         oneCoin.mint(barry, earlyRepayment);
         vm.prank(barry);
         oneCoin.approve(address(loan), earlyRepayment);
@@ -819,6 +838,8 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         vm.expectRevert("Incorrect sender in request");
         loan.acceptEarlyRepayment();
 
+        assertFalse(loan.canRequestEarlyRepayment());
+        assertTrue(loan.canDoEarlyRepayment());
         assertEq(oneCoin.balanceOf(address(loan)), earlyRepayment);
         vm.prank(andrea);
         vm.expectCall(barry, collateral, emptyBytes);
@@ -838,6 +859,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         vm.expectRevert("Early repayment not requested");
         loan.acceptEarlyRepayment();
 
+        assertTrue(loan.canRequestEarlyRepayment());
         oneCoin.mint(barry, earlyRepayment);
         vm.prank(barry);
         oneCoin.approve(address(loan), earlyRepayment);
@@ -848,6 +870,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         vm.expectRevert("Incorrect sender in request");
         loan.requestEarlyRepaymentCoin(earlyRepayment);
 
+        assertFalse(loan.canRequestEarlyRepayment());
         vm.prank(barry);
         vm.expectRevert("Already requested early repayment");
         loan.requestEarlyRepaymentCoin(earlyRepayment);
@@ -856,21 +879,26 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         vm.expectRevert("Incorrect sender in request");
         loan.acceptEarlyRepayment();
 
+        assertTrue(loan.canDoEarlyRepayment());
         assertEq(oneCoin.balanceOf(address(loan)), earlyRepayment);
         vm.prank(andrea);
         loan.acceptEarlyRepayment();
         assertEq(oneCoin.balanceOf(address(loan)), 0);
         assertTrue(loan.getPaidEarly());
+
+        assertFalse(loan.canDoEarlyRepayment());
     }
 
     function testEarlyRepaymentRefusalEthEth() public {
         _testIssuanceEthEth();
         Loan loan = _testAcceptanceEthEth();
 
+        assertTrue(loan.canRequestEarlyRepayment());
         (bool earlyRepaymentRequested,) = barry.call{ value: earlyRepayment }("");
         assertTrue(earlyRepaymentRequested);
         vm.prank(barry);
         loan.requestEarlyRepaymentEth{ value: earlyRepayment }();
+        assertTrue(loan.canDoEarlyRepayment());
         vm.prank(barry);
         vm.expectCall(barry, earlyRepayment, emptyBytes);
         loan.rejectEarlyRepayment();
@@ -889,8 +917,11 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
 
         (bool earlyRepaymentRequested,) = barry.call{ value: earlyRepayment }("");
         assertTrue(earlyRepaymentRequested);
+        assertTrue(loan.canRequestEarlyRepayment());
         vm.prank(barry);
         loan.requestEarlyRepaymentEth{ value: earlyRepayment }();
+
+        assertTrue(loan.canDoEarlyRepayment());
         vm.prank(barry);
         vm.expectCall(barry, earlyRepayment, emptyBytes);
         loan.rejectEarlyRepayment();
@@ -908,11 +939,13 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         Loan loan = _testAcceptanceCoinEth();
 
         oneCoin.mint(barry, earlyRepayment);
+        assertTrue(loan.canRequestEarlyRepayment());
         vm.prank(barry);
         oneCoin.approve(address(loan), earlyRepayment);
         vm.prank(barry);
         loan.requestEarlyRepaymentCoin(earlyRepayment);
 
+        assertTrue(loan.canDoEarlyRepayment());
         assertEq(oneCoin.balanceOf(address(loan)), earlyRepayment);
         vm.prank(andrea);
         loan.rejectEarlyRepayment();
@@ -933,9 +966,11 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         oneCoin.mint(barry, earlyRepayment);
         vm.prank(barry);
         oneCoin.approve(address(loan), earlyRepayment);
+        assertTrue(loan.canRequestEarlyRepayment());
         vm.prank(barry);
         loan.requestEarlyRepaymentCoin(earlyRepayment);
 
+        assertTrue(loan.canDoEarlyRepayment());
         assertEq(oneCoin.balanceOf(address(loan)), earlyRepayment);
         vm.prank(andrea);
         loan.rejectEarlyRepayment();
@@ -996,6 +1031,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         _testIssuanceEthEth();
         Loan loan = _testAcceptanceEthEth();
 
+        assertTrue(loan.canRequestEarlyRepayment());
         vm.prank(barry);
         loan.requestEarlyRepaymentEth{ value: earlyRepayment }();
 
@@ -1014,6 +1050,7 @@ contract LendingPlatformTest is Test,LendingPlatFormStructs,LendingPlatformEvent
         vm.prank(barry);
         bool ok = oneCoin.approve(address(loan), earlyRepayment);
         assertTrue(ok);
+        assertTrue(loan.canRequestEarlyRepayment());
         vm.prank(barry);
         loan.requestEarlyRepaymentCoin(earlyRepayment);
 
