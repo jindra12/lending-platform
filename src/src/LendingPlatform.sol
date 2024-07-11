@@ -149,6 +149,10 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         }
     }
 
+    function getOwner() public view returns(address) {
+        return owner();
+    }
+
     function getLoanLimitRequest(address borrower) public view returns(bytes memory) {
         return _loanLimitRequestLinks[borrower];
     }

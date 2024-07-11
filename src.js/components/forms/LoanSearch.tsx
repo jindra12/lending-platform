@@ -3,16 +3,19 @@ import { SearchOutlined } from "@ant-design/icons";
 import {
     Alert,
     Button,
+    Col,
     Divider,
     Form,
     Radio,
     RadioChangeEvent,
+    Row,
     Select,
     Spin,
 } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useLoans } from "../context";
 import { LoanList } from "../lists/LoanList";
+import { colProps, rowProps } from "../../utils";
 
 export type SubjectType = "borrower" | "lender";
 export type LoanSearchType = { subject: string; type: SubjectType };
@@ -36,9 +39,7 @@ export const LoanSearch: React.FunctionComponent<LoanSearchProps> = (props) => {
 
     return (
         <div>
-            {loans.isError && (
-                <Alert message="Could not fetch loans" type="error" />
-            )}
+            {loans.isError && <Alert message="Could not fetch loans" type="error" />}
             <Form<LoanSearchType>
                 onFinish={(values) => {
                     if (values.type === "borrower") {
@@ -52,38 +53,46 @@ export const LoanSearch: React.FunctionComponent<LoanSearchProps> = (props) => {
                 scrollToFirstError
                 form={form}
             >
-                <Form.Item<LoanSearchType>
-                    label="Subject type"
-                    name="type"
-                    layout="vertical"
-                    initialValue="borrower"
-                >
-                    <Radio.Group
-                        onChange={(e: RadioChangeEvent) =>
-                            form.setFieldValue("type", e.target.value)
-                        }
-                        value={type}
-                        disabled={loans.isFetching}
-                    >
-                        <Radio value="borrower">Search lenders</Radio>
-                        <Radio value="lender">Search borrowers</Radio>
-                    </Radio.Group>
-                </Form.Item>
-                <Form.Item<LoanSearchType>
-                    label={type === "borrower" ? "Lender" : "Borrower"}
-                    name="subject"
-                    layout="vertical"
-                >
-                    <Select
-                        options={loans.data?.map((data) => ({
-                            value: data[type],
-                            label: data[type],
-                        })) || []}
-                        loading={loans.isFetching}
-                        disabled={!loans.data?.length}
-                        allowClear
-                    />
-                </Form.Item>
+                <Row {...rowProps}>
+                    <Col {...colProps}>
+                        <Form.Item<LoanSearchType>
+                            label="Subject type"
+                            name="type"
+                            layout="vertical"
+                            initialValue="borrower"
+                        >
+                            <Radio.Group
+                                onChange={(e: RadioChangeEvent) =>
+                                    form.setFieldValue("type", e.target.value)
+                                }
+                                value={type}
+                                disabled={loans.isFetching}
+                            >
+                                <Radio value="borrower">Search lenders</Radio>
+                                <Radio value="lender">Search borrowers</Radio>
+                            </Radio.Group>
+                        </Form.Item>
+                    </Col>
+                    <Col {...colProps}>
+                        <Form.Item<LoanSearchType>
+                            label={type === "borrower" ? "Lender" : "Borrower"}
+                            name="subject"
+                            layout="vertical"
+                        >
+                            <Select
+                                options={
+                                    loans.data?.map((data) => ({
+                                        value: data[type],
+                                        label: data[type],
+                                    })) || []
+                                }
+                                loading={loans.isFetching}
+                                disabled={!loans.data?.length}
+                                allowClear
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row>
                 <Divider />
                 <Form.Item>
                     <Button
@@ -96,11 +105,7 @@ export const LoanSearch: React.FunctionComponent<LoanSearchProps> = (props) => {
                     </Button>
                 </Form.Item>
             </Form>
-            <LoanList
-                self={props.self}
-                borrower={borrower}
-                lender={lender}
-            />
+            <LoanList self={props.self} borrower={borrower} lender={lender} />
         </div>
     );
 };

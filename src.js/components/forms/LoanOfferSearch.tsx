@@ -54,7 +54,7 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
                         name={["amount", 0]}
                         label="Minimum borrow amount"
                         rules={[
-                            { type: "number", message: "Set minimum amount as number" },
+                            { required: true, message: "Set minimum amount" },
                             numberValidator,
                         ]}
                     >
@@ -66,7 +66,7 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
                         name={["amount", 1]}
                         label="Maximum borrow amount"
                         rules={[
-                            { type: "number", message: "Set maximum amount as number" },
+                            { required: true, message: "Set maximum amount" },
                             numberValidator,
                         ]}
                     >

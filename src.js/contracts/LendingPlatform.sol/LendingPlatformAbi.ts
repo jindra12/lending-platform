@@ -143,6 +143,7 @@ export interface LendingPlatformAbiInterface extends Interface {
       | "getLoanLimit(address,address)"
       | "getLoanLimitRequest"
       | "getLoanOffersLength"
+      | "getOwner"
       | "listActiveRequests"
       | "listLoanOffers"
       | "listLoanOffersBy"
@@ -196,6 +197,7 @@ export interface LendingPlatformAbiInterface extends Interface {
     functionFragment: "getLoanOffersLength",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "getOwner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "listActiveRequests",
     values: [BigNumberish, BigNumberish]
@@ -306,6 +308,7 @@ export interface LendingPlatformAbiInterface extends Interface {
     functionFragment: "getLoanOffersLength",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getOwner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "listActiveRequests",
     data: BytesLike
@@ -550,6 +553,8 @@ export interface LendingPlatformAbi extends BaseContract {
 
   getLoanOffersLength: TypedContractMethod<[], [bigint], "view">;
 
+  getOwner: TypedContractMethod<[], [string], "view">;
+
   listActiveRequests: TypedContractMethod<
     [from: BigNumberish, count: BigNumberish],
     [LendingPlatFormStructs.ActiveRequestStructOutput[]],
@@ -689,6 +694,9 @@ export interface LendingPlatformAbi extends BaseContract {
   getFunction(
     nameOrSignature: "getLoanOffersLength"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getOwner"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "listActiveRequests"
   ): TypedContractMethod<

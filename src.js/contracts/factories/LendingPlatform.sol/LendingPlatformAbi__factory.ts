@@ -139,6 +139,19 @@ const _abi = [
   },
   {
     type: "function",
+    name: "getOwner",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     name: "listActiveRequests",
     inputs: [
       {

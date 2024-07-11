@@ -374,16 +374,21 @@ export const useApproveLendingRequest = (
 export const useIsOwner = (self: string) => {
     const lendingPlatform = useUnsignedLendingPlatform();
     return useQuery(async () => {
-        const owner = await lendingPlatform.owner();
+        const owner = await lendingPlatform.getOwner();
         return owner === self;
     }, self);
 };
 
-export const useLoanFee = () => {
+export const useSetLoanFee = () => {
     const lendingPlatform = useLendingPlatform();
     return useMutation((amount: number) => {
         return lendingPlatform.setLoanFee(amount);
     });
+};
+
+export const useLoanFee = () => {
+    const lendingPlatform = useLendingPlatform();
+    return useQuery(() => lendingPlatform.getLoanFee());
 };
 
 export const useLoans = (borrower?: string, lender?: string) => {
