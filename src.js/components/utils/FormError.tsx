@@ -8,7 +8,8 @@ export interface FormErrorProps {
 
 export const FormError: React.FunctionComponent<FormErrorProps> = (props) => {
     if (props.query.isError) {
-        const errorMessage = (props.query.error as any)?.info?.error?.data?.message;
+        const retyped = props.query.error as any;
+        const errorMessage = retyped?.info?.error?.data?.message || retyped?.message;
         const displayMessage =
             errorMessage && typeof errorMessage === "string"
                 ? errorMessage

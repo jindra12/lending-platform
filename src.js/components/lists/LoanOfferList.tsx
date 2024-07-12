@@ -1,11 +1,7 @@
 import * as React from "react";
-import { Alert, Divider, Spin } from "antd";
-import ReactVisibilitySensor from "react-visibility-sensor";
-import { LoadingOutlined } from "@ant-design/icons";
-import { useLoanOfferSearch } from "../context";
 import { LendingPlatFormStructs } from "../../contracts/LendingPlatform.sol/LendingPlatformAbi";
 import { LoanOfferSearch } from "../forms/LoanOfferSearch";
-import { LoanOfferDetail } from "../views/LoanOfferDetail";
+import { LoanOfferListDisplay } from "./LoanOfferListDisplay";
 
 export interface LoanOfferListProps {
     self: string;
@@ -13,27 +9,11 @@ export interface LoanOfferListProps {
 
 export const LoanOfferList: React.FunctionComponent<LoanOfferListProps> = (props) => {
     const [search, setSearch] = React.useState<LendingPlatFormStructs.LoanOfferSearchStruct>();
-    const loans = useLoanOfferSearch(20, search);
     return (
         <div>
-            <LoanOfferSearch setSearchParams={setSearch} isFetching={loans.isFetching} />
-            {loans.data?.pages.map((page, i) => (
-                <React.Fragment key={i}>
-                    {page.map((result, i) => (
-                        <React.Fragment key={i}>
-                            <LoanOfferDetail offer={result} self={props.self} />
-                            <Divider />
-                        </React.Fragment>
-                    ))}
-                </React.Fragment>
-            ))}
-            {loans.isError && (
-                <Alert type="error" message="Could not fetch loan offers" />
-            )}
-            {loans.hasNextPage && (
-                <ReactVisibilitySensor onChange={(isVisible: boolean) => isVisible && loans.fetchNextPage()}>
-                    <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
-                </ReactVisibilitySensor>
+            <LoanOfferSearch setSearchParams={setSearch} />
+            {search && (
+                <LoanOfferListDisplay search={search} self={props.self} />
             )}
         </div>
     );

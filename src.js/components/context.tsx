@@ -199,18 +199,16 @@ export const useCoinName = (address: string) => {
 
 export const useLoanOfferSearch = (
     count: number,
-    search?: LendingPlatFormStructs.LoanOfferSearchStruct
+    search: LendingPlatFormStructs.LoanOfferSearchStruct
 ) => {
     const lendingPlatform = useLendingPlatform();
     return usePaginationQuery(
         async (page): Promise<LendingPlatFormStructs.LoanOfferStructOutput[]> => {
-            const results = await (search
-                ? lendingPlatform.listLoanOffersBy(
-                    (page - 1) * count,
-                    count,
-                    sanitizeOfferSearch(search)
-                )
-                : lendingPlatform.listLoanOffers((page - 1) * count, count));
+            const results = await lendingPlatform.listLoanOffersBy(
+                (page - 1) * count,
+                count,
+                sanitizeOfferSearch(search)
+            );
             return results.filter((output) => output.id.toString() !== "0");
         },
         search

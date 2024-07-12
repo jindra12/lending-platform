@@ -30,18 +30,22 @@ contract LendingPlatFormStructs {
         address from;
         bool includeEth;
         IERC20Metadata[] coins;
-        uint256[] amount;
-        uint256[] toBePaid;
-        uint256[] interval;
-        uint256[] singlePayment;
-        uint256[] defaultLimit;
-        uint256[] collateral;
+        MinMax amount;
+        MinMax toBePaid;
+        MinMax interval;
+        MinMax singlePayment;
+        MinMax defaultLimit;
+        MinMax collateral;
         bool includeCollateralEth;
         IERC20Metadata[] collateralCoins;
     }
     struct ActiveRequest {
         uint256 uniqueId;
         address borrower;
+    }
+    struct MinMax {
+        uint256 min;
+        uint256 max;
     }
 }
 
@@ -227,11 +231,8 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
         return false;
     }
 
-    function _compareInterval(uint256[] memory interval, uint256 value) internal pure returns(bool) {
-        if (interval.length != 2) {
-            return true;
-        }
-        return interval[0] >= value && interval[1] <= value;
+    function _compareInterval(MinMax memory interval, uint256 value) internal pure returns(bool) {
+        return (interval.min >= value || interval.min == 0) && (interval.max == 0 || interval.max >= value);
     }
 
     function _loanOfferMatchesSearch(LoanOffer memory loanOffer, LoanOfferSearch memory search) internal pure returns(bool) {
@@ -295,11 +296,11 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
 
     function listLoanOffersBy(uint256 from, uint256 count, LoanOfferSearch calldata search) public view returns(LoanOffer[] memory) {
         LoanOffer[] memory acc = new LoanOffer[](count);
-        uint256 i = 0;
+        uint256 i = from;
         uint256 j = 0;
         while (i < _loanOffers.length && j < count) {
-            if (_loanOfferMatchesSearch(_loanOffers[from + i], search)) {
-                acc[j] = _loanOffers[from + i];
+            if (_loanOfferMatchesSearch(_loanOffers[i], search)) {
+                acc[j] = _loanOffers[i];
                 j++;
             }
             i++;

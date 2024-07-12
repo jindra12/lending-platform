@@ -28,7 +28,6 @@ export interface LoanSearchProps {
     setSearchParams: (
         search: LendingPlatFormStructs.LoanOfferSearchStruct
     ) => void;
-    isFetching?: boolean;
 }
 
 export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
@@ -51,10 +50,9 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
             <Row {...rowProps}>
                 <Col {...colProps}>
                     <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
-                        name={["amount", 0]}
-                        label="Minimum borrow amount"
+                        name={["amount", "min"]}
+                        label="Minimum lent amount"
                         rules={[
-                            { required: true, message: "Set minimum amount" },
                             numberValidator,
                         ]}
                     >
@@ -63,10 +61,9 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
                 </Col>
                 <Col {...colProps}>
                     <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
-                        name={["amount", 1]}
-                        label="Maximum borrow amount"
+                        name={["amount", "max"]}
+                        label="Maximum lent amount"
                         rules={[
-                            { required: true, message: "Set maximum amount" },
                             numberValidator,
                         ]}
                     >
@@ -175,10 +172,9 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
             <Row {...rowProps}>
                 <Col {...colProps}>
                     <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
-                        name={["toBePaid", 0]}
+                        name={["toBePaid", "min"]}
                         label="Minimum to be paid in total"
                         rules={[
-                            { type: "number", message: "Set minimum total as number" },
                             numberValidator,
                         ]}
                     >
@@ -187,10 +183,9 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
                 </Col>
                 <Col {...colProps}>
                     <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
-                        name={["toBePaid", 1]}
+                        name={["toBePaid", "max"]}
                         label="Maximum to be paid in total"
                         rules={[
-                            { type: "number", message: "Set maximum total as number" },
                             numberValidator,
                         ]}
                     >
@@ -201,10 +196,9 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
             <Row {...rowProps}>
                 <Col {...colProps}>
                     <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
-                        name={["singlePayment", 0]}
+                        name={["singlePayment", "min"]}
                         label="Minimum single payment"
                         rules={[
-                            { type: "number", message: "Set single payment as number" },
                             numberValidator,
                         ]}
                     >
@@ -214,10 +208,9 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
 
                 <Col {...colProps}>
                     <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
-                        name={["singlePayment", 1]}
+                        name={["singlePayment", "max"]}
                         label="Maximum single payment"
                         rules={[
-                            { type: "number", message: "Set single payment as number" },
                             numberValidator,
                         ]}
                     >
@@ -228,10 +221,9 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
             <Row {...rowProps}>
                 <Col {...colProps}>
                     <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
-                        name={["collateral", 0]}
+                        name={["collateral", "min"]}
                         label="Minimum loan collateral"
                         rules={[
-                            { type: "number", message: "Set loan collateral as number" },
                             numberValidator,
                         ]}
                     >
@@ -241,10 +233,9 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
 
                 <Col {...colProps}>
                     <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
-                        name={["collateral", 1]}
+                        name={["collateral", "max"]}
                         label="Maximum loan collateral"
                         rules={[
-                            { type: "number", message: "Set loan collateral as number" },
                             numberValidator,
                         ]}
                     >
@@ -263,10 +254,9 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
                                 <Row {...rowProps}>
                                     <Col {...colProps}>
                                         <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
-                                            name={["interval", 0]}
+                                            name={["interval", "min"]}
                                             label="Minimum payment interval (in days)"
                                             rules={[
-                                                { type: "number", message: "Set interval as number" },
                                                 numberValidator,
                                             ]}
                                         >
@@ -276,10 +266,9 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
 
                                     <Col {...colProps}>
                                         <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
-                                            name={["interval", 1]}
+                                            name={["interval", "max"]}
                                             label="Maximum payment interval (in days)"
                                             rules={[
-                                                { type: "number", message: "Set interval as number" },
                                                 numberValidator,
                                             ]}
                                         >
@@ -290,13 +279,9 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
                                 <Row {...rowProps}>
                                     <Col {...colProps}>
                                         <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
-                                            name={["defaultLimit", 0]}
+                                            name={["defaultLimit", "min"]}
                                             label="Minimum default time until default after last payment (in days)"
                                             rules={[
-                                                {
-                                                    type: "number",
-                                                    message: "Set default limit as number",
-                                                },
                                                 numberValidator,
                                             ]}
                                         >
@@ -306,13 +291,9 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
 
                                     <Col {...colProps}>
                                         <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
-                                            name={["defaultLimit", 1]}
+                                            name={["defaultLimit", "max"]}
                                             label="Maximum default time until default after last payment (in days)"
                                             rules={[
-                                                {
-                                                    type: "number",
-                                                    message: "Set default limit as number",
-                                                },
                                                 numberValidator,
                                             ]}
                                         >
@@ -331,7 +312,6 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
                     type="primary"
                     htmlType="submit"
                     icon={<SearchOutlined />}
-                    loading={props.isFetching}
                 >
                     Search
                 </Button>

@@ -322,33 +322,105 @@ const _abi = [
           },
           {
             name: "amount",
-            type: "uint256[]",
-            internalType: "uint256[]",
+            type: "tuple",
+            internalType: "struct LendingPlatFormStructs.MinMax",
+            components: [
+              {
+                name: "min",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "max",
+                type: "uint256",
+                internalType: "uint256",
+              },
+            ],
           },
           {
             name: "toBePaid",
-            type: "uint256[]",
-            internalType: "uint256[]",
+            type: "tuple",
+            internalType: "struct LendingPlatFormStructs.MinMax",
+            components: [
+              {
+                name: "min",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "max",
+                type: "uint256",
+                internalType: "uint256",
+              },
+            ],
           },
           {
             name: "interval",
-            type: "uint256[]",
-            internalType: "uint256[]",
+            type: "tuple",
+            internalType: "struct LendingPlatFormStructs.MinMax",
+            components: [
+              {
+                name: "min",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "max",
+                type: "uint256",
+                internalType: "uint256",
+              },
+            ],
           },
           {
             name: "singlePayment",
-            type: "uint256[]",
-            internalType: "uint256[]",
+            type: "tuple",
+            internalType: "struct LendingPlatFormStructs.MinMax",
+            components: [
+              {
+                name: "min",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "max",
+                type: "uint256",
+                internalType: "uint256",
+              },
+            ],
           },
           {
             name: "defaultLimit",
-            type: "uint256[]",
-            internalType: "uint256[]",
+            type: "tuple",
+            internalType: "struct LendingPlatFormStructs.MinMax",
+            components: [
+              {
+                name: "min",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "max",
+                type: "uint256",
+                internalType: "uint256",
+              },
+            ],
           },
           {
             name: "collateral",
-            type: "uint256[]",
-            internalType: "uint256[]",
+            type: "tuple",
+            internalType: "struct LendingPlatFormStructs.MinMax",
+            components: [
+              {
+                name: "min",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "max",
+                type: "uint256",
+                internalType: "uint256",
+              },
+            ],
           },
           {
             name: "includeCollateralEth",

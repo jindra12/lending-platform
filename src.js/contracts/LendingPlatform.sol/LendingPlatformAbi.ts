@@ -93,16 +93,23 @@ export declare namespace LendingPlatFormStructs {
     isEth: boolean;
   };
 
+  export type MinMaxStruct = { min: BigNumberish; max: BigNumberish };
+
+  export type MinMaxStructOutput = [min: bigint, max: bigint] & {
+    min: bigint;
+    max: bigint;
+  };
+
   export type LoanOfferSearchStruct = {
     from: AddressLike;
     includeEth: boolean;
     coins: AddressLike[];
-    amount: BigNumberish[];
-    toBePaid: BigNumberish[];
-    interval: BigNumberish[];
-    singlePayment: BigNumberish[];
-    defaultLimit: BigNumberish[];
-    collateral: BigNumberish[];
+    amount: LendingPlatFormStructs.MinMaxStruct;
+    toBePaid: LendingPlatFormStructs.MinMaxStruct;
+    interval: LendingPlatFormStructs.MinMaxStruct;
+    singlePayment: LendingPlatFormStructs.MinMaxStruct;
+    defaultLimit: LendingPlatFormStructs.MinMaxStruct;
+    collateral: LendingPlatFormStructs.MinMaxStruct;
     includeCollateralEth: boolean;
     collateralCoins: AddressLike[];
   };
@@ -111,24 +118,24 @@ export declare namespace LendingPlatFormStructs {
     from: string,
     includeEth: boolean,
     coins: string[],
-    amount: bigint[],
-    toBePaid: bigint[],
-    interval: bigint[],
-    singlePayment: bigint[],
-    defaultLimit: bigint[],
-    collateral: bigint[],
+    amount: LendingPlatFormStructs.MinMaxStructOutput,
+    toBePaid: LendingPlatFormStructs.MinMaxStructOutput,
+    interval: LendingPlatFormStructs.MinMaxStructOutput,
+    singlePayment: LendingPlatFormStructs.MinMaxStructOutput,
+    defaultLimit: LendingPlatFormStructs.MinMaxStructOutput,
+    collateral: LendingPlatFormStructs.MinMaxStructOutput,
     includeCollateralEth: boolean,
     collateralCoins: string[]
   ] & {
     from: string;
     includeEth: boolean;
     coins: string[];
-    amount: bigint[];
-    toBePaid: bigint[];
-    interval: bigint[];
-    singlePayment: bigint[];
-    defaultLimit: bigint[];
-    collateral: bigint[];
+    amount: LendingPlatFormStructs.MinMaxStructOutput;
+    toBePaid: LendingPlatFormStructs.MinMaxStructOutput;
+    interval: LendingPlatFormStructs.MinMaxStructOutput;
+    singlePayment: LendingPlatFormStructs.MinMaxStructOutput;
+    defaultLimit: LendingPlatFormStructs.MinMaxStructOutput;
+    collateral: LendingPlatFormStructs.MinMaxStructOutput;
     includeCollateralEth: boolean;
     collateralCoins: string[];
   };

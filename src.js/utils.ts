@@ -144,21 +144,23 @@ export const rowProps: RowProps = {
 export const sanitizeOfferSearch = (
     value: Partial<LendingPlatFormStructs.LoanOfferSearchStruct>
 ): LendingPlatFormStructs.LoanOfferSearchStruct => {
-    const sanitizeArray = (array?: (BigNumberish | undefined)[]) => {
-        return (array?.filter((number) => typeof number !== "undefined") ||
-            []) as number[];
+    const sanitizeMinMax = (value?: { min?: BigNumberish, max?: BigNumberish }) => {
+        return {
+            max: value?.max || 0,
+            min: value?.min || 0,
+        };
     };
     return {
-        amount: sanitizeArray(value.amount),
+        amount: sanitizeMinMax(value.amount),
         coins: value.coins || [],
-        collateral: sanitizeArray(value.collateral),
+        collateral: sanitizeMinMax(value.collateral),
         collateralCoins: value.collateralCoins || [],
-        defaultLimit: sanitizeArray(value.defaultLimit),
-        from: value.from || "0x0",
+        defaultLimit: sanitizeMinMax(value.defaultLimit),
+        from: value.from || `0x${new Array<number>(40).fill(0).join("")}`,
         includeCollateralEth: value.includeCollateralEth ?? true,
         includeEth: value.includeCollateralEth ?? true,
-        interval: sanitizeArray(value.interval),
-        singlePayment: sanitizeArray(value.singlePayment),
-        toBePaid: sanitizeArray(value.toBePaid),
+        interval: sanitizeMinMax(value.interval),
+        singlePayment: sanitizeMinMax(value.singlePayment),
+        toBePaid: sanitizeMinMax(value.toBePaid),
     };
 };
