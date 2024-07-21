@@ -15,10 +15,12 @@ import {
     useQuery as useQueryInternal,
     useInfiniteQuery,
     useMutation,
+    UseMutationResult,
 } from "react-query";
 import { LoanIssuance } from "../types";
 import { LendingPlatFormStructs } from "../contracts/LendingPlatform.sol/LendingPlatformAbi";
 import { dayInSeconds, sanitizeOfferSearch, translateLoan } from "../utils";
+import { FormInstance } from "antd";
 
 const Context = React.createContext<{
     provider: React.MutableRefObject<BrowserProvider>;
@@ -116,6 +118,14 @@ const usePaginationQuery = <TResult extends any>(
     return query;
 };
 
+export const useOnSuccess = (form: FormInstance, query: UseMutationResult) => {
+    React.useEffect(() => {
+        if (query.status === "success") {
+            form.resetFields();
+        }
+    }, [query.status]);
+};
+
 export const useProvider = () => {
     const { provider } = useContext();
     return (provider.current ||= getProvider());
@@ -192,9 +202,15 @@ export const useGetERC20 = () => {
     );
 };
 
-export const useCoinName = (address: string) => {
+export const useCoinName = (address: string, balanceOf?: string) => {
     const coin = useERC20(address);
-    return useRenewQuery(() => coin.name(), address);
+    return useRenewQuery(async () => {
+        if (!balanceOf) {
+            return coin.name();
+        } else {
+            return `${await coin.name()}, balance: ${coin.balanceOf(balanceOf)}`
+        }
+    }, address);
 };
 
 export const useLoanOfferSearch = (
@@ -204,10 +220,12 @@ export const useLoanOfferSearch = (
     const lendingPlatform = useLendingPlatform();
     return usePaginationQuery(
         async (page): Promise<LendingPlatFormStructs.LoanOfferStructOutput[]> => {
+            const sanitized = sanitizeOfferSearch(search);
+            console.log(sanitized);
             const results = await lendingPlatform.listLoanOffersBy(
                 (page - 1) * count,
                 count,
-                sanitizeOfferSearch(search)
+                sanitized,
             );
             return results.filter((output) => output.id.toString() !== "0");
         },
@@ -240,7 +258,7 @@ export const useIssueLoan = () => {
                     getPayable(params.amount)
                 );
             case "CoinEth":
-                (await getCoin.mutateAsync(params.coin)).approve(
+                await (await getCoin.mutateAsync(params.coin)).approve(
                     getConfig().platformContract,
                     params.amount
                 );
@@ -254,7 +272,7 @@ export const useIssueLoan = () => {
                     params.coin
                 );
             case "CoinCoin":
-                (await getCoin.mutateAsync(params.coin)).approve(
+                await (await getCoin.mutateAsync(params.coin)).approve(
                     getConfig().platformContract,
                     params.amount
                 );

@@ -12,7 +12,7 @@
     "serve": "webpack serve --mode development",
     "anvil": "anvil --steps-tracing --config-out anvil.json --balance 10000000000",
     "configure": "node configure.js -k 1",
-    "configure:owner": "node configure.js -k 0",
+    "testcoins": "node configure.testcoin.js",
     "compile": "cd ../src; forge build --force --extra-output-files abi; cd ../src.js; yarn typechain --target=ethers-v6 --out-dir=./contracts ../src/out/**/{IERC20Metadata,LendingPlatform,Loan}.abi.json",
     "test": "cd ../src; forge test -vvvvv > test.log"
   },

@@ -12,25 +12,37 @@ export interface LoanOfferListDisplayProps {
     search: LendingPlatFormStructs.LoanOfferSearchStruct;
 }
 
-export const LoanOfferListDisplay: React.FunctionComponent<LoanOfferListDisplayProps> = (props) => {
+export const LoanOfferListDisplay: React.FunctionComponent<
+    LoanOfferListDisplayProps
+> = (props) => {
     const loans = useLoanOfferSearch(20, props.search);
     return (
         <div>
             {loans.data?.pages.map((page, i) => (
                 <React.Fragment key={i}>
-                    {page.map((result, i) => (
-                        <React.Fragment key={i}>
-                            <LoanOfferDetail offer={result} self={props.self} />
+                    {page.map((result, j) => (
+                        <React.Fragment key={j}>
+                            {j === result.length - 1 &&
+                                i === page.length - 1 &&
+                                loans.hasNextPage ? (
+                                <ReactVisibilitySensor
+                                    onChange={(isVisible: boolean) =>
+                                        isVisible && loans.fetchNextPage()
+                                    }
+                                >
+                                    <LoanOfferDetail offer={result} self={props.self} />
+                                </ReactVisibilitySensor>
+                            ) : (
+                                <LoanOfferDetail offer={result} self={props.self} />
+                            )}
                             <Divider />
                         </React.Fragment>
                     ))}
                 </React.Fragment>
             ))}
             <FormError query={loans} />
-            {loans.hasNextPage && (
-                <ReactVisibilitySensor onChange={(isVisible: boolean) => isVisible && loans.fetchNextPage()}>
-                    <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
-                </ReactVisibilitySensor>
+            {loans.isFetching && (
+                <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
             )}
         </div>
     );

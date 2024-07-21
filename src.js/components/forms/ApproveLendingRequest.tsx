@@ -6,6 +6,7 @@ import {
 	ApproveLendingRequestType,
 	useApproveLendingRequest,
 	useLendingRequestFile,
+	useOnSuccess,
 } from "../context";
 import { CoinDisplay } from "../utils/CoinDisplay";
 import { addressValidator, numberValidator } from "../../utils";
@@ -48,10 +49,11 @@ export const ApproveLendingRequest: React.FunctionComponent<
 		}
 	}, [download]);
 
+	useOnSuccess(form, approve);
+
 	return (
 		<Form<ApproveLendingRequestType> onFinish={(values) => {
 			approve.mutate(values);
-			form.resetFields();
 		}} form={form} scrollToFirstError>
 			<FormError query={approve} />
 			<FormSuccess query={approve} />

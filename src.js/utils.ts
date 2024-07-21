@@ -144,23 +144,29 @@ export const rowProps: RowProps = {
 export const sanitizeOfferSearch = (
     value: Partial<LendingPlatFormStructs.LoanOfferSearchStruct>
 ): LendingPlatFormStructs.LoanOfferSearchStruct => {
-    const sanitizeMinMax = (value?: { min?: BigNumberish, max?: BigNumberish }) => {
+    const sanitizeMinMax = (value: { min?: BigNumberish, max?: BigNumberish } | undefined, isDays: boolean) => {
+        if (isDays) {
+            return {
+                max: parseFloat(value?.max?.toString() || "0") * dayInSeconds,
+                min: parseFloat(value?.min?.toString() || "0") * dayInSeconds,
+            }
+        }
         return {
             max: value?.max || 0,
             min: value?.min || 0,
         };
     };
     return {
-        amount: sanitizeMinMax(value.amount),
+        amount: sanitizeMinMax(value.amount, false),
         coins: value.coins || [],
-        collateral: sanitizeMinMax(value.collateral),
+        collateral: sanitizeMinMax(value.collateral, false),
         collateralCoins: value.collateralCoins || [],
-        defaultLimit: sanitizeMinMax(value.defaultLimit),
+        defaultLimit: sanitizeMinMax(value.defaultLimit, true),
         from: value.from || `0x${new Array<number>(40).fill(0).join("")}`,
         includeCollateralEth: value.includeCollateralEth ?? true,
         includeEth: value.includeCollateralEth ?? true,
-        interval: sanitizeMinMax(value.interval),
-        singlePayment: sanitizeMinMax(value.singlePayment),
-        toBePaid: sanitizeMinMax(value.toBePaid),
+        interval: sanitizeMinMax(value.interval, false),
+        singlePayment: sanitizeMinMax(value.singlePayment, true),
+        toBePaid: sanitizeMinMax(value.toBePaid, false),
     };
 };

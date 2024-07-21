@@ -11,7 +11,7 @@ export const LoanOfferList: React.FunctionComponent<LoanOfferListProps> = (props
     const [search, setSearch] = React.useState<LendingPlatFormStructs.LoanOfferSearchStruct>();
     return (
         <div>
-            <LoanOfferSearch setSearchParams={setSearch} />
+            <LoanOfferSearch setSearchParams={setSearch} self={props.self} />
             {search && (
                 <LoanOfferListDisplay search={search} self={props.self} />
             )}

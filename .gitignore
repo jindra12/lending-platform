@@ -7,3 +7,4 @@ anvil.json
 privatekey.txt
 index.html
 !.yarn/patches/
+testcoin.*.json

@@ -46,6 +46,7 @@ export const LoanOfferDetail: React.FunctionComponent<LoanOfferDetailProps> = (p
                     ) : (
                         <CoinDisplay
                             address={offerObject.loanData.collateral.collateralCoin}
+                            balanceOf={props.self}
                         />
                     )}
                 </Descriptions.Item>

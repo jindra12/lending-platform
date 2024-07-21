@@ -72,7 +72,7 @@ export const AppRouter: React.FunctionComponent = () => {
                                     path="/offers"
                                     Component={() => suspense(<LoanOfferList self={account.address} />)}
                                 />
-                                <Route path="/issue-loan" Component={() => suspense(<IssueLoan />)} />
+                                <Route path="/issue-loan" Component={() => suspense(<IssueLoan self={account.address} />)} />
                             </Routes>
                         )}
                     </Layout>

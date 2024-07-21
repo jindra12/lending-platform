@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Button, Divider, Form } from "antd";
 import { InboxOutlined, CheckCircleFilled } from "@ant-design/icons";
-import { useRequestLendingLimit } from "../context";
+import { useOnSuccess, useRequestLendingLimit } from "../context";
 import Dragger from "antd/es/upload/Dragger";
 import { FormError } from "../utils/FormError";
 import { FormSuccess } from "../utils/FormSuccess";
@@ -13,13 +13,15 @@ type RequestLendingLimitType = {
 export const RequestLendingLimit: React.FunctionComponent = () => {
     const requestLendingLimit = useRequestLendingLimit();
     const [form] = Form.useForm<RequestLendingLimitType>();
+
+    useOnSuccess(form, requestLendingLimit);
+
     return (
         <Form<RequestLendingLimitType>
             scrollToFirstError
             form={form}
             onFinish={({ files }) => {
                 requestLendingLimit.mutate(files);
-                form.resetFields();
             }}
         >
             <FormError query={requestLendingLimit} />

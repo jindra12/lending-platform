@@ -232,7 +232,7 @@ contract LendingPlatform is Ownable,LendingPlatFormStructs,LendingPlatformEvents
     }
 
     function _compareInterval(MinMax memory interval, uint256 value) internal pure returns(bool) {
-        return (interval.min >= value || interval.min == 0) && (interval.max == 0 || interval.max >= value);
+        return (interval.min <= value || interval.min == 0) && (interval.max == 0 || interval.max >= value);
     }
 
     function _loanOfferMatchesSearch(LoanOffer memory loanOffer, LoanOfferSearch memory search) internal pure returns(bool) {

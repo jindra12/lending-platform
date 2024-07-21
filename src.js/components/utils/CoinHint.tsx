@@ -6,10 +6,11 @@ import { CoinDisplay } from "./CoinDisplay";
 
 export interface CoinHintProps {
     name: string | (string | number)[];
-    form: FormInstance<LendingPlatFormStructs.LoanOfferSearchStruct>
+    form: FormInstance<LendingPlatFormStructs.LoanOfferSearchStruct>;
+    balanceOf?: string;
 }
 
 export const CoinHint: React.FunctionComponent<CoinHintProps> = (props) => {
     const address: string = Form.useWatch(props.name, props.form);
-    return address ? <CoinDisplay address={address} /> : undefined;
+    return address ? <CoinDisplay address={address} balanceOf={props.balanceOf} /> : undefined;
 };

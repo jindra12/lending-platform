@@ -25,6 +25,7 @@ import {
 import { CoinHint } from "../utils/CoinHint";
 
 export interface LoanSearchProps {
+    self: string;
     setSearchParams: (
         search: LendingPlatFormStructs.LoanOfferSearchStruct
     ) => void;
@@ -104,7 +105,7 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
                                             {...restField}
                                             name={name}
                                             label="ER20 address"
-                                            extra={<CoinHint form={form} name={["coins", name]} />}
+                                            extra={<CoinHint form={form} name={["coins", name]} balanceOf={props.self} />}
                                             rules={[
                                                 { required: true, message: "Missing coin address" },
                                                 addressValidator,
