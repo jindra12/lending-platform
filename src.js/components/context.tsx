@@ -21,6 +21,7 @@ import { LoanIssuance } from "../types";
 import { LendingPlatFormStructs } from "../contracts/LendingPlatform.sol/LendingPlatformAbi";
 import { dayInSeconds, sanitizeOfferSearch, translateLoan } from "../utils";
 import { FormInstance } from "antd";
+import base64url from "base64url";
 
 const Context = React.createContext<{
     provider: React.MutableRefObject<BrowserProvider>;
@@ -315,7 +316,7 @@ export const useRequestLendingLimit = () => {
 
                 // update the cipher object with the plaintext to encrypt
                 const ciphertext = `${cipher.update(
-                    reader.result as Buffer,
+                    base64url.toBuffer(reader.result as string),
                     undefined,
                     "base64"
                 )}${cipher.final("base64")}`;
@@ -325,11 +326,13 @@ export const useRequestLendingLimit = () => {
 
                 resolve(JSON.stringify({ ciphertext, key: aesKeyEncrypted, iv, tag }));
             };
-            reader.readAsArrayBuffer(files[0]);
+            reader.readAsDataURL(files[0]);
         });
 
         return lendingPlatform.setLoanLimitRequest(
-            await encrypted,
+            Uint8Array.from(
+                Array.from(await encrypted).map((letter) => letter.charCodeAt(0))
+            ),
             getPayable(loanFee)
         );
     });
@@ -359,7 +362,11 @@ export const useLendingRequestFile = (borrower: string) => {
 
         decipher.setAuthTag(Buffer.from(fileAsJson.tag, "base64"));
 
-        const plaintext = `${decipher.update(fileAsJson.ciphertext, "base64", "utf8")}${decipher.final("utf8")}`;
+        const plaintext = `${decipher.update(
+            fileAsJson.ciphertext,
+            "base64",
+            "utf8"
+        )}${decipher.final("utf8")}`;
 
         var blob = new Blob([plaintext], { type: "application/pdf" });
         const link = (

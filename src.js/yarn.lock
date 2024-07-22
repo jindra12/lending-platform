@@ -1863,6 +1863,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"base64url@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "base64url@npm:3.0.1"
+  checksum: 10c0/5ca9d6064e9440a2a45749558dddd2549ca439a305793d4f14a900b7256b5f4438ef1b7a494e1addc66ced5d20f5c010716d353ed267e4b769e6c78074991241
+  languageName: node
+  linkType: hard
+
 "batch@npm:0.6.1":
   version: 0.6.1
   resolution: "batch@npm:0.6.1"
@@ -5101,6 +5108,7 @@ __metadata:
     "@types/react-dom": "npm:^18.3.0"
     antd: "npm:^5.18.2"
     antd-prompt: "npm:^0.7.1"
+    base64url: "npm:^3.0.1"
     css-loader: "npm:^7.1.2"
     encrypt-rsa: "npm:^3.0.1"
     error-polyfill: "npm:^0.1.3"
