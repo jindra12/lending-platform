@@ -1,7 +1,9 @@
 import * as React from "react";
 import { Button, Modal } from "antd";
 import { CloseOutlined } from "@ant-design/icons";
-import { useRejectEarlyRepayment } from "../context";
+import { useOnFinish, useRejectEarlyRepayment } from "../context";
+import { FormSuccess } from "../utils/FormSuccess";
+import { FormError } from "../utils/FormError";
 
 export interface RejectEarlyRepaymentProps {
     loan: string;
@@ -12,8 +14,13 @@ export const RejectEarlyRepayment: React.FunctionComponent<
 > = (props) => {
     const rejectEarlyRepayment = useRejectEarlyRepayment(props.loan);
     const [isModalOpen, setModalOpen] = React.useState(false);
+
+    useOnFinish(rejectEarlyRepayment, () => setModalOpen(false));
+
     return (
         <>
+            <FormSuccess query={rejectEarlyRepayment} />
+            <FormError query={rejectEarlyRepayment} asModal />
             <Button
                 type="default"
                 icon={<CloseOutlined />}
@@ -27,8 +34,8 @@ export const RejectEarlyRepayment: React.FunctionComponent<
                 open={isModalOpen}
                 onOk={() => {
                     rejectEarlyRepayment.mutate();
-                    setModalOpen(false);
                 }}
+                okButtonProps={{ loading: rejectEarlyRepayment.isLoading }}
                 onCancel={() => setModalOpen(false)}
                 onClose={() => setModalOpen(false)}
             >

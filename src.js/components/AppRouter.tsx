@@ -5,6 +5,7 @@ import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { Layout } from "./Layout";
 import { ContextProvider } from "./context";
+import { RequestLendingLimit } from "./forms/RequestLendingLimit";
 
 const LoanSearch = React.lazy(async () => ({
     default: (
@@ -67,6 +68,10 @@ export const AppRouter: React.FunctionComponent = () => {
                                 <Route
                                     path="/requests"
                                     Component={() => suspense(<LoanLimitRequestList self={account.address} />)}
+                                />
+                                <Route
+                                    path="/request"
+                                    Component={() => suspense(<RequestLendingLimit />)}
                                 />
                                 <Route
                                     path="/offers"

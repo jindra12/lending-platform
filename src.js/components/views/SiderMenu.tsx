@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import {
     MoneyCollectFilled,
     MoneyCollectOutlined,
+    ArrowUpOutlined,
     UserAddOutlined,
     ApiFilled,
 } from "@ant-design/icons";
@@ -38,6 +39,11 @@ export const SiderMenu: React.FunctionComponent<SiderMenuProps> = (props) => {
                             icon: <ApiFilled />,
                             disabled: !isOwner,
                             label: "View loan limit requests",
+                        },
+                        {
+                            key: "/request",
+                            icon: <ArrowUpOutlined />,
+                            label: "Request loan limit",
                         },
                         {
                             key: "/offers",

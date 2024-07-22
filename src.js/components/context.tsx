@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
-import EncryptRsa from "encrypt-rsa";
+import crypto from "crypto";
 import uniqueId from "lodash-es/uniqueId";
 import {
     LoanAbi__factory,
@@ -126,6 +126,14 @@ export const useOnSuccess = (form: FormInstance, query: UseMutationResult) => {
     }, [query.status]);
 };
 
+export const useOnFinish = (query: UseMutationResult, callback: () => void) => {
+    React.useEffect(() => {
+        if (query.status === "success" || query.status === "error") {
+            callback();
+        }
+    }, [query.status]);
+};
+
 export const useProvider = () => {
     const { provider } = useContext();
     return (provider.current ||= getProvider());
@@ -208,7 +216,9 @@ export const useCoinName = (address: string, balanceOf?: string) => {
         if (!balanceOf) {
             return coin.name();
         } else {
-            return `${await coin.name()}, balance: ${coin.balanceOf(balanceOf)}`
+            return `${await coin.name()}, balance: ${await coin.balanceOf(
+                balanceOf
+            )}`;
         }
     }, address);
 };
@@ -221,11 +231,10 @@ export const useLoanOfferSearch = (
     return usePaginationQuery(
         async (page): Promise<LendingPlatFormStructs.LoanOfferStructOutput[]> => {
             const sanitized = sanitizeOfferSearch(search);
-            console.log(sanitized);
             const results = await lendingPlatform.listLoanOffersBy(
                 (page - 1) * count,
                 count,
-                sanitized,
+                sanitized
             );
             return results.filter((output) => output.id.toString() !== "0");
         },
@@ -258,10 +267,9 @@ export const useIssueLoan = () => {
                     getPayable(params.amount)
                 );
             case "CoinEth":
-                await (await getCoin.mutateAsync(params.coin)).approve(
-                    getConfig().platformContract,
-                    params.amount
-                );
+                await (
+                    await getCoin.mutateAsync(params.coin)
+                ).approve(getConfig().platformContract, params.amount);
                 return lendingPlatform.offerLoanCoinEth(
                     params.amount,
                     params.toBePaid,
@@ -272,10 +280,9 @@ export const useIssueLoan = () => {
                     params.coin
                 );
             case "CoinCoin":
-                await (await getCoin.mutateAsync(params.coin)).approve(
-                    getConfig().platformContract,
-                    params.amount
-                );
+                await (
+                    await getCoin.mutateAsync(params.coin)
+                ).approve(getConfig().platformContract, params.amount);
                 return lendingPlatform.offerLoanCoinCoin(
                     params.amount,
                     params.toBePaid,
@@ -292,21 +299,31 @@ export const useIssueLoan = () => {
 
 export const useRequestLendingLimit = () => {
     const lendingPlatform = useLendingPlatform();
-    const crypto = new EncryptRsa();
     return useMutation(async (files: File[]) => {
         const loanFee = await lendingPlatform.getLoanFee();
         const encrypted = new Promise<string>((resolve) => {
             const reader = new FileReader();
             reader.onload = () => {
-                const arrayBuffer = reader.result;
-                const array = new Uint8Array(arrayBuffer as ArrayBuffer);
-                const binaryString = String.fromCharCode.apply(null, array);
-                resolve(
-                    crypto.encrypt({
-                        text: binaryString,
-                        privateKey: getConfig().publicKey,
-                    })
-                );
+                const aesKey = crypto.randomBytes(32);
+                const aesKeyEncrypted = crypto
+                    .publicEncrypt(getConfig().publicKey, aesKey)
+                    .toString("base64");
+                const iv = crypto.randomBytes(12).toString("base64");
+
+                // create a cipher object
+                const cipher = crypto.createCipheriv("aes-256-gcm", aesKey, iv);
+
+                // update the cipher object with the plaintext to encrypt
+                const ciphertext = `${cipher.update(
+                    reader.result as Buffer,
+                    undefined,
+                    "base64"
+                )}${cipher.final("base64")}`;
+
+                // retrieve the authentication tag for the encryption
+                const tag = cipher.getAuthTag().toString("base64");
+
+                resolve(JSON.stringify({ ciphertext, key: aesKeyEncrypted, iv, tag }));
             };
             reader.readAsArrayBuffer(files[0]);
         });
@@ -318,31 +335,33 @@ export const useRequestLendingLimit = () => {
     });
 };
 
-export const useLendingRequests = (count: number) => {
-    const lendingPlatform = useLendingPlatform();
-    return usePaginationQuery(
-        async (
-            page
-        ): Promise<LendingPlatFormStructs.ActiveRequestStructOutput[]> => {
-            const results = await lendingPlatform.listActiveRequests(
-                count * (page - 1),
-                count
-            );
-            return results.filter((output) => output.uniqueId.toString() !== "0");
-        }
-    );
-};
-
 export const useLendingRequestFile = (borrower: string) => {
     const lendingPlatform = useLendingPlatform();
-    const crypto = new EncryptRsa();
     return useMutation(async (privateKey: string): Promise<void> => {
         const file = await lendingPlatform.getLoanLimitRequest(borrower);
-        const decrypted = crypto.decrypt({
-            text: file,
-            publicKey: privateKey,
-        });
-        var blob = new Blob([decrypted], { type: "application/pdf" });
+        const fileAsJson: {
+            ciphertext: string;
+            key: string;
+            iv: string;
+            tag: string;
+        } = JSON.parse(file);
+
+        const decryptedKey = crypto.privateDecrypt(
+            privateKey,
+            Buffer.from(fileAsJson.key, "base64")
+        );
+
+        const decipher = crypto.createDecipheriv(
+            "aes-256-gcm",
+            decryptedKey,
+            Buffer.from(fileAsJson.iv, "base64")
+        );
+
+        decipher.setAuthTag(Buffer.from(fileAsJson.tag, "base64"));
+
+        const plaintext = `${decipher.update(fileAsJson.ciphertext, "base64", "utf8")}${decipher.final("utf8")}`;
+
+        var blob = new Blob([plaintext], { type: "application/pdf" });
         const link = (
             <a
                 href={URL.createObjectURL(blob)}
@@ -359,6 +378,21 @@ export const useLendingRequestFile = (borrower: string) => {
         root.unmount();
         document.body.removeChild(wrapper);
     });
+};
+
+export const useLendingRequests = (count: number) => {
+    const lendingPlatform = useLendingPlatform();
+    return usePaginationQuery(
+        async (
+            page
+        ): Promise<LendingPlatFormStructs.ActiveRequestStructOutput[]> => {
+            const results = await lendingPlatform.listActiveRequests(
+                count * (page - 1),
+                count
+            );
+            return results.filter((output) => output.uniqueId.toString() !== "0");
+        }
+    );
 };
 
 export type ApproveLendingRequestType = {
@@ -507,7 +541,7 @@ export const useAcceptLoan = (
             const coin = await getCoin.mutateAsync(
                 offer.loanData.collateral.collateralCoin
             );
-            coin.approve(
+            await coin.approve(
                 getConfig().platformContract,
                 offer.loanData.collateral.value
             );

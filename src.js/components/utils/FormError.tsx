@@ -1,9 +1,11 @@
 import { Alert } from "antd";
 import * as React from "react";
 import { UseMutationResult, UseQueryResult } from "react-query";
+import { FormErrorModal } from "./FormErrorModal";
 
 export interface FormErrorProps {
     query: UseQueryResult | UseMutationResult;
+    asModal?: boolean;
 }
 
 export const FormError: React.FunctionComponent<FormErrorProps> = (props) => {
@@ -14,6 +16,11 @@ export const FormError: React.FunctionComponent<FormErrorProps> = (props) => {
             errorMessage && typeof errorMessage === "string"
                 ? errorMessage
                 : "Something went wrong, please try again later!";
+        if (props.asModal) {
+            return (
+                <FormErrorModal message={displayMessage} />
+            );
+        }
         return <Alert type="error" message={displayMessage} />;
     }
     return null;

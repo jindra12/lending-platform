@@ -1,8 +1,10 @@
 import * as React from "react";
 import { Button, Modal } from "antd";
 import { BankOutlined } from "@ant-design/icons";
-import { useAcceptLoan } from "../context";
+import { useAcceptLoan, useOnFinish } from "../context";
 import { LendingPlatFormStructs } from "../../contracts/LendingPlatform.sol/LendingPlatformAbi";
+import { FormSuccess } from "../utils/FormSuccess";
+import { FormError } from "../utils/FormError";
 
 export interface AcceptLoanProps {
     offer: LendingPlatFormStructs.LoanOfferStructOutput;
@@ -13,8 +15,13 @@ export const AcceptLoan: React.FunctionComponent<
 > = (props) => {
     const acceptLoan = useAcceptLoan(props.offer);
     const [isModalOpen, setModalOpen] = React.useState(false);
+
+    useOnFinish(acceptLoan, () => setModalOpen(false));
+
     return (
         <>
+            <FormSuccess query={acceptLoan} />
+            <FormError query={acceptLoan} asModal />
             <Button
                 type="primary"
                 danger
@@ -29,8 +36,8 @@ export const AcceptLoan: React.FunctionComponent<
                 open={isModalOpen}
                 onOk={() => {
                     acceptLoan.mutate();
-                    setModalOpen(false);
                 }}
+                okButtonProps={{ loading: acceptLoan.isLoading }}
                 onCancel={() => setModalOpen(false)}
                 onClose={() => setModalOpen(false)}
             >

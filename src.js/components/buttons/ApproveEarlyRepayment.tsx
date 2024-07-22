@@ -1,7 +1,9 @@
 import * as React from "react";
 import { Button, Modal } from "antd";
 import { CheckCircleFilled } from "@ant-design/icons";
-import { useApproveEarlyRepayment } from "../context";
+import { useApproveEarlyRepayment, useOnFinish } from "../context";
+import { FormSuccess } from "../utils/FormSuccess";
+import { FormError } from "../utils/FormError";
 
 export interface ApproveEarlyRepaymentProps {
     loan: string;
@@ -12,8 +14,13 @@ export const ApproveEarlyRepayment: React.FunctionComponent<
 > = (props) => {
     const approveEarlyRepayment = useApproveEarlyRepayment(props.loan);
     const [isModalOpen, setModalOpen] = React.useState(false);
+
+    useOnFinish(approveEarlyRepayment, () => setModalOpen(false));
+
     return (
         <>
+            <FormSuccess query={approveEarlyRepayment} />
+            <FormError query={approveEarlyRepayment} asModal />
             <Button
                 type="primary"
                 icon={<CheckCircleFilled />}
@@ -27,8 +34,8 @@ export const ApproveEarlyRepayment: React.FunctionComponent<
                 open={isModalOpen}
                 onOk={() => {
                     approveEarlyRepayment.mutate();
-                    setModalOpen(false);
                 }}
+                okButtonProps={{ loading: approveEarlyRepayment.isLoading }}
                 onCancel={() => setModalOpen(false)}
                 onClose={() => setModalOpen(false)}
             >

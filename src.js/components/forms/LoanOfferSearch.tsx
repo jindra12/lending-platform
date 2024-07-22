@@ -76,14 +76,14 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
                 <Col {...colProps}>
                     <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
                         name="includeEth"
-                        label="Eth loan"
+                        label="Include loans issued in Ether/wei"
                         valuePropName="checked"
                     >
                         <Checkbox defaultChecked />
                     </Form.Item>
                     <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
                         name="includeCollateralEth"
-                        label="Eth collateral loan"
+                        label="Include loans with Ether/wei collateral"
                         valuePropName="checked"
                     >
                         <Checkbox defaultChecked />

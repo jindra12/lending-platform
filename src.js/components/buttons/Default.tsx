@@ -1,7 +1,9 @@
 import * as React from "react";
 import { Button, Modal } from "antd";
 import { WarningFilled } from "@ant-design/icons";
-import { useDefault } from "../context";
+import { useDefault, useOnFinish } from "../context";
+import { FormSuccess } from "../utils/FormSuccess";
+import { FormError } from "../utils/FormError";
 
 export interface DefaultProps {
     loan: string;
@@ -12,8 +14,13 @@ export const Default: React.FunctionComponent<
 > = (props) => {
     const setDefault = useDefault(props.loan);
     const [isModalOpen, setModalOpen] = React.useState(false);
+
+    useOnFinish(setDefault, () => setModalOpen(false));
+
     return (
         <>
+            <FormSuccess query={setDefault} />
+            <FormError query={setDefault} asModal />
             <Button
                 type="primary"
                 danger
@@ -26,10 +33,10 @@ export const Default: React.FunctionComponent<
             <Modal
                 title="Default loan"
                 open={isModalOpen}
-                onOk={() => {
+                onOk={async () => {
                     setDefault.mutate();
-                    setModalOpen(false);
                 }}
+                okButtonProps={{ loading: setDefault.isLoading }}
                 onCancel={() => setModalOpen(false)}
                 onClose={() => setModalOpen(false)}
             >

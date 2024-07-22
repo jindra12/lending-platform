@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, Divider, Form } from "antd";
+import { Button, Divider, Form, UploadFile } from "antd";
 import { InboxOutlined, CheckCircleFilled } from "@ant-design/icons";
 import { useOnSuccess, useRequestLendingLimit } from "../context";
 import Dragger from "antd/es/upload/Dragger";
@@ -7,12 +7,13 @@ import { FormError } from "../utils/FormError";
 import { FormSuccess } from "../utils/FormSuccess";
 
 type RequestLendingLimitType = {
-    files: File[];
+    files: UploadFile<any>[];
 };
 
 export const RequestLendingLimit: React.FunctionComponent = () => {
     const requestLendingLimit = useRequestLendingLimit();
     const [form] = Form.useForm<RequestLendingLimitType>();
+    const fileList = Form.useWatch("files", form);
 
     useOnSuccess(form, requestLendingLimit);
 
@@ -21,7 +22,9 @@ export const RequestLendingLimit: React.FunctionComponent = () => {
             scrollToFirstError
             form={form}
             onFinish={({ files }) => {
-                requestLendingLimit.mutate(files);
+                requestLendingLimit.mutate(
+                    files.map((f) => f.originFileObj!).filter(Boolean)
+                );
             }}
         >
             <FormError query={requestLendingLimit} />
@@ -32,7 +35,16 @@ export const RequestLendingLimit: React.FunctionComponent = () => {
                     { required: true, message: "Upload file request for loan limit" },
                 ]}
             >
-                <Dragger name="files" multiple={false}>
+                <Dragger
+                    name="files"
+                    beforeUpload={() => false}
+                    multiple={false}
+                    maxCount={1}
+                    fileList={fileList}
+                    onChange={(info) => {
+                        form.setFieldValue("files", info.fileList);
+                    }}
+                >
                     <p className="ant-upload-drag-icon">
                         <InboxOutlined />
                     </p>
