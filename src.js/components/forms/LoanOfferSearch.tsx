@@ -10,6 +10,7 @@ import {
     Row,
     Space,
 } from "antd";
+import Title from "antd/es/typography/Title";
 import {
     MinusCircleOutlined,
     PlusOutlined,
@@ -41,6 +42,7 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
             form={form}
             scrollToFirstError
         >
+            <Title>Search loan offers</Title>
             <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
                 name="from"
                 label="Lender wallet"

@@ -1,19 +1,20 @@
 import * as React from "react";
-import { Button, Divider, Form, UploadFile } from "antd";
-import { InboxOutlined, CheckCircleFilled } from "@ant-design/icons";
+import { Button, Divider, Form } from "antd";
+import { CheckCircleFilled } from "@ant-design/icons";
+import Title from "antd/es/typography/Title";
+import MDEditor from "@uiw/react-md-editor";
 import { useOnSuccess, useRequestLendingLimit } from "../context";
-import Dragger from "antd/es/upload/Dragger";
 import { FormError } from "../utils/FormError";
 import { FormSuccess } from "../utils/FormSuccess";
 
 type RequestLendingLimitType = {
-    files: UploadFile<any>[];
+    markdown: string;
 };
 
 export const RequestLendingLimit: React.FunctionComponent = () => {
     const requestLendingLimit = useRequestLendingLimit();
     const [form] = Form.useForm<RequestLendingLimitType>();
-    const fileList = Form.useWatch("files", form);
+    const markdown: string = Form.useWatch("markdown", form);
 
     useOnSuccess(form, requestLendingLimit);
 
@@ -21,41 +22,24 @@ export const RequestLendingLimit: React.FunctionComponent = () => {
         <Form<RequestLendingLimitType>
             scrollToFirstError
             form={form}
-            onFinish={({ files }) => {
-                requestLendingLimit.mutate(
-                    files.map((f) => f.originFileObj!).filter(Boolean)
-                );
+            onFinish={({ markdown }) => {
+                requestLendingLimit.mutate(markdown);
             }}
+            layout="vertical"
         >
+            <Title>Lending request form</Title>
             <FormError query={requestLendingLimit} />
             <FormSuccess query={requestLendingLimit} />
             <Form.Item<RequestLendingLimitType>
-                name="files"
+                name="markdown"
                 rules={[
-                    { required: true, message: "Upload file request for loan limit" },
+                    { required: true, message: "Write your lending limit request" },
+                    { max: 5000, message: "Request cannot be longer than 5000 characters" },
                 ]}
+                valuePropName="value"
+                label="Loan request details"
             >
-                <Dragger
-                    name="files"
-                    beforeUpload={() => false}
-                    multiple={false}
-                    maxCount={1}
-                    fileList={fileList}
-                    onChange={(info) => {
-                        form.setFieldValue("files", info.fileList);
-                    }}
-                >
-                    <p className="ant-upload-drag-icon">
-                        <InboxOutlined />
-                    </p>
-                    <p className="ant-upload-text">
-                        Click or drag file to this area to upload
-                    </p>
-                    <p className="ant-upload-hint">
-                        Upload a single PDF file with information about yourself and the
-                        loan limit request
-                    </p>
-                </Dragger>
+                <MDEditor data-color-mode="light" />
             </Form.Item>
             <Divider />
             <Form.Item>

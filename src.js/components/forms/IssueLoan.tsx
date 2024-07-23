@@ -9,6 +9,7 @@ import {
     Space,
 } from "antd";
 import { CheckCircleFilled } from "@ant-design/icons";
+import Title from "antd/es/typography/Title";
 import { useIssueLoan, useOnSuccess } from "../context";
 import { FormLoanIssuance } from "../../types";
 import {
@@ -46,6 +47,7 @@ export const IssueLoan: React.FunctionComponent<IssueLoanProps> = (props) => {
             layout="horizontal"
             scrollToFirstError
         >
+            <Title>Issue loan</Title>
             <FormSuccess query={issue} />
             <FormError query={issue} />
             <Form.Item<FormLoanIssuance> label="Loan type" name="type" initialValue="EthEth">

@@ -10,9 +10,8 @@ import {
     RadioChangeEvent,
     Row,
     Select,
-    Spin,
 } from "antd";
-import { LoadingOutlined } from "@ant-design/icons";
+import Title from "antd/es/typography/Title";
 import { useLoans } from "../context";
 import { LoanList } from "../lists/LoanList";
 import { colProps, rowProps } from "../../utils";
@@ -53,6 +52,7 @@ export const LoanSearch: React.FunctionComponent<LoanSearchProps> = (props) => {
                 scrollToFirstError
                 form={form}
             >
+                <Title>Loan search</Title>
                 <Row {...rowProps}>
                     <Col {...colProps}>
                         <Form.Item<LoanSearchType>

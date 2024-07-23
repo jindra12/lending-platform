@@ -18,8 +18,8 @@
   },
   "dependencies": {
     "@typechain/ethers-v6": "^0.5.1",
+    "@uiw/react-md-editor": "^4.0.4",
     "antd": "^5.18.2",
-    "antd-prompt": "^0.7.1",
     "base64url": "^3.0.1",
     "encrypt-rsa": "^3.0.1",
     "error-polyfill": "^0.1.3",

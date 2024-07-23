@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Alert, Button, Col, Form, Input, Row, Spin } from "antd";
 import { CheckCircleFilled, LoadingOutlined } from "@ant-design/icons";
+import Title from "antd/es/typography/Title";
 import { useLoanFee, useSetLoanFee } from "../context";
 import { colProps, numberValidator, rowProps } from "../../utils";
 import { FormError } from "../utils/FormError";
@@ -34,6 +35,7 @@ export const ChangeLoanFee: React.FunctionComponent = () => {
             }}
             scrollToFirstError
         >
+            <Title>Change request lending limit fee</Title>
             <FormError query={setLoanFee} />
             <FormSuccess query={setLoanFee} />
             <Row {...rowProps}>

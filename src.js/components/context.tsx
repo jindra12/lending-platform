@@ -300,38 +300,37 @@ export const useIssueLoan = () => {
 
 export const useRequestLendingLimit = () => {
     const lendingPlatform = useLendingPlatform();
-    return useMutation(async (files: File[]) => {
+    return useMutation(async (markdown: string) => {
         const loanFee = await lendingPlatform.getLoanFee();
-        const encrypted = new Promise<string>((resolve) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const aesKey = crypto.randomBytes(32);
-                const aesKeyEncrypted = crypto
-                    .publicEncrypt(getConfig().publicKey, aesKey)
-                    .toString("base64");
-                const iv = crypto.randomBytes(12).toString("base64");
+        const aesKey = crypto.randomBytes(32);
+        const aesKeyEncrypted = crypto
+            .publicEncrypt(getConfig().publicKey, aesKey)
+            .toString("base64");
+        const iv = crypto.randomBytes(12).toString("base64");
 
-                // create a cipher object
-                const cipher = crypto.createCipheriv("aes-256-gcm", aesKey, iv);
+        // create a cipher object
+        const cipher = crypto.createCipheriv("aes-256-gcm", aesKey, iv);
 
-                // update the cipher object with the plaintext to encrypt
-                const ciphertext = `${cipher.update(
-                    base64url.toBuffer(reader.result as string),
-                    undefined,
-                    "base64"
-                )}${cipher.final("base64")}`;
+        // update the cipher object with the plaintext to encrypt
+        const ciphertext = `${cipher.update(
+            base64url.toBuffer(markdown),
+            undefined,
+            "base64"
+        )}${cipher.final("base64")}`;
 
-                // retrieve the authentication tag for the encryption
-                const tag = cipher.getAuthTag().toString("base64");
+        // retrieve the authentication tag for the encryption
+        const tag = cipher.getAuthTag().toString("base64");
 
-                resolve(JSON.stringify({ ciphertext, key: aesKeyEncrypted, iv, tag }));
-            };
-            reader.readAsDataURL(files[0]);
+        const encrypted = JSON.stringify({
+            ciphertext,
+            key: aesKeyEncrypted,
+            iv,
+            tag,
         });
 
         return lendingPlatform.setLoanLimitRequest(
             Uint8Array.from(
-                Array.from(await encrypted).map((letter) => letter.charCodeAt(0))
+                Array.from(encrypted).map((letter) => letter.charCodeAt(0))
             ),
             getPayable(loanFee)
         );
@@ -341,7 +340,10 @@ export const useRequestLendingLimit = () => {
 export const useLendingRequestFile = (borrower: string) => {
     const lendingPlatform = useLendingPlatform();
     return useMutation(async (privateKey: string): Promise<void> => {
-        const file = await lendingPlatform.getLoanLimitRequest(borrower);
+        const file = Buffer.from(
+            (await lendingPlatform.getLoanLimitRequest(borrower)).slice(2),
+            "hex"
+        ).toString("utf-8");
         const fileAsJson: {
             ciphertext: string;
             key: string;
@@ -368,7 +370,7 @@ export const useLendingRequestFile = (borrower: string) => {
             "utf8"
         )}${decipher.final("utf8")}`;
 
-        var blob = new Blob([plaintext], { type: "application/pdf" });
+        var blob = new Blob([plaintext], { type: "text/markdown" });
         const link = (
             <a
                 href={URL.createObjectURL(blob)}

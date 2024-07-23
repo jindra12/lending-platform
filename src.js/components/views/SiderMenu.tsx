@@ -6,6 +6,7 @@ import {
     ArrowUpOutlined,
     UserAddOutlined,
     ApiFilled,
+    DollarCircleFilled,
 } from "@ant-design/icons";
 import { JsonRpcSigner } from "ethers";
 import { Menu } from "antd";
@@ -39,6 +40,12 @@ export const SiderMenu: React.FunctionComponent<SiderMenuProps> = (props) => {
                             icon: <ApiFilled />,
                             disabled: !isOwner,
                             label: "View loan limit requests",
+                        },
+                        {
+                            key: "/fee",
+                            icon: <DollarCircleFilled />,
+                            disabled: !isOwner,
+                            label: "Set lending limit fee"
                         },
                         {
                             key: "/request",
