@@ -71,6 +71,11 @@ export const numberValidator: Rule = {
     message: "Input a whole number",
 };
 
+export const numberOrZeroValidator: Rule = {
+    pattern: /^(0|([1-9][0-9]*))$/,
+    message: "Input a whole number",
+};
+
 export const dayInSeconds = 24 * 60 * 60;
 
 export const translateLoanOffer = (
@@ -135,6 +140,14 @@ export const colProps: ColProps = {
     md: { flex: "50%" },
     lg: { flex: "50%" },
     xl: { flex: "50%" },
+};
+
+export const smallColProps: ColProps = {
+    xs: { flex: "100%" },
+    sm: { flex: "100%" },
+    md: { flex: "100px" },
+    lg: { flex: "100px" },
+    xl: { flex: "100px" },
 };
 
 export const rowProps: RowProps = {

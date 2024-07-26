@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CheckCircleFilled, DownloadOutlined } from "@ant-design/icons";
+import { CheckCircleFilled, DownloadOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import {
 	Button,
 	Card,
@@ -16,13 +16,15 @@ import {
 	useApproveLendingRequest,
 	useLendingRequestFile,
 	useOnSuccess,
+	useRejectLendingRequest,
 } from "../context";
 import { CoinDisplay } from "../utils/CoinDisplay";
 import {
 	addressValidator,
 	colProps,
-	numberValidator,
+	numberOrZeroValidator,
 	rowProps,
+	smallColProps,
 } from "../../utils";
 import { FormError } from "../utils/FormError";
 import { FormSuccess } from "../utils/FormSuccess";
@@ -31,13 +33,14 @@ import { Prompt } from "../utils/Prompt";
 export interface ApproveLendingRequestProps {
 	borrower: string;
 	uniqueId: number | bigint;
-	even: boolean;
+	onFinished: () => void;
 }
 
 export const ApproveLendingRequest: React.FunctionComponent<
 	ApproveLendingRequestProps
 > = (props) => {
 	const approve = useApproveLendingRequest(props.borrower, props.uniqueId);
+	const reject = useRejectLendingRequest(props.borrower, props.uniqueId);
 	const download = useLendingRequestFile(props.borrower);
 	const [form] = Form.useForm<ApproveLendingRequestType>();
 	const isEth: boolean = Form.useWatch("isEth", form);
@@ -59,7 +62,8 @@ export const ApproveLendingRequest: React.FunctionComponent<
 		[download]
 	);
 
-	useOnSuccess(form, approve);
+	useOnSuccess(form, approve, props.onFinished);
+	useOnSuccess(form, reject, props.onFinished);
 
 	return (
 		<Card
@@ -74,7 +78,9 @@ export const ApproveLendingRequest: React.FunctionComponent<
 				scrollToFirstError
 				layout="vertical"
 			>
+				<FormError query={reject} />
 				<FormError query={approve} />
+				<FormSuccess query={reject} />
 				<FormSuccess query={approve} />
 				<Row {...rowProps}>
 					<Col {...colProps}>
@@ -86,7 +92,7 @@ export const ApproveLendingRequest: React.FunctionComponent<
 									required: true,
 									message: "No loanable amount specified",
 								},
-								numberValidator,
+								numberOrZeroValidator,
 							]}
 						>
 							<Input />
@@ -121,38 +127,53 @@ export const ApproveLendingRequest: React.FunctionComponent<
 					)}
 				</Row>
 				<Divider />
+				<Row {...rowProps}>
+					<Col {...colProps}>
+						<Prompt
+							title="Bank RSA private key"
+							placeholder="Bank private key"
+							required="Enter your private key"
+							label="Bank private key"
+							submit="Submit"
+							onFilled={onDownload}
+						>
+							{(init) => (
+								<Button
+									type="primary"
+									icon={<DownloadOutlined />}
+									onClick={init}
+								>
+									Application
+								</Button>
+							)}
+						</Prompt>
+					</Col>
+				</Row>
+				<Divider />
 				<Form.Item>
 					<Row {...rowProps}>
-						<Col {...colProps}>
-							<Prompt
-								title="Bank RSA private key"
-								placeholder="Bank private key"
-								required="Enter your private key"
-								label="Bank private key"
-								submit="Submit"
-								onFilled={onDownload}
-							>
-								{(init) => (
-									<Button
-										type="primary"
-										icon={<DownloadOutlined />}
-										onClick={init}
-									>
-										Application
-									</Button>
-								)}
-							</Prompt>
-						</Col>
-					</Row>
-					<Row {...rowProps}>
-						<Col {...colProps}>
+						<Col {...smallColProps}>
 							<Button
 								type="primary"
 								htmlType="submit"
 								icon={<CheckCircleFilled />}
 								loading={approve.isLoading}
+								disabled={reject.isLoading}
 							>
 								Approve
+							</Button>
+						</Col>
+						<Col {...smallColProps}>
+							<Button
+								type="primary"
+								htmlType="button"
+								danger
+								onClick={() => reject.mutate({})}
+								icon={<CloseCircleOutlined />}
+								loading={reject.isLoading}
+								disabled={approve.isLoading}
+							>
+								Reject
 							</Button>
 						</Col>
 					</Row>

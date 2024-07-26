@@ -34,7 +34,7 @@ export const Default: React.FunctionComponent<
                 title="Default loan"
                 open={isModalOpen}
                 onOk={async () => {
-                    setDefault.mutate();
+                    setDefault.mutate({});
                 }}
                 okButtonProps={{ loading: setDefault.isLoading }}
                 onCancel={() => setModalOpen(false)}

@@ -21,7 +21,7 @@ export const Payment: React.FunctionComponent<
                 type="primary"
                 icon={<MoneyCollectFilled />}
                 loading={payment.isLoading}
-                onClick={() => payment.mutate()}
+                onClick={() => payment.mutate({})}
             >
                 Pay
             </Button>

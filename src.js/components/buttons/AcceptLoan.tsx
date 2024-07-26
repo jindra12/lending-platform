@@ -35,7 +35,7 @@ export const AcceptLoan: React.FunctionComponent<
                 title="Accept loan"
                 open={isModalOpen}
                 onOk={() => {
-                    acceptLoan.mutate();
+                    acceptLoan.mutate({});
                 }}
                 okButtonProps={{ loading: acceptLoan.isLoading }}
                 onCancel={() => setModalOpen(false)}

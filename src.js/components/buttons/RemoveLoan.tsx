@@ -35,7 +35,7 @@ export const RemoveLoan: React.FunctionComponent<
                 title="Remove loan"
                 open={isModalOpen}
                 onOk={() => {
-                    removeLoan.mutate();
+                    removeLoan.mutate({});
                 }}
                 okButtonProps={{ loading: removeLoan.isLoading }}
                 onCancel={() => setModalOpen(false)}

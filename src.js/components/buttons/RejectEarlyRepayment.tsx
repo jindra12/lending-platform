@@ -33,7 +33,7 @@ export const RejectEarlyRepayment: React.FunctionComponent<
                 title="Reject early repayment"
                 open={isModalOpen}
                 onOk={() => {
-                    rejectEarlyRepayment.mutate();
+                    rejectEarlyRepayment.mutate({});
                 }}
                 okButtonProps={{ loading: rejectEarlyRepayment.isLoading }}
                 onCancel={() => setModalOpen(false)}

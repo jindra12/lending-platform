@@ -2,26 +2,25 @@ import * as React from "react";
 import * as ReactDOM from "react-dom/client";
 import crypto from "crypto";
 import uniqueId from "lodash-es/uniqueId";
-import {
-    LoanAbi__factory,
-    IERC20MetadataAbi,
-    LendingPlatformAbi__factory,
-    IERC20MetadataAbi__factory,
-} from "../contracts";
-import { BrowserProvider, JsonRpcSigner, ethers } from "ethers";
+import { FormInstance } from "antd";
+import { BrowserProvider, ContractTransactionReceipt, ContractTransactionResponse, JsonRpcSigner, ethers } from "ethers";
 import { Throw } from "throw-expression";
-import { getConfig } from "../config";
 import {
     useQuery as useQueryInternal,
     useInfiniteQuery,
     useMutation,
     UseMutationResult,
 } from "react-query";
+import {
+    LoanAbi__factory,
+    IERC20MetadataAbi,
+    LendingPlatformAbi__factory,
+    IERC20MetadataAbi__factory,
+} from "../contracts";
+import { getConfig } from "../config";
 import { LoanIssuance } from "../types";
 import { LendingPlatFormStructs } from "../contracts/LendingPlatform.sol/LendingPlatformAbi";
 import { dayInSeconds, sanitizeOfferSearch, translateLoan } from "../utils";
-import { FormInstance } from "antd";
-import base64url from "base64url";
 
 const Context = React.createContext<{
     provider: React.MutableRefObject<BrowserProvider>;
@@ -34,7 +33,7 @@ const getPayable = (amount: number | bigint) => ({
 
 const getProvider = () =>
     new BrowserProvider(
-        (window as any).ethereum || Throw("Please install metamask")
+        (window as any).ethereum || Throw("Please install metamask"),
     );
 
 const useContext = () => React.useContext(Context)!;
@@ -119,10 +118,17 @@ const usePaginationQuery = <TResult extends any>(
     return query;
 };
 
-export const useOnSuccess = (form: FormInstance, query: UseMutationResult) => {
+export const useTransaction = <T extends any>(mutation: (params: T) => Promise<ContractTransactionResponse>) => {
+    return useMutation(async (params: T) => {
+        return (await mutation(params)).wait();
+    });
+};
+
+export const useOnSuccess = (form: FormInstance, query: UseMutationResult, callback?: () => void) => {
     React.useEffect(() => {
         if (query.status === "success") {
             form.resetFields();
+            callback?.();
         }
     }, [query.status]);
 };
@@ -246,7 +252,7 @@ export const useLoanOfferSearch = (
 export const useIssueLoan = () => {
     const lendingPlatform = useLendingPlatform();
     const getCoin = useGetERC20();
-    return useMutation(async (params: LoanIssuance) => {
+    return useTransaction(async (params: LoanIssuance) => {
         switch (params.type) {
             case "EthEth":
                 return lendingPlatform.offerLoanEthEth(
@@ -300,25 +306,22 @@ export const useIssueLoan = () => {
 
 export const useRequestLendingLimit = () => {
     const lendingPlatform = useLendingPlatform();
-    return useMutation(async (markdown: string) => {
+    return useTransaction(async (markdown: string) => {
         const loanFee = await lendingPlatform.getLoanFee();
         const aesKey = crypto.randomBytes(32);
         const aesKeyEncrypted = crypto
             .publicEncrypt(getConfig().publicKey, aesKey)
             .toString("base64");
-        const iv = crypto.randomBytes(12).toString("base64");
+        const iv = crypto.randomBytes(16).toString("base64");
 
-        // create a cipher object
         const cipher = crypto.createCipheriv("aes-256-gcm", aesKey, iv);
 
-        // update the cipher object with the plaintext to encrypt
         const ciphertext = `${cipher.update(
-            base64url.toBuffer(markdown),
-            undefined,
+            markdown,
+            "utf8",
             "base64"
         )}${cipher.final("base64")}`;
 
-        // retrieve the authentication tag for the encryption
         const tag = cipher.getAuthTag().toString("base64");
 
         const encrypted = JSON.stringify({
@@ -414,7 +417,7 @@ export const useApproveLendingRequest = (
     requestId: number | bigint
 ) => {
     const lendingPlatform = useLendingPlatform();
-    return useMutation((params: ApproveLendingRequestType) => {
+    return useTransaction((params: ApproveLendingRequestType) => {
         return params.coin
             ? lendingPlatform["setLoanLimit(address,uint256,address,uint256)"](
                 address,
@@ -430,6 +433,20 @@ export const useApproveLendingRequest = (
     });
 };
 
+export const useRejectLendingRequest = (
+    address: string,
+    requestId: number | bigint
+) => {
+    const lendingPlatform = useLendingPlatform();
+    return useTransaction(() => {
+        return lendingPlatform["setLoanLimit(address,uint256,uint256)"](
+            address,
+            0,
+            requestId
+        );
+    });
+};
+
 export const useIsOwner = (self: string) => {
     const lendingPlatform = useUnsignedLendingPlatform();
     return useQuery(async () => {
@@ -440,7 +457,7 @@ export const useIsOwner = (self: string) => {
 
 export const useSetLoanFee = () => {
     const lendingPlatform = useLendingPlatform();
-    return useMutation((amount: number) => {
+    return useTransaction((amount: number) => {
         return lendingPlatform.setLoanFee(amount);
     });
 };
@@ -482,7 +499,7 @@ export const useLoanDetail = (address: string) => {
 
 export const useRequestEarlyRepayment = (address: string) => {
     const loan = useLoan(address);
-    return useMutation(async (amount: number) => {
+    return useTransaction(async (amount: number) => {
         return (await loan.getIsEth())
             ? loan.requestEarlyRepaymentEth(getPayable(amount))
             : loan.requestEarlyRepaymentCoin(amount);
@@ -491,23 +508,23 @@ export const useRequestEarlyRepayment = (address: string) => {
 
 export const useApproveEarlyRepayment = (address: string) => {
     const loan = useLoan(address);
-    return useMutation(() => loan.acceptEarlyRepayment());
+    return useTransaction(() => loan.acceptEarlyRepayment());
 };
 
 export const useRejectEarlyRepayment = (address: string) => {
     const loan = useLoan(address);
-    return useMutation(() => loan.rejectEarlyRepayment());
+    return useTransaction(() => loan.rejectEarlyRepayment());
 };
 
 export const useDefault = (address: string) => {
     const loan = useLoan(address);
-    return useMutation(() => loan.defaultOnLoan());
+    return useTransaction(() => loan.defaultOnLoan());
 };
 
 export const usePayment = (address: string) => {
     const loan = useLoan(address);
     const getCoin = useGetERC20();
-    return useMutation(async () => {
+    return useTransaction(async () => {
         const isEth = await loan.getIsEth();
         const payment = await loan.getSinglePayment();
         if (isEth) {
@@ -545,7 +562,7 @@ export const useAcceptLoan = (
 ) => {
     const lendingPlatform = useLendingPlatform();
     const getCoin = useGetERC20();
-    return useMutation(async () => {
+    return useTransaction(async () => {
         if (offer.loanData.collateral.isCollateralEth) {
             const coin = await getCoin.mutateAsync(
                 offer.loanData.collateral.collateralCoin
@@ -566,5 +583,5 @@ export const useAcceptLoan = (
 
 export const useRemoveLoan = (loanId: number | bigint) => {
     const lendingPlatform = useLendingPlatform();
-    return useMutation(() => lendingPlatform.removeLoan(loanId));
+    return useTransaction(() => lendingPlatform.removeLoan(loanId));
 };

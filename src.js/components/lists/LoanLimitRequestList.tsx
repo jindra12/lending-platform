@@ -35,7 +35,10 @@ export const LoanLimitRequestList: React.FunctionComponent<
                                         <ApproveLendingRequest
                                             borrower={result.borrower}
                                             uniqueId={result.uniqueId}
-                                            even={((i * 20) + j) % 2 === 0}
+                                            onFinished={() => {
+                                                requests.remove();
+                                                requests.refetch();
+                                            }}
                                         />
                                         <Divider />
                                     </React.Fragment>
