@@ -1,16 +1,16 @@
 import * as React from "react";
 import { Form, FormInstance } from "antd";
 
-import { LendingPlatFormStructs } from "../../contracts/LendingPlatform.sol/LendingPlatformAbi";
 import { CoinDisplay } from "./CoinDisplay";
 
 export interface CoinHintProps {
     name: string | (string | number)[];
-    form: FormInstance<LendingPlatFormStructs.LoanOfferSearchStruct>;
+    form: FormInstance;
     balanceOf?: string;
+    defaultText?: string;
 }
 
 export const CoinHint: React.FunctionComponent<CoinHintProps> = (props) => {
     const address: string = Form.useWatch(props.name, props.form);
-    return address ? <CoinDisplay address={address} balanceOf={props.balanceOf} /> : undefined;
+    return address ? <CoinDisplay address={address} balanceOf={props.balanceOf} /> : <>{props.defaultText}</>;
 };

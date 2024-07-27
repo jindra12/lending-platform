@@ -7,6 +7,7 @@ import {
     UserAddOutlined,
     ApiFilled,
     DollarCircleFilled,
+    BankOutlined,
 } from "@ant-design/icons";
 import { JsonRpcSigner } from "ethers";
 import { Menu } from "antd";
@@ -39,7 +40,7 @@ export const SiderMenu: React.FunctionComponent<SiderMenuProps> = (props) => {
                             key: "/requests",
                             icon: <ApiFilled />,
                             disabled: !isOwner,
-                            label: "View loan limit requests",
+                            label: "Loan limit requests",
                         },
                         {
                             key: "/fee",
@@ -62,6 +63,12 @@ export const SiderMenu: React.FunctionComponent<SiderMenuProps> = (props) => {
                             icon: <MoneyCollectOutlined />,
                             label: "Issue loan",
                         },
+                        {
+                            key: "/approved",
+                            icon: <BankOutlined />,
+                            label: "Approved borrowers",
+                            disabled: !isOwner,
+                        }
                     ].filter((menuItem) => !menuItem.disabled)}
                     onSelect={({ key }) => {
                         navigate(key);

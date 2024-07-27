@@ -36,6 +36,33 @@ const getProvider = () =>
         (window as any).ethereum || Throw("Please install metamask"),
     );
 
+const download = (name: string, plaintext: string, type: "text/markdown" | "application/json") => {
+    var blob = new Blob([plaintext], { type });
+    const Link = () => {
+        const linkRef = React.useRef<HTMLAnchorElement>(null);
+        React.useLayoutEffect(() => {
+            linkRef.current?.click();
+            setTimeout(() => {
+                root.unmount();
+                document.body.removeChild(wrapper);
+            }, 20);
+        }, []);
+        return (
+            <a
+                href={URL.createObjectURL(blob)}
+                id="download"
+                download={name}
+                style={{ display: "none" }}
+                ref={linkRef}
+            />
+        );
+    };
+    const wrapper = document.createElement("div");
+    document.body.appendChild(wrapper);
+    const root = ReactDOM.createRoot(wrapper);
+    root.render(<Link />);
+};
+
 const useContext = () => React.useContext(Context)!;
 
 const useUnique = (key: string) => React.useMemo(() => uniqueId(key), []);
@@ -310,11 +337,11 @@ export const useRequestLendingLimit = () => {
         const loanFee = await lendingPlatform.getLoanFee();
         const aesKey = crypto.randomBytes(32);
         const aesKeyEncrypted = crypto
-            .publicEncrypt(getConfig().publicKey, aesKey)
-            .toString("base64");
-        const iv = crypto.randomBytes(16).toString("base64");
+            .publicEncrypt(getConfig().publicKey, aesKey);
 
-        const cipher = crypto.createCipheriv("aes-256-gcm", aesKey, iv);
+        const iv = crypto.randomBytes(16);
+
+        const cipher = crypto.createCipheriv("aes-256-cbc", aesKey, iv);
 
         const ciphertext = `${cipher.update(
             markdown,
@@ -322,13 +349,10 @@ export const useRequestLendingLimit = () => {
             "base64"
         )}${cipher.final("base64")}`;
 
-        const tag = cipher.getAuthTag().toString("base64");
-
         const encrypted = JSON.stringify({
             ciphertext,
-            key: aesKeyEncrypted,
-            iv,
-            tag,
+            key: aesKeyEncrypted.toString("base64"),
+            iv: iv.toString("base64"),
         });
 
         return lendingPlatform.setLoanLimitRequest(
@@ -351,7 +375,6 @@ export const useLendingRequestFile = (borrower: string) => {
             ciphertext: string;
             key: string;
             iv: string;
-            tag: string;
         } = JSON.parse(file);
 
         const decryptedKey = crypto.privateDecrypt(
@@ -360,12 +383,10 @@ export const useLendingRequestFile = (borrower: string) => {
         );
 
         const decipher = crypto.createDecipheriv(
-            "aes-256-gcm",
+            "aes-256-cbc",
             decryptedKey,
             Buffer.from(fileAsJson.iv, "base64")
         );
-
-        decipher.setAuthTag(Buffer.from(fileAsJson.tag, "base64"));
 
         const plaintext = `${decipher.update(
             fileAsJson.ciphertext,
@@ -373,22 +394,7 @@ export const useLendingRequestFile = (borrower: string) => {
             "utf8"
         )}${decipher.final("utf8")}`;
 
-        var blob = new Blob([plaintext], { type: "text/markdown" });
-        const link = (
-            <a
-                href={URL.createObjectURL(blob)}
-                id="download"
-                download={borrower}
-                style={{ display: "none" }}
-            />
-        );
-        const wrapper = document.createElement("div");
-        document.body.appendChild(wrapper);
-        const root = ReactDOM.createRoot(wrapper);
-        root.render(link);
-        document.getElementById("download")?.click();
-        root.unmount();
-        document.body.removeChild(wrapper);
+        download(borrower, plaintext, "text/markdown");
     });
 };
 
@@ -584,4 +590,14 @@ export const useAcceptLoan = (
 export const useRemoveLoan = (loanId: number | bigint) => {
     const lendingPlatform = useLendingPlatform();
     return useTransaction(() => lendingPlatform.removeLoan(loanId));
+};
+
+export const useLendingLimit = () => {
+    const lendingPlatform = useLendingPlatform();
+    return useMutation((values: { borrower: string, coin?: string }) => {
+        if (!values.coin) {
+            return lendingPlatform["getLoanLimit(address)"](values.borrower);
+        }
+        return lendingPlatform["getLoanLimit(address,address)"](values.borrower, values.coin);
+    });
 };

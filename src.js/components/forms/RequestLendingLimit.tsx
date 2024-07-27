@@ -49,7 +49,7 @@ export const RequestLendingLimit: React.FunctionComponent = () => {
                     icon={<CheckCircleFilled />}
                     loading={requestLendingLimit.isLoading}
                 >
-                    Approve
+                    Submit
                 </Button>
             </Form.Item>
         </Form>

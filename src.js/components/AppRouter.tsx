@@ -36,6 +36,11 @@ const ChangeLoanFee = React.lazy(async () => ({
         await import(/* webpackChunkName: "ChangeLoanFee" */ "./forms/ChangeLoanFee")
     ).ChangeLoanFee
 }));
+const LendingLimitSearch = React.lazy(async () => ({
+    default: (
+        await import(/* webpackChunkName: "LendingLimitSearch" */ "./forms/LendingLimitSearch")
+    ).LendingLimitSearch
+}));
 
 export const AppRouter: React.FunctionComponent = () => {
     const spin = <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />;
@@ -85,6 +90,10 @@ export const AppRouter: React.FunctionComponent = () => {
                                 <Route
                                     path="/offers"
                                     Component={() => suspense(<LoanOfferList self={account.address} />)}
+                                />
+                                <Route
+                                    path="/approved"
+                                    Component={() => suspense(<LendingLimitSearch self={account.address} />)}
                                 />
                                 <Route path="/issue-loan" Component={() => suspense(<IssueLoan self={account.address} />)} />
                             </Routes>
