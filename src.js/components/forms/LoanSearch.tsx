@@ -82,8 +82,8 @@ export const LoanSearch: React.FunctionComponent<LoanSearchProps> = (props) => {
                             <Select
                                 options={
                                     loans.data?.map((data) => ({
-                                        value: data[type],
-                                        label: data[type],
+                                        value: data[type === "borrower" ? "from" : "to"],
+                                        label: data[type === "borrower" ? "from" : "to"],
                                     })) || []
                                 }
                                 loading={loans.isFetching}

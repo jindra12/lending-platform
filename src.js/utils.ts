@@ -108,6 +108,7 @@ export const translateLoanOffer = (
 export const translateLoan = (
     loan: Loan.LoanDetailsStructOutput
 ): LoanDetails => {
+    const lastPayment = parseFloat(loan.lastPayment.toString()) * 1000;
     return {
         borrower: loan.borrower,
         coin: loan.coin,
@@ -122,7 +123,7 @@ export const translateLoan = (
         )} days`,
         isCollateralEth: loan.isCollateralEth,
         isEth: loan.isEth,
-        lastPayment: new Date(parseFloat(loan.lastPayment.toString())).toString(),
+        lastPayment: new Date(lastPayment).toDateString(),
         lender: loan.lender,
         paidEarly: loan.paidEarly,
         remaining: loan.remaining.toString(),

@@ -7,6 +7,7 @@ import { FormError } from "../utils/FormError";
 
 export interface DefaultProps {
     loan: string;
+    onFinished: () => void;
 }
 
 export const Default: React.FunctionComponent<
@@ -15,7 +16,10 @@ export const Default: React.FunctionComponent<
     const setDefault = useDefault(props.loan);
     const [isModalOpen, setModalOpen] = React.useState(false);
 
-    useOnFinish(setDefault, () => setModalOpen(false));
+    useOnFinish(setDefault, () => {
+        setModalOpen(false);
+        props.onFinished();
+    });
 
     return (
         <>

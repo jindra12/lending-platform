@@ -160,10 +160,10 @@ export const useOnSuccess = (form: FormInstance, query: UseMutationResult, callb
     }, [query.status]);
 };
 
-export const useOnFinish = (query: UseMutationResult, callback: () => void) => {
+export const useOnFinish = (query: UseMutationResult, callback: (status: "success" | "error") => void) => {
     React.useEffect(() => {
         if (query.status === "success" || query.status === "error") {
-            callback();
+            callback(query.status);
         }
     }, [query.status]);
 };
@@ -301,9 +301,9 @@ export const useIssueLoan = () => {
                     getPayable(params.amount)
                 );
             case "CoinEth":
-                await (
+                await (await (
                     await getCoin.mutateAsync(params.coin)
-                ).approve(getConfig().platformContract, params.amount);
+                ).approve(getConfig().platformContract, params.amount)).wait();
                 return lendingPlatform.offerLoanCoinEth(
                     params.amount,
                     params.toBePaid,
@@ -314,9 +314,9 @@ export const useIssueLoan = () => {
                     params.coin
                 );
             case "CoinCoin":
-                await (
+                await (await (
                     await getCoin.mutateAsync(params.coin)
-                ).approve(getConfig().platformContract, params.amount);
+                ).approve(getConfig().platformContract, params.amount)).wait();
                 return lendingPlatform.offerLoanCoinCoin(
                     params.amount,
                     params.toBePaid,
@@ -477,17 +477,10 @@ export const useLoans = (borrower?: string, lender?: string) => {
     const lendingPlatform = useLendingPlatform();
     return useQuery(
         async () => {
-            const acceptedLoans = await lendingPlatform.filters[
-                "AcceptedLoan(uint256,address,address,address)"
-            ](undefined, lender, borrower).getTopicFilter();
+            const acceptedLoans = await lendingPlatform.queryFilter(lendingPlatform.getEvent("AcceptedLoan")(undefined, lender, borrower));
 
             return acceptedLoans
-                .filter((topic) => Array.isArray(topic))
-                .map((topics: string[]) => ({
-                    address: topics[3],
-                    lender: topics[1],
-                    borrower: topics[2],
-                }));
+                .map((event) => event.args);
         },
         borrower,
         lender
@@ -537,7 +530,7 @@ export const usePayment = (address: string) => {
             return loan.doPayment(getPayable(payment));
         } else {
             const coin = await getCoin.mutateAsync(await loan.getCoin());
-            await coin.approve(address, payment);
+            await (await coin.approve(address, payment)).wait();
             return loan.doPayment();
         }
     });
@@ -569,14 +562,14 @@ export const useAcceptLoan = (
     const lendingPlatform = useLendingPlatform();
     const getCoin = useGetERC20();
     return useTransaction(async () => {
-        if (offer.loanData.collateral.isCollateralEth) {
+        if (!offer.loanData.collateral.isCollateralEth) {
             const coin = await getCoin.mutateAsync(
                 offer.loanData.collateral.collateralCoin
             );
-            await coin.approve(
+            await (await coin.approve(
                 getConfig().platformContract,
                 offer.loanData.collateral.value
-            );
+            )).wait();
             return lendingPlatform.acceptLoan(offer.id);
         } else {
             return lendingPlatform.acceptLoan(

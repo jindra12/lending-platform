@@ -8,6 +8,7 @@ import { FormError } from "../utils/FormError";
 
 export interface AcceptLoanProps {
     offer: LendingPlatFormStructs.LoanOfferStructOutput;
+    onFinish: () => void;
 }
 
 export const AcceptLoan: React.FunctionComponent<
@@ -16,7 +17,12 @@ export const AcceptLoan: React.FunctionComponent<
     const acceptLoan = useAcceptLoan(props.offer);
     const [isModalOpen, setModalOpen] = React.useState(false);
 
-    useOnFinish(acceptLoan, () => setModalOpen(false));
+    useOnFinish(acceptLoan, (status) => {
+        setModalOpen(false);
+        if (status === "success") {
+            props.onFinish();
+        }
+    });
 
     return (
         <>

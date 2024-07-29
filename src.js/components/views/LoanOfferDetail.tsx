@@ -9,6 +9,7 @@ import { RemoveLoan } from "../buttons/RemoveLoan";
 export interface LoanOfferDetailProps {
     offer: LendingPlatFormStructs.LoanOfferStructOutput;
     self: string;
+    onFinish: () => void;
 }
 
 export const LoanOfferDetail: React.FunctionComponent<LoanOfferDetailProps> = (props) => {
@@ -54,9 +55,9 @@ export const LoanOfferDetail: React.FunctionComponent<LoanOfferDetailProps> = (p
                 <Descriptions.Item label="actions">
                     <Space>
                         {props.self === offerObject.from ? (
-                            <RemoveLoan offer={props.offer} />
+                            <RemoveLoan onFinish={props.onFinish} offer={props.offer} />
                         ) : (
-                            <AcceptLoan offer={props.offer} />
+                            <AcceptLoan onFinish={props.onFinish} offer={props.offer} />
                         )}
                     </Space>
                 </Descriptions.Item>

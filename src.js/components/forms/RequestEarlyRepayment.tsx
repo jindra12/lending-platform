@@ -1,7 +1,7 @@
 import * as React from "react";
 import { BankOutlined, CheckCircleFilled } from "@ant-design/icons";
 import { Button, Divider, Form, Input, Modal } from "antd";
-import { useRequestEarlyRepayment } from "../context";
+import { useOnFinish, useRequestEarlyRepayment } from "../context";
 import { numberValidator } from "../../utils";
 import { FormError } from "../utils/FormError";
 import { FormSuccess } from "../utils/FormSuccess";
@@ -9,6 +9,7 @@ import { FormSuccess } from "../utils/FormSuccess";
 export interface RequestEarlyRepaymentProps {
     loan: string;
     currency: React.ReactNode;
+    onFinished: () => void;
 }
 
 type RequestEarlyRepaymentType = { amount: number };
@@ -21,6 +22,12 @@ export const RequestEarlyRepayment: React.FunctionComponent<RequestEarlyRepaymen
     React.useEffect(() => {
         setModalOpen(false);
     }, [requestEarlyRepayment.isSuccess]);
+
+    useOnFinish(requestEarlyRepayment, (status) => {
+        if (status === "success") {
+            props.onFinished();
+        }
+    });
     
     return (
         <>

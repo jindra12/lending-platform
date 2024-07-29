@@ -36,7 +36,11 @@ export const LoanList: React.FunctionComponent<LoanListProps> = (props) => {
                 {loans.data.slice((page - 1) * size, page * size).map((loan, i) => {
                     return (
                         <React.Fragment key={i}>
-                            <LoanDetail address={loan.address} self={props.self} />
+                            <LoanDetail address={loan.loan} self={props.self} onFinished={() => {
+                                loans.remove();
+                                loans.refetch();
+                                setPage(1);
+                            }} />
                             <Divider />
                         </React.Fragment>
                     );

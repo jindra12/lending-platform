@@ -7,6 +7,7 @@ import { FormError } from "../utils/FormError";
 
 export interface RejectEarlyRepaymentProps {
     loan: string;
+    onFinished: () => void;
 }
 
 export const RejectEarlyRepayment: React.FunctionComponent<
@@ -15,7 +16,12 @@ export const RejectEarlyRepayment: React.FunctionComponent<
     const rejectEarlyRepayment = useRejectEarlyRepayment(props.loan);
     const [isModalOpen, setModalOpen] = React.useState(false);
 
-    useOnFinish(rejectEarlyRepayment, () => setModalOpen(false));
+    useOnFinish(rejectEarlyRepayment, (status) => {
+        if (status === "success") {
+            setModalOpen(false);
+            props.onFinished();
+        }
+    });
 
     return (
         <>
