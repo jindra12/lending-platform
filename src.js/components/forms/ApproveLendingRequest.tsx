@@ -103,7 +103,7 @@ export const ApproveLendingRequest: React.FunctionComponent<
 					<Col {...colProps}>
 						<Form.Item<ApproveLendingRequestType>
 							name="isEth"
-							label="Eth limit"
+							label="Is application for Eth?"
 							valuePropName="checked"
 							initialValue
 						>

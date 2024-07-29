@@ -21,7 +21,7 @@ export const ChangeLoanFee: React.FunctionComponent = () => {
     }
 
     if (loanFee.isError) {
-        return <Alert message="Could not fetch loan detail" type="error" />;
+        return <Alert message="Application fee error" type="error" />;
     }
 
     return (
@@ -35,19 +35,19 @@ export const ChangeLoanFee: React.FunctionComponent = () => {
             }}
             scrollToFirstError
         >
-            <Title>Change request lending limit fee</Title>
+            <Title>Application fee form</Title>
             <FormError query={setLoanFee} />
             <FormSuccess query={setLoanFee} />
             <Row {...rowProps}>
                 <Col {...colProps}>
                     <Form.Item<LoanFeeType>
                         name="amount"
-                        label="Loan approval fee in wei"
+                        label="Application fee in Ether/wei"
                         initialValue={loanFee.data?.toString()}
                         rules={[
                             {
                                 required: true,
-                                message: "Set loan fee in wei",
+                                message: "Set application fee in wei",
                             },
                             numberValidator,
                         ]}
@@ -63,7 +63,7 @@ export const ChangeLoanFee: React.FunctionComponent = () => {
                             icon={<CheckCircleFilled />}
                             loading={setLoanFee.isLoading}
                         >
-                            Set fee for loan approval
+                            Set application fee
                         </Button>
                     </Form.Item>
                 </Col>

@@ -12,6 +12,7 @@ import {
 import Title from "antd/es/typography/Title";
 import { LoadingOutlined } from "@ant-design/icons";
 import { SearchOutlined } from "@ant-design/icons";
+import Paragraph from "antd/es/typography/Paragraph";
 import { addressValidator, colProps, rowProps } from "../../utils";
 import { CoinHint } from "../utils/CoinHint";
 import { useLendingLimit } from "../context";
@@ -52,7 +53,12 @@ export const LendingLimitSearch: React.FunctionComponent<
                         scrollToFirstError
                     >
                         <FormError query={limits} />
-                        <Title>Search limit approvals</Title>
+                        <Title>Approved Limit Lookup</Title>
+                        <Paragraph>
+                            Use this form to look up lending limits based on account address.
+                            You can view limits in specific currencies, including ERC20 tokens or ETH.
+                            If you leave the ERC20 coin address empty, the form will automatically display the ETH lending limit for the account.
+                        </Paragraph>
                         <Row {...rowProps}>
                             <Col {...colProps}>
                                 <Form.Item<LendingLimitType>

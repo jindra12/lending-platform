@@ -27,7 +27,7 @@ export const Layout: React.FunctionComponent<LayoutProps> = (props) => {
                 <AccountMenu setSelected={setAccount} selected={account} />
             </Header>
             <LibraryLayout>
-                <Sider breakpoint="lg" collapsedWidth="40px">
+                <Sider breakpoint="lg" width="220px" collapsedWidth="40px">
                     {account && <SiderMenu account={account} />}
                 </Sider>
                 <LibraryLayout>

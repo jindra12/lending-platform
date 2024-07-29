@@ -3,6 +3,7 @@ import { Button, Divider, Form } from "antd";
 import { CheckCircleFilled } from "@ant-design/icons";
 import Title from "antd/es/typography/Title";
 import MDEditor from "@uiw/react-md-editor";
+import Paragraph from "antd/es/typography/Paragraph";
 import { useOnSuccess, useRequestLendingLimit } from "../context";
 import { FormError } from "../utils/FormError";
 import { FormSuccess } from "../utils/FormSuccess";
@@ -27,17 +28,22 @@ export const RequestLendingLimit: React.FunctionComponent = () => {
             }}
             layout="vertical"
         >
-            <Title>Lending request form</Title>
+            <Title>Loan application</Title>
+            <Paragraph>
+                Submit your personal information here to apply for a loan.
+                Include your desired lending limit and a detailed list of your assets.
+                This helps us determine the best loan options for you.
+            </Paragraph>
             <FormError query={requestLendingLimit} />
             <FormSuccess query={requestLendingLimit} />
             <Form.Item<RequestLendingLimitType>
                 name="markdown"
                 rules={[
-                    { required: true, message: "Write your lending limit request" },
-                    { max: 5000, message: "Request cannot be longer than 5000 characters" },
+                    { required: true, message: "Write your loan application" },
+                    { max: 5000, message: "Application cannot be longer than 5000 characters" },
                 ]}
                 valuePropName="value"
-                label="Loan request details"
+                label="Loan application details"
             >
                 <MDEditor data-color-mode="light" />
             </Form.Item>

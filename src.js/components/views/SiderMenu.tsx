@@ -34,39 +34,39 @@ export const SiderMenu: React.FunctionComponent<SiderMenuProps> = (props) => {
                         {
                             key: "/",
                             icon: <UserAddOutlined />,
-                            label: "View loans",
+                            label: "Track your loans",
                         },
                         {
                             key: "/requests",
                             icon: <ApiFilled />,
                             disabled: !isOwner,
-                            label: "Loan limit requests",
+                            label: "Loan applications",
                         },
                         {
                             key: "/fee",
                             icon: <DollarCircleFilled />,
                             disabled: !isOwner,
-                            label: "Set lending limit fee"
+                            label: "Application fee form"
                         },
                         {
                             key: "/request",
                             icon: <ArrowUpOutlined />,
-                            label: "Request loan limit",
+                            label: "My loan application",
                         },
                         {
                             key: "/offers",
                             icon: <MoneyCollectFilled />,
-                            label: "Loan offers",
+                            label: "Available loans",
                         },
                         {
                             key: "/issue-loan",
                             icon: <MoneyCollectOutlined />,
-                            label: "Issue loan",
+                            label: "Offer loan",
                         },
                         {
                             key: "/approved",
                             icon: <BankOutlined />,
-                            label: "Approved borrowers",
+                            label: "Approved Limit Lookup",
                             disabled: !isOwner,
                         }
                     ].filter((menuItem) => !menuItem.disabled)}

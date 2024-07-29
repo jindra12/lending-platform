@@ -1,4 +1,5 @@
 import * as React from "react";
+import Paragraph from "antd/es/typography/Paragraph";
 import {
     Button,
     Col,
@@ -47,26 +48,31 @@ export const IssueLoan: React.FunctionComponent<IssueLoanProps> = (props) => {
             layout="horizontal"
             scrollToFirstError
         >
-            <Title>Issue loan</Title>
+            <Title>Offer loan</Title>
+            <Paragraph>
+                On the loan issuance form, you can lend any amount you choose and set up the interest rate by defining the total amount to be paid in full.
+                Specify the collateral required from the borrower and the payment amount due at each interval.
+                You can also set variable default times in days and payment intervals in days to customize the loan terms.
+            </Paragraph>
             <FormSuccess query={issue} />
             <FormError query={issue} />
-            <Form.Item<FormLoanIssuance> label="Loan type" name="type" initialValue="EthEth">
+            <Form.Item<FormLoanIssuance> label="Loan currency and collateral" name="type" initialValue="EthEth">
                 <Radio.Group
                     value={type}
                     onChange={(e) => form.setFieldValue("type", e.target.value)}
                 >
                     <Space direction="vertical">
                         <Radio value="EthEth">
-                            Ether/wei with Ether/wei collateral
+                            Loan in ETH, collateral in ETH
                         </Radio>
                         <Radio value="EthCoin">
-                            Ether/wei with ERC20 collateral
+                            Loan in ETH, collateral in ERC20
                         </Radio>
                         <Radio value="CoinEth">
-                            ERC20 with Ether/wei collateral
+                            Loan in ERC20, collateral in ETH
                         </Radio>
                         <Radio value="CoinCoin">
-                            ERC20 with ERC20 collateral
+                            Loan in ERC20, collateral in ERC20
                         </Radio>
                     </Space>
                 </Radio.Group>

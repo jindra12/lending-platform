@@ -19,13 +19,13 @@ export const LoanLimitRequestList: React.FunctionComponent<
         <OwnerGuard self={props.self} showError>
             {() => (
                 <>
-                    <Title>Approve lending request form</Title>
+                    <Title>Loan applications</Title>
                     <div>
                         {requests.data?.pages.length === 1 &&
                             requests.data.pages[0].length === 0 && (
                                 <Alert
                                     type="info"
-                                    message="No requests for increasing loan limit found"
+                                    message="No loan applications found"
                                 />
                             )}
                         {requests.data?.pages.map((page, i) => (

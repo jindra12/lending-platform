@@ -11,6 +11,7 @@ import {
     Space,
 } from "antd";
 import Title from "antd/es/typography/Title";
+import Paragraph from "antd/es/typography/Paragraph";
 import {
     MinusCircleOutlined,
     PlusOutlined,
@@ -42,22 +43,31 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
             form={form}
             scrollToFirstError
         >
-            <Title>Search loan offers</Title>
-            <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
-                name="from"
-                label="Lender wallet"
-                rules={[addressValidator]}
-            >
-                <Input />
-            </Form.Item>
+            <Title>Search available loans</Title>
+            <Paragraph>
+                Use this form to search for loans you can take out. Select from various
+                ERC20 coins or ETH for the loan, and specify the type of collateral,
+                repayment amounts, minimum and maximum loan values, and payment
+                intervals. You can also filter by different lenders and default terms to
+                find the loan that best fits your needs.
+            </Paragraph>
+            <Row {...rowProps}>
+                <Col {...colProps}>
+                    <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
+                        name="from"
+                        label="Lender wallet"
+                        rules={[addressValidator]}
+                    >
+                        <Input />
+                    </Form.Item>
+                </Col>
+            </Row>
             <Row {...rowProps}>
                 <Col {...colProps}>
                     <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
                         name={["amount", "min"]}
                         label="Minimum lent amount"
-                        rules={[
-                            numberValidator,
-                        ]}
+                        rules={[numberValidator]}
                     >
                         <Input />
                     </Form.Item>
@@ -66,9 +76,7 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
                     <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
                         name={["amount", "max"]}
                         label="Maximum lent amount"
-                        rules={[
-                            numberValidator,
-                        ]}
+                        rules={[numberValidator]}
                     >
                         <Input />
                     </Form.Item>
@@ -107,7 +115,13 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
                                             {...restField}
                                             name={name}
                                             label="ER20 address"
-                                            extra={<CoinHint form={form} name={["coins", name]} balanceOf={props.self} />}
+                                            extra={
+                                                <CoinHint
+                                                    form={form}
+                                                    name={["coins", name]}
+                                                    balanceOf={props.self}
+                                                />
+                                            }
                                             rules={[
                                                 { required: true, message: "Missing coin address" },
                                                 addressValidator,
@@ -177,9 +191,7 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
                     <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
                         name={["toBePaid", "min"]}
                         label="Minimum to be paid in total"
-                        rules={[
-                            numberValidator,
-                        ]}
+                        rules={[numberValidator]}
                     >
                         <Input />
                     </Form.Item>
@@ -188,9 +200,7 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
                     <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
                         name={["toBePaid", "max"]}
                         label="Maximum to be paid in total"
-                        rules={[
-                            numberValidator,
-                        ]}
+                        rules={[numberValidator]}
                     >
                         <Input />
                     </Form.Item>
@@ -201,9 +211,7 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
                     <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
                         name={["singlePayment", "min"]}
                         label="Minimum single payment"
-                        rules={[
-                            numberValidator,
-                        ]}
+                        rules={[numberValidator]}
                     >
                         <Input />
                     </Form.Item>
@@ -213,9 +221,7 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
                     <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
                         name={["singlePayment", "max"]}
                         label="Maximum single payment"
-                        rules={[
-                            numberValidator,
-                        ]}
+                        rules={[numberValidator]}
                     >
                         <Input />
                     </Form.Item>
@@ -226,9 +232,7 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
                     <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
                         name={["collateral", "min"]}
                         label="Minimum loan collateral"
-                        rules={[
-                            numberValidator,
-                        ]}
+                        rules={[numberValidator]}
                     >
                         <Input />
                     </Form.Item>
@@ -238,84 +242,57 @@ export const LoanOfferSearch: React.FunctionComponent<LoanSearchProps> = (
                     <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
                         name={["collateral", "max"]}
                         label="Maximum loan collateral"
-                        rules={[
-                            numberValidator,
-                        ]}
+                        rules={[numberValidator]}
                     >
                         <Input />
                     </Form.Item>
                 </Col>
             </Row>
-            <Collapse
-                collapsible="header"
-                items={[
-                    {
-                        key: "Details",
-                        label: "Details",
-                        children: (
-                            <>
-                                <Row {...rowProps}>
-                                    <Col {...colProps}>
-                                        <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
-                                            name={["interval", "min"]}
-                                            label="Minimum payment interval (in days)"
-                                            rules={[
-                                                numberValidator,
-                                            ]}
-                                        >
-                                            <Input />
-                                        </Form.Item>
-                                    </Col>
+            <Row {...rowProps}>
+                <Col {...colProps}>
+                    <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
+                        name={["interval", "min"]}
+                        label="Minimum payment interval (in days)"
+                        rules={[numberValidator]}
+                    >
+                        <Input />
+                    </Form.Item>
+                </Col>
 
-                                    <Col {...colProps}>
-                                        <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
-                                            name={["interval", "max"]}
-                                            label="Maximum payment interval (in days)"
-                                            rules={[
-                                                numberValidator,
-                                            ]}
-                                        >
-                                            <Input />
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                                <Row {...rowProps}>
-                                    <Col {...colProps}>
-                                        <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
-                                            name={["defaultLimit", "min"]}
-                                            label="Minimum default time until default after last payment (in days)"
-                                            rules={[
-                                                numberValidator,
-                                            ]}
-                                        >
-                                            <Input />
-                                        </Form.Item>
-                                    </Col>
+                <Col {...colProps}>
+                    <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
+                        name={["interval", "max"]}
+                        label="Maximum payment interval (in days)"
+                        rules={[numberValidator]}
+                    >
+                        <Input />
+                    </Form.Item>
+                </Col>
+            </Row>
+            <Row {...rowProps}>
+                <Col {...colProps}>
+                    <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
+                        name={["defaultLimit", "min"]}
+                        label="Minimum default time until default after last payment (in days)"
+                        rules={[numberValidator]}
+                    >
+                        <Input />
+                    </Form.Item>
+                </Col>
 
-                                    <Col {...colProps}>
-                                        <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
-                                            name={["defaultLimit", "max"]}
-                                            label="Maximum default time until default after last payment (in days)"
-                                            rules={[
-                                                numberValidator,
-                                            ]}
-                                        >
-                                            <Input />
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                            </>
-                        ),
-                    },
-                ]}
-            />
+                <Col {...colProps}>
+                    <Form.Item<LendingPlatFormStructs.LoanOfferSearchStruct>
+                        name={["defaultLimit", "max"]}
+                        label="Maximum default time until default after last payment (in days)"
+                        rules={[numberValidator]}
+                    >
+                        <Input />
+                    </Form.Item>
+                </Col>
+            </Row>
             <Divider />
             <Form.Item>
-                <Button
-                    type="primary"
-                    htmlType="submit"
-                    icon={<SearchOutlined />}
-                >
+                <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
                     Search
                 </Button>
             </Form.Item>

@@ -12,6 +12,7 @@ import {
     Select,
 } from "antd";
 import Title from "antd/es/typography/Title";
+import Paragraph from "antd/es/typography/Paragraph";
 import { useLoans } from "../context";
 import { LoanList } from "../lists/LoanList";
 import { colProps, rowProps } from "../../utils";
@@ -52,11 +53,16 @@ export const LoanSearch: React.FunctionComponent<LoanSearchProps> = (props) => {
                 scrollToFirstError
                 form={form}
             >
-                <Title>Loan search</Title>
+                <Title>Track your loans</Title>
+                <Paragraph>
+                    Welcome to our decentralized lending platform!
+                    Here, you can easily track your borrowed and lent amounts, view transaction history, and manage your loans—all in one place.
+                    Enjoy seamless access to your financial data with complete privacy and security.
+                </Paragraph>
                 <Row {...rowProps}>
                     <Col {...colProps}>
                         <Form.Item<LoanSearchType>
-                            label="Subject type"
+                            label="Search by lender or borrower"
                             name="type"
                             layout="vertical"
                             initialValue="borrower"

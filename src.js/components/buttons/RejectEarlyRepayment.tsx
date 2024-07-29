@@ -45,7 +45,7 @@ export const RejectEarlyRepayment: React.FunctionComponent<
                 onCancel={() => setModalOpen(false)}
                 onClose={() => setModalOpen(false)}
             >
-                Are you sure you want to reject early repayment and keep loan goin?
+                Are you sure you want to reject early repayment?
             </Modal>
         </>
     );
