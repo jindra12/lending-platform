@@ -13,6 +13,7 @@
     "anvil": "anvil --steps-tracing --config-out anvil.json --balance 10000000000",
     "configure": "node configure.js -k 1",
     "configure:prod": "node configure.prod.js",
+    "deploy:zip": "node deploy.js",
     "testcoins": "node configure.testcoin.js",
     "compile": "cd ../src; forge build --force --extra-output-files abi; cd ../src.js; yarn typechain --target=ethers-v6 --out-dir=./contracts ../src/out/**/{IERC20Metadata,LendingPlatform,Loan}.abi.json",
     "test": "cd ../src; forge test -vvvvv > test.log"
@@ -28,6 +29,7 @@
     "process": "^0.11.10",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-error-boundary": "^4.0.13",
     "react-query": "^3.39.3",
     "react-router-dom": "^6.23.1",
     "react-visibility-sensor": "^5.1.1",
@@ -42,6 +44,7 @@
     "css-loader": "^7.1.2",
     "glob": "^10.4.2",
     "handlebars": "^4.7.8",
+    "jszip": "^3.10.1",
     "mini-css-extract-plugin": "^2.9.0",
     "node-polyfill-webpack-plugin": "^4.0.0",
     "postcss-loader": "^8.1.1",

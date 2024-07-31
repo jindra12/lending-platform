@@ -22,6 +22,8 @@ import { LoanIssuance } from "../types";
 import { LendingPlatFormStructs } from "../contracts/LendingPlatform.sol/LendingPlatformAbi";
 import { dayInSeconds, sanitizeOfferSearch, translateLoan } from "../utils";
 
+export class WalletError extends Error {}
+
 const Context = React.createContext<{
     provider: React.MutableRefObject<BrowserProvider>;
     signer: React.MutableRefObject<JsonRpcSigner>;
@@ -33,7 +35,7 @@ const getPayable = (amount: number | bigint) => ({
 
 const getProvider = () =>
     new BrowserProvider(
-        (window as any).ethereum || Throw("Please install metamask"),
+        (window as any).ethereum || Throw(new WalletError("Please install metamask")),
     );
 
 const download = (name: string, plaintext: string, type: "text/markdown" | "application/json") => {
@@ -180,7 +182,7 @@ export const useBalance = (address: string) => {
 
 export const useSigner = () => {
     const { signer } = useContext();
-    return signer.current || Throw("No signer has been defined");
+    return signer.current || Throw(new WalletError("No signer has been defined"));
 };
 
 export const useSetSigner = (self: string) => {
