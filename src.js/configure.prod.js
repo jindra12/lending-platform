@@ -42,6 +42,6 @@ const result = program.parse();
     const templated = handlebars.compile(fs.readFileSync("./public/index.hbs", "utf-8"));
     const html = templated({ ...anvilData, bankAddress: unpacked.deployedTo, publicKey: publicKey.replace(/\n/gmui, ""), keyIndex: result.args[0] });
     fs.writeFileSync("./dist/index.html", html);
-    fs.writeFileSync("./dist/privatekey.txt", privateKey.replace(/\n/gmui, ""));
+    fs.writeFileSync("./privatekey.dist.txt", privateKey.replace(/\n/gmui, ""));
     process.exit();
 })();
